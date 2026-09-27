@@ -5,7 +5,7 @@ name: Deploy to PeekHosting (test)
 
 on:
   push:
-    branches: [main]
+    branches: [master]
   workflow_dispatch:
 
 concurrency:
@@ -43,15 +43,26 @@ jobs:
           # touching this file makes Passenger restart the app
           date > deploy/tmp/restart.txt
 
-      - name: Upload via FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          protocol: ftps
-          local-dir: ./deploy/
-          server-dir: ./
-          exclude: |
-            **/.git*
-            **/.git*/**
+      # lftp instead of FTP-Deploy-Action: that action's FTPS data connections fail on
+      # some cPanel FTP servers ("tlsv1 alert decode error") during big uploads.
+      - name: Install lftp
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq lftp
+
+      - name: Upload via FTPS (lftp)
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        run: |
+          lftp -e "
+            set ftp:ssl-force true;
+            set ftp:ssl-protect-data true;
+            set ssl:verify-certificate no;
+            set ftp:passive-mode true;
+            set net:max-retries 5;
+            set net:reconnect-interval-base 5;
+            set net:timeout 30;
+            mirror --reverse --parallel=6 --no-perms --exclude-glob .git* --exclude ^tmp/ ./deploy/ ./;
+            mirror --reverse --no-perms ./deploy/tmp/ ./tmp/;
+            bye
+          " -u "$FTP_USERNAME,$FTP_PASSWORD" "$FTP_SERVER"
