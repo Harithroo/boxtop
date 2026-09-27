@@ -1,0 +1,69 @@
+@import "tailwindcss";
+
+/* Boxtop Ribbon design tokens (from the Ribbon design system) */
+@theme {
+  --color-page: #F7F6FB;
+  --color-surface: #FFFFFF;
+  --color-surface-alt: #EFEBF8;
+  --color-line: #DDD7EC;
+  --color-ink: #1C1433;
+  --color-ink-muted: #5E5775;
+  --color-brand: #3C2894;
+  --color-brand-deep: #281A6B;
+  --color-brand-soft: #E6E0F7;
+  --color-on-brand: #FFFFFF;
+  --color-accent: #C40D86;
+  --color-accent-soft: #FCE4F2;
+  --color-accent-text: #A80A72;
+  --color-success: #1E7A4C;
+  --color-danger: #B42318;
+
+  --font-display: "Kanit", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Karla", "Segoe UI", system-ui, sans-serif;
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+
+  --shadow-card: 0 1px 2px rgba(40,26,107,0.06), 0 8px 22px rgba(40,26,107,0.08);
+  --shadow-raised: 0 18px 40px rgba(40,26,107,0.18);
+}
+
+html { -webkit-text-size-adjust: 100%; }
+body {
+  background: var(--color-page);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 25px;
+}
+
+:focus-visible { outline: 2px solid var(--color-brand); outline-offset: 2px; }
+
+@utility btn { @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-md px-6 font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-50; }
+
+@layer components {
+  .container-bt { @apply mx-auto w-full max-w-6xl px-4; }
+  .eyebrow { @apply text-xs font-bold uppercase tracking-[0.12em] text-accent-text; }
+  .h1 { font-family: var(--font-display); @apply text-[30px] leading-[35px] font-semibold; }
+  .h2 { font-family: var(--font-display); @apply text-[22px] leading-7 font-semibold; }
+  .price { font-family: var(--font-display); @apply text-lg font-medium; }
+  .wordmark { font-family: var(--font-display); @apply text-[22px] leading-6 font-semibold tracking-[0.06em]; }
+
+  .btn-primary { @apply btn bg-brand text-on-brand hover:bg-brand-deep; }
+  .btn-accent { @apply btn bg-accent text-white hover:bg-accent-text; }
+  .btn-outline { @apply btn border border-line bg-surface text-ink hover:border-brand hover:text-brand; }
+  .btn-sm { @apply min-h-9 px-3 text-sm; }
+
+  .card { @apply rounded-lg bg-surface shadow-[var(--shadow-card)]; }
+  .input { @apply block w-full min-h-11 rounded-md border border-line bg-surface px-3 py-2 text-base text-ink placeholder:text-ink-muted/70 focus:border-brand focus:outline-none; }
+  .label { @apply mb-1 block text-sm font-bold; }
+  .hint { @apply text-[13.5px] leading-5 text-ink-muted; }
+  .chip { @apply inline-flex min-h-9 items-center rounded-full border border-line bg-surface px-4 text-sm font-medium hover:border-brand; }
+  .chip-on { @apply border-brand bg-brand text-on-brand; }
+  .badge { @apply inline-flex items-center rounded-full bg-accent px-2.5 py-0.5 text-xs font-bold text-white; }
+
+  /* the frame motif from the logo */
+  .ribbon-frame { @apply relative overflow-hidden rounded-lg bg-brand text-on-brand; }
+  .ribbon-frame::after { content: ""; position: absolute; inset: 10px; border: 2px solid var(--color-accent); border-radius: 10px; pointer-events: none; }
+}

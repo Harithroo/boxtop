@@ -1,0 +1,4 @@
+import { CmsPage, getPage } from "@/components/CmsPage";
+export const dynamic = "force-dynamic";
+export async function generateMetadata() { const p = await getPage("about"); return { title: p?.title ?? "About" }; }
+export default function Page() { return <CmsPage slug="about" />; }
