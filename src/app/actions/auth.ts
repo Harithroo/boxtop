@@ -10,6 +10,21 @@ import { verifyTotp } from "@/lib/totp";
 export type LoginState = { error?: string; needCode?: boolean };
 
 export async function login(_: LoginState, fd: FormData): Promise<LoginState> {
+  if ((process.env.SESSION_SECRET ?? "").length < 32) {
+    console.error("[login] SESSION_SECRET is missing or shorter than 32 characters");
+    return { error: "The server isn't fully set up yet: SESSION_SECRET is missing. Add it in the hosting settings and restart the app." };
+  }
+  try {
+    return await loginInner(fd);
+  } catch (e) {
+    // redirect() throws on purpose after a successful sign-in; let it through
+    if (e && typeof e === "object" && "digest" in e && String((e as { digest: unknown }).digest).startsWith("NEXT_REDIRECT")) throw e;
+    console.error("[login] failed:", e);
+    return { error: "Sign-in failed on the server. The reason is in the app's error log (stderr.log)." };
+  }
+}
+
+async function loginInner(fd: FormData): Promise<LoginState> {
   const email = String(fd.get("email") ?? "").trim().toLowerCase();
   const password = String(fd.get("password") ?? "");
   const code = String(fd.get("code") ?? "").replace(/\s/g, "");
