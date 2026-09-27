@@ -14,9 +14,8 @@ export default async function StoreLayout({ children }: { children: React.ReactN
       <header className="sticky top-0 z-30 border-b border-line bg-surface/95 backdrop-blur">
         <div className="container-bt flex h-16 items-center gap-3">
           <Link href="/" className="flex items-center gap-2" aria-label="Boxtop home">
-            <span className="grid h-9 w-9 place-items-center rounded-md bg-brand text-on-brand ring-2 ring-inset ring-accent">
-              <span className="wordmark text-[11px] tracking-normal">BT</span>
-            </span>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/brand/logo-192.png" alt="" width={40} height={40} className="h-10 w-10 rounded-md" />
             <span className="wordmark text-brand">BOXTOP</span>
           </Link>
           <nav className="ml-6 hidden gap-5 text-sm font-bold md:flex">
@@ -58,8 +57,8 @@ export default async function StoreLayout({ children }: { children: React.ReactN
       <footer className="mt-16 bg-brand-deep text-on-brand">
         <div className="container-bt grid gap-8 py-10 sm:grid-cols-3">
           <div>
-            <p className="wordmark">BOXTOP</p>
-            <p className="mt-1 text-xs font-bold uppercase tracking-[0.12em] opacity-80">taste for gift</p>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/brand/logo.webp" alt="Boxtop, taste for gift" width={120} height={120} className="h-28 w-28 rounded-lg" />
             <p className="mt-3 text-sm opacity-90">{s.store.address}<br />{s.store.hours}</p>
           </div>
           <div className="text-sm">

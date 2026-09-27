@@ -1,0 +1,57 @@
+# .github/workflows/deploy.yml
+# Builds the Boxtop Next.js app (standalone output) and uploads it to
+# /home/harithroo/boxtop on PeekHosting via FTP, then restarts Passenger.
+name: Deploy to PeekHosting (test)
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-test
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22        # match the version picked in cPanel
+          cache: npm
+
+      - run: npm ci
+
+      - name: Build
+        run: npm run build
+        env:
+          # Build-time public vars go here (add as repo secrets), e.g.:
+          NEXT_PUBLIC_SITE_URL: https://boxtop.harithroowijayawardhana.com
+
+      - name: Assemble deploy folder
+        run: |
+          mkdir -p deploy/app deploy/tmp
+          # standalone server + its trimmed node_modules
+          cp -r .next/standalone/. deploy/app/
+          # static assets and public files are not included in standalone
+          mkdir -p deploy/app/.next
+          cp -r .next/static deploy/app/.next/static
+          [ -d public ] && cp -r public deploy/app/public || true
+          # touching this file makes Passenger restart the app
+          date > deploy/tmp/restart.txt
+
+      - name: Upload via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps
+          local-dir: ./deploy/
+          server-dir: ./
+          exclude: |
+            **/.git*
+            **/.git*/**

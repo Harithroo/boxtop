@@ -17,7 +17,7 @@ export default async function PackingSlip({ params }: { params: Promise<{ id: st
     <div className="mx-auto max-w-[148mm] bg-white p-6 text-ink print:p-0">
       <script dangerouslySetInnerHTML={{ __html: "window.addEventListener('load',()=>setTimeout(()=>window.print(),300))" }} />
       <div className="flex items-start justify-between border-b-2 border-ink pb-3">
-        <div><p className="wordmark">BOXTOP</p><p className="text-xs">taste for gift</p></div>
+        <div className="flex items-center gap-2">{/* eslint-disable-next-line @next/next/no-img-element */}<img src="/brand/logo-192.png" alt="" className="h-14 w-14 rounded" /><div><p className="wordmark">BOXTOP</p><p className="text-xs">taste for gift</p></div></div>
         <div className="text-right"><p className="text-xl font-bold">{o.number}</p>{o.delivery && <p>{prettyDate(o.delivery.date)} · {o.delivery.slot?.label}</p>}</div>
       </div>
       <div className="mt-4">

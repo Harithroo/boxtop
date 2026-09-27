@@ -10,7 +10,7 @@ export default function Login() {
   return (
     <div className="grid min-h-screen place-items-center bg-page px-4">
       <form action={action} className="card w-full max-w-sm space-y-4 p-6">
-        <div className="text-center"><p className="wordmark text-brand">BOXTOP</p><p className="hint">Back office</p></div>
+        <div className="text-center">{/* eslint-disable-next-line @next/next/no-img-element */}<img src="/brand/logo-192.png" alt="Boxtop" className="mx-auto h-24 w-24 rounded-lg" /><p className="hint mt-2">Back office</p></div>
         <div className={s.needCode ? "hidden" : ""}>
           <label className="label" htmlFor="email">Email</label>
           <input id="email" name="email" type="email" className="input" required autoComplete="username" value={email} onChange={(e) => setEmail(e.target.value)} />

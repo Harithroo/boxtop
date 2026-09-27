@@ -105,7 +105,7 @@ async function sendEmail(s: Settings, to: string, subject: string, body: string)
   const e = s.notifications.email;
   if (!e.host) throw new Error("SMTP is not set up");
   const t = nodemailer.createTransport({ host: e.host, port: e.port, secure: e.port === 465, auth: { user: e.user, pass: e.pass } });
-  const html = `<div style="font-family:Arial,sans-serif;font-size:15px;line-height:1.5;color:#1C1433"><p style="font-size:20px;font-weight:700;color:#3C2894;letter-spacing:.06em">BOXTOP</p><p>${body
+  const html = `<div style="font-family:Arial,sans-serif;font-size:15px;line-height:1.5;color:#1C1433"><p><img src="${process.env.NEXT_PUBLIC_SITE_URL ?? "https://box-top.lk"}/brand/logo-192.png" alt="Boxtop" width="72" height="72" style="border-radius:8px"></p><p>${body
     .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/(https?:\/\/\S+)/g, '<a href="$1" style="color:#3C2894">$1</a>')}</p><p style="color:#5E5775;font-size:13px">taste for gift · box-top.lk</p></div>`;
   await t.sendMail({ from: e.from, to, subject, text: body, html });
 }
