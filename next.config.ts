@@ -8,6 +8,10 @@ const nextConfig: NextConfig = {
   serverExternalPackages: ["sharp", "mysql2"],
   experimental: { serverActions: { bodySizeLimit: "10mb" } },
   poweredByHeader: false,
+  // test sites (NEXT_PUBLIC_NOINDEX=1 at build time) tell search engines to stay away
+  async headers() {
+    return process.env.NEXT_PUBLIC_NOINDEX === "1" ? [{ source: "/:path*", headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }] }] : [];
+  },
 };
 
 export default nextConfig;

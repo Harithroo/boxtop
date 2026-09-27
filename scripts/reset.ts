@@ -1,6 +1,9 @@
 // DEVELOPMENT ONLY: drops every table in the database, then runs the migrations.
 //   npm run db:reset
 import "dotenv/config";
+
+// Show where we're connecting (never the password)
+{ const u = new URL(process.env.DATABASE_URL ?? "mysql://missing"); console.log(`Database: ${decodeURIComponent(u.username)} @ ${u.hostname}:${u.port || 3306}/${u.pathname.slice(1)}`); }
 import readline from "node:readline/promises";
 import mysql from "mysql2/promise";
 import { execSync } from "node:child_process";

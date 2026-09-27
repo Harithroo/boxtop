@@ -1,6 +1,9 @@
 // Seeds the owner account and starter data. Safe to re-run: skips anything that already exists.
 //   npm run db:seed
 import "dotenv/config";
+
+// Show where we're connecting (never the password)
+{ const u = new URL(process.env.DATABASE_URL ?? "mysql://missing"); console.log(`Database: ${decodeURIComponent(u.username)} @ ${u.hostname}:${u.port || 3306}/${u.pathname.slice(1)}`); }
 import bcrypt from "bcryptjs";
 import { eq } from "drizzle-orm";
 import { db, schema } from "../src/db";

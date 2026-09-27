@@ -1,6 +1,9 @@
 // Applies the SQL migrations in /drizzle (works on MySQL and MariaDB; no schema introspection).
 //   npm run db:migrate
 import "dotenv/config";
+
+// Show where we're connecting (never the password)
+{ const u = new URL(process.env.DATABASE_URL ?? "mysql://missing"); console.log(`Database: ${decodeURIComponent(u.username)} @ ${u.hostname}:${u.port || 3306}/${u.pathname.slice(1)}`); }
 import mysql from "mysql2/promise";
 import { drizzle } from "drizzle-orm/mysql2";
 import { migrate } from "drizzle-orm/mysql2/migrator";

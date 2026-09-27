@@ -30,6 +30,8 @@ jobs:
         env:
           # Build-time public vars go here (add as repo secrets), e.g.:
           NEXT_PUBLIC_SITE_URL: https://boxtop.harithroowijayawardhana.com
+          # test site: keep it out of search engines (leave this out for box-top.lk)
+          NEXT_PUBLIC_NOINDEX: "1"
 
       - name: Assemble deploy folder
         run: |

@@ -7,6 +7,7 @@ export const metadata: Metadata = {
   description: "Gift boxes for birthdays, anniversaries and every occasion, packed in Piliyandala and delivered across Colombo and Sri Lanka. Taste for gift.",
   manifest: "/manifest.webmanifest",
   openGraph: { siteName: "Boxtop", images: ["/brand/logo-512.png"] },
+  ...(process.env.NEXT_PUBLIC_NOINDEX === "1" ? { robots: { index: false, follow: false, googleBot: { index: false, follow: false } } } : {}),
 };
 
 export const viewport: Viewport = { themeColor: "#3C2894", width: "device-width", initialScale: 1 };
