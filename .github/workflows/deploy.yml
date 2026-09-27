@@ -54,15 +54,28 @@ jobs:
           FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
           FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
         run: |
-          lftp -e "
-            set ftp:ssl-force true;
-            set ftp:ssl-protect-data true;
-            set ssl:verify-certificate no;
-            set ftp:passive-mode true;
-            set net:max-retries 5;
-            set net:reconnect-interval-base 5;
-            set net:timeout 30;
-            mirror --reverse --parallel=6 --no-perms --exclude-glob .git* --exclude ^tmp/ ./deploy/ ./;
-            mirror --reverse --no-perms ./deploy/tmp/ ./tmp/;
-            bye
-          " -u "$FTP_USERNAME,$FTP_PASSWORD" "$FTP_SERVER"
+          # accept "host", "ftp://host", "ftps://host" or "host:21" in the secret
+          HOST=$(printf '%s' "$FTP_SERVER" | sed -E 's#^[a-z]+://##; s#/.*$##; s#:[0-9]+$##')
+          cat > lftp.cmds <<EOF
+          set cmd:fail-exit true
+          set ftp:ssl-allow true
+          set ftp:ssl-force true
+          set ftp:ssl-protect-data true
+          set ftp:ssl-protect-list true
+          set ssl:verify-certificate no
+          set ssl:check-hostname no
+          set ftp:passive-mode true
+          set net:max-retries 5
+          set net:reconnect-interval-base 5
+          set net:timeout 30
+          open -p 21 $HOST
+          user "$FTP_USERNAME" "$FTP_PASSWORD"
+          pwd
+          ls
+          mirror --reverse --parallel=6 --no-perms --exclude-glob .git* --exclude ^tmp/ ./deploy/ ./
+          mirror --reverse --no-perms ./deploy/tmp/ ./tmp/
+          bye
+          EOF
+          # -d prints the FTP conversation (the password is masked) so a failure shows its reason
+          lftp -d -f lftp.cmds 2>&1 | grep -v -i "^<--- 150\|^<--- 226\|^---> STOR\|^---> TYPE\|^---> PASV\|^<--- 227" | tail -n 200
+          test "${PIPESTATUS[0]}" -eq 0
