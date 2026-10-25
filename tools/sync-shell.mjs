@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Injects shared partials into every page listed in tools/shell-map.json.
-// Also validates catalogue.json, fills <!-- gen: NAME --> regions, and writes assets/js/catalogue-data.js + site-config.js.
+// Also validates catalogue.json, fills <!-- gen: NAME --> regions, and writes html/assets/js/catalogue-data.js + site-config.js.
 // Usage: node tools/sync-shell.mjs [--check]
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { createHash } from 'node:crypto';
@@ -12,6 +12,7 @@ import { dataErrors, generatedFiles, fillGen } from './shell-data.mjs';
 
 const TOOLS = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(TOOLS, '..');
+const SITE = path.join(ROOT, 'html'); // the published site root: pages and html/assets live inside it
 const check = process.argv.includes('--check');
 
 const readJson = (f) => JSON.parse(readFileSync(path.join(TOOLS, f), 'utf8'));
@@ -55,7 +56,8 @@ function build(pagePath, variantName) {
 
   let html = lf(readFileSync(abs, 'utf8'));
   const syncRoot = html.match(/<!-- sync-root: (\S+) -->/)?.[1];
-  const root = syncRoot ?? ((path.relative(path.dirname(abs), ROOT).split(path.sep).join('/') || '.') + '/');
+  // {{root}} = relative path back to html/ ("./" for html/index.html, "../" one level down, ...), or the sync-root override
+  const root = syncRoot ?? ((path.relative(path.dirname(abs), SITE).split(path.sep).join('/') || '.') + '/');
   const noindex = seo.staging === true || entry.noindex === true || variantName === 'none';
   const vars = { root, title: esc(entry.title ?? ''), description: esc(entry.description ?? ''), robots: noindex ? 'noindex,nofollow' : 'index,follow' };
 
@@ -76,7 +78,7 @@ function build(pagePath, variantName) {
   html = html.replace(/(href|src)="([^"#]+?\.(?:css|js))(?:\?v=[0-9a-f]+)?"/g, (m, attr, url) => {
     if (/^(?:[a-z]+:)?\/\//i.test(url) || url.startsWith('data:')) return m;
     let target;
-    if (syncRoot && url.startsWith(syncRoot)) target = path.join(ROOT, url.slice(syncRoot.length));
+    if (syncRoot && url.startsWith(syncRoot)) target = path.join(SITE, url.slice(syncRoot.length));
     else if (url.startsWith('/')) return m;
     else target = path.resolve(path.dirname(abs), url);
     const h = fileHash(target);

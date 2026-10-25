@@ -1,6 +1,6 @@
 /* Base: reset, element defaults, type scale, focus ring, reduced motion.
-   Type scale follows the design system's Type section:
-   display 800 / h2 700 / h3 600 / lead 500 / body 400 / UI label 600 / caption 500. */
+   Type scale follows the design system's Type section: every heading (h1-h6) is SemiBold 600,
+   hierarchy comes from size and spacing; lead 500 / body 400 / UI label 600 / caption 500. */
 *,*::before,*::after{box-sizing:border-box;}
 @media (prefers-reduced-motion: reduce){
   :root{--dur-fast:0ms; --dur-base:0ms; --dur-slow:0ms;}
@@ -15,8 +15,8 @@ button,input,select,textarea{font:inherit; color:inherit;}
 a{color:var(--primary-deep);}
 
 h1,h2,h3,h4,h5,h6{font-family:var(--font-display); margin:0 0 var(--space-3); line-height:1.15;}
-h1{font-size:var(--text-display); font-weight:800; line-height:1.05;}
-h2{font-size:var(--text-3xl); font-weight:700;}
+h1{font-size:var(--text-display); font-weight:600; line-height:1.05;}
+h2{font-size:var(--text-3xl); font-weight:600;}
 h3{font-size:var(--text-2xl); font-weight:600;}
 h4{font-size:var(--text-lg); font-weight:600;}
 h5{font-size:var(--text-base); font-weight:600;}

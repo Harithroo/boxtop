@@ -4,7 +4,7 @@ What each static page needs from the real backend (Next.js App Router, server ac
 
 ## Catalogue and config (static stand-ins)
 
-`tools/catalogue.json` and `tools/site-config.json` are static JSON standing in for real API / DB calls. `sync-shell` publishes them to `assets/js/catalogue-data.js` (`window.BOXTOP_CATALOGUE`) and `assets/js/site-config.js` (`window.BOXTOP_CONFIG`). At conversion these become server-side reads of the boxes, occasions, recipients, add-ons and settings tables (`getSettings()`), rendered by React Server Components. All values are placeholders; see `docs/content/site-config-todos.md`.
+`tools/catalogue.json` and `tools/site-config.json` are static JSON standing in for real API / DB calls. `sync-shell` publishes them to `html/assets/js/catalogue-data.js` (`window.BOXTOP_CATALOGUE`) and `html/assets/js/site-config.js` (`window.BOXTOP_CONFIG`). At conversion these become server-side reads of the boxes, occasions, recipients, add-ons and settings tables (`getSettings()`), rendered by React Server Components. All values are placeholders; see `docs/content/site-config-todos.md`.
 
 ## Pages
 

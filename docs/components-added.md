@@ -1,6 +1,6 @@
 # Components added
 
-Every component class defined in `assets/css/components.css`. Names and values come from `design/boxtop-final-design-system.html` unless marked **(shell)**, which are new for the site shell.
+Every component class defined in `html/assets/css/components.css`. Names and values come from `design/boxtop-final-design-system.html` unless marked **(shell)**, which are new for the site shell.
 
 | Class | Defined in | Purpose |
 |---|---|---|
@@ -27,11 +27,13 @@ Every component class defined in `assets/css/components.css`. Names and values c
 | `.tab-bar` **(shell)** | components.css | Bottom tab bar (Shop, Search, Hamper, Account), below 900px only; the active item gets `aria-current` from `app.js` |
 | `.site-footer`, `.site-footer__cols`, `.site-footer__legal` **(shell)** | components.css | Footer shell |
 
+Heading weights: every heading (h1-h6, including the footer column headings) is SemiBold 600; hierarchy comes from size and spacing.
+
 Other shared classes outside `components.css`: `.sprite`, `.visually-hidden` (base.css); `.wrap`, `.section`, `.cta-row` (layout.css).
 
 Design-system documentation-only classes (swatches, type rows, `.block`, motion columns, etc.) were not extracted.
 
-## app.js behaviours (assets/js/app.js)
+## app.js behaviours (html/assets/js/app.js)
 
 - **Current page:** `document.body.dataset.page` and `[data-nav]` are both space-separated token lists. Any `[data-nav]` link sharing a token gets `aria-current="page"`, which covers the header nav, drawer and tab bar. `data-nav="shop box"` lets the Shop links light up on hamper detail pages.
 - **Drawer:** the `[data-nav-toggle]` button opens `#nav-drawer`. Focus moves to the close button; Tab and Shift+Tab are trapped inside; ESC, the close button and a click on the dim overlay all close it, and focus returns to the trigger. Body scroll is locked while open (`body.nav-open`). Resizing to 900px or wider closes it. Links that point at `#` close it too.
@@ -44,7 +46,7 @@ Design-system documentation-only classes (swatches, type rows, `.block`, motion 
 
 ## Home page additions (Prompt 4)
 
-Extended from the nearest existing pattern unless noted. All in `assets/css/components.css`.
+Extended from the nearest existing pattern unless noted. All in `html/assets/css/components.css`.
 
 | Class | Purpose |
 |---|---|
@@ -65,8 +67,16 @@ Extended from the nearest existing pattern unless noted. All in `assets/css/comp
 
 New gen regions in `tools/shell-data.mjs`: `hamper-featured` (featured and in stock) and `occasion-cards` (from `catalogue.occasions`, using each occasion's optional `icon`, validated against the sprite).
 
-## Display formatters (assets/js/format.js)
+## Display formatters (html/assets/js/format.js)
 
 - `money(n)` -> `"LKR 5,800"` (unchanged).
 - `prettyTime("HH:MM")` -> `"2:00 PM"`: 24-hour string to 12-hour with AM/PM (`"00:30"` -> `"12:30 AM"`, `"12:00"` -> `"12:00 PM"`). Returns `""` for anything that isn't a valid time. Display only; `site-config.json` keeps `"14:00"`.
 - Used through `data-cfg-format="time"` (and `"money"`) on any `[data-cfg]` element. `app.js` maps format names to functions in its `FORMATS` object; documented in CLAUDE.md.
+
+## Path convention (do not regress)
+
+`html/` is the whole published site. GitHub Pages serves its contents as the site root (`https://harithroo.github.io/boxtop/` is `html/index.html`), so `assets/` lives at `html/assets/`, never at the repo root.
+- `{{root}}` is the relative path back to `html/`: `./` for `html/index.html`, `../` for `html/box/sample-hamper.html` or `html/account/reminders.html`. `html/404.html` overrides it with `<!-- sync-root: /boxtop/ -->`.
+- In partials write `{{root}}assets/css/tokens.css` and `{{root}}shop.html`, with no `html/` segment.
+- Tools resolve the site from `path.join(ROOT, 'html')` (`SITE`) in `sync-shell.mjs` and `check-links.mjs`; generated data files are written to `html/assets/js/`.
+- Deployment: `.github/workflows/nextjs.yml` ("Preview site (GitHub Pages)") uploads `path: html` on every push to `boxtop-frontend`.

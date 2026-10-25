@@ -9,6 +9,7 @@ import { fileURLToPath } from 'node:url';
 
 const TOOLS = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(TOOLS, '..');
+const SITE = path.join(ROOT, 'html'); // published site root; a sync-root prefix maps here
 const pages = Object.keys(JSON.parse(readFileSync(path.join(TOOLS, 'shell-map.json'), 'utf8')).pages ?? {});
 const errors = [], warnings = [];
 let checked = 0;
@@ -36,7 +37,7 @@ for (const page of pages) {
       const file = beforeHash.split('?')[0];
       let target;
       if (!file) target = abs;
-      else if (syncRoot && file.startsWith(syncRoot)) target = path.join(ROOT, file.slice(syncRoot.length));
+      else if (syncRoot && file.startsWith(syncRoot)) target = path.join(SITE, file.slice(syncRoot.length));
       else if (file.startsWith('/')) { errors.push(`${page}: root-absolute ${attr}="${raw}"`); continue; }
       else target = path.resolve(path.dirname(abs), file);
       if (!existsSync(target) || statSync(target).isDirectory()) { errors.push(`${page}: ${attr}="${raw}" points at a missing file`); continue; }
