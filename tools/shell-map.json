@@ -1,5 +1,36 @@
 {
   "pages": {
-    "html/index.html": "full"
+    "html/index.html": "full",
+    "html/shop.html": "full",
+    "html/box/sample-hamper.html": "full",
+    "html/occasion/sample-occasion.html": "full",
+    "html/for/sample-recipient.html": "full",
+    "html/search.html": "full",
+    "html/build.html": "full",
+    "html/gift-finder.html": "full",
+    "html/cart.html": "full",
+    "html/checkout.html": "checkout",
+    "html/order/sample-order.html": "full",
+    "html/track.html": "full",
+    "html/account.html": "full",
+    "html/account/reminders.html": "full",
+    "html/vouchers.html": "full",
+    "html/vouchers/sample-token.html": "full",
+    "html/corporate.html": "full",
+    "html/corporate/bulk.html": "full",
+    "html/quote/sample-token.html": "full",
+    "html/bulk/sample-ref.html": "full",
+    "html/custom.html": "full",
+    "html/review/sample-token.html": "full",
+    "html/makers.html": "full",
+    "html/delivery.html": "full",
+    "html/faq.html": "full",
+    "html/contact.html": "full",
+    "html/about.html": "full",
+    "html/terms.html": "full",
+    "html/privacy.html": "full",
+    "html/refunds.html": "full",
+    "html/delivery-policy.html": "full",
+    "html/404.html": "error"
   }
 }

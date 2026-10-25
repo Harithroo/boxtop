@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- partial: head -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Voucher — skeleton | BoxTop</title>
+<meta name="description" content="Skeleton page for the /vouchers/[token] route in the BoxTop static prototype. It carries the shared shell only; real content arrives in a later prompt.">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#F5EFE3">
+<link rel="icon" href="../../assets/images/logo.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500&display=swap">
+<!-- /partial: head -->
+<!-- partial: styles -->
+<link rel="stylesheet" href="../../assets/css/tokens.css?v=937688fc">
+<link rel="stylesheet" href="../../assets/css/base.css?v=4449c51a">
+<link rel="stylesheet" href="../../assets/css/components.css?v=8885a9ef">
+<link rel="stylesheet" href="../../assets/css/layout.css?v=84ada3ed">
+<!-- /partial: styles -->
+</head>
+<body data-page="voucher">
+<!-- partial: sprite -->
+<svg class="sprite" aria-hidden="true" focusable="false">
+  <symbol id="i-cart" viewBox="0 0 24 24"><path d="M3 4h2l2.4 12.2a2 2 0 0 0 2 1.6h7.2a2 2 0 0 0 2-1.6L20 8H6.2"/><circle cx="9.5" cy="20.5" r="1.5" fill="currentColor" stroke="none"/><circle cx="17" cy="20.5" r="1.5" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20.25c-.3 0-.6-.1-.8-.3C7 16.5 3.5 13 3.5 9A4.5 4.5 0 0 1 12 6.5 4.5 4.5 0 0 1 20.5 9c0 4-3.5 7.5-7.7 11-.2.2-.5.3-.8.3z"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><line x1="20" y1="20" x2="15.3" y2="15.3"/></symbol>
+  <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4V5z"/></symbol>
+  <symbol id="i-chevron-down" viewBox="0 0 24 24"><polyline points="5,9 12,16 19,9"/></symbol>
+  <symbol id="i-chevron-right" viewBox="0 0 24 24"><polyline points="9,5 16,12 9,19"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><polyline points="4,13 9,18 20,6"/></symbol>
+  <symbol id="i-star" viewBox="0 0 24 24"><polygon points="12,3 14.7,9.2 21.5,9.9 16.4,14.4 17.9,21 12,17.5 6.1,21 7.6,14.4 2.5,9.9 9.3,9.2"/></symbol>
+  <symbol id="i-truck" viewBox="0 0 24 24"><rect x="2" y="7" width="12" height="9"/><path d="M14 10h4l3 3v3h-7z"/><circle cx="7" cy="19" r="1.8" fill="currentColor" stroke="none"/><circle cx="17.5" cy="19" r="1.8" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-gift" viewBox="0 0 24 24"><rect x="3" y="9" width="18" height="12"/><line x1="3" y1="13.5" x2="21" y2="13.5"/><line x1="12" y1="9" x2="12" y2="21"/><path d="M12 9C9 9 8 6.5 9.5 5 11 3.5 12 6 12 9zM12 9c3 0 4-2.5 2.5-4-1.5-1.5-2.5 1-2.5 4z"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 20c1.5-4 5-5.5 7.5-5.5s6 1.5 7.5 5.5"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.4"/></symbol>
+</svg>
+<!-- /partial: sprite -->
+<!-- partial: header -->
+<a class="skip-link" href="#main">Skip to main content</a>
+<header class="site-header">
+  <div class="wrap site-header__inner">
+    <button class="icon-btn nav-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="nav-drawer" data-nav-toggle>
+      <svg class="icon" aria-hidden="true"><use href="#i-menu"/></svg>
+    </button>
+    <a class="wordmark" href="../../html/index.html" aria-label="BoxTop home">BoxTop</a>
+    <!-- TODO: confirm with client — primary nav labels and targets below are placeholders; pages don't exist yet -->
+    <nav class="primary-nav" aria-label="Primary">
+      <ul>
+        <li><a href="#" data-nav="shop">Shop</a></li>
+        <li><a href="#" data-nav="occasion">Occasions</a></li>
+        <li><a href="#" data-nav="for">Gifts for</a></li>
+        <li><a href="#" data-nav="corporate">Corporate</a></li>
+        <li><a href="#" data-nav="about">About</a></li>
+      </ul>
+    </nav>
+    <div class="header-actions">
+      <a class="icon-btn" href="#" aria-label="Search" data-nav="search"><svg class="icon" aria-hidden="true"><use href="#i-search"/></svg></a>
+      <a class="icon-btn" href="#" aria-label="Account" data-nav="account"><svg class="icon" aria-hidden="true"><use href="#i-user"/></svg></a>
+      <a class="icon-btn" href="#" aria-label="Hamper, 0 items" data-nav="cart">
+        <svg class="icon" aria-hidden="true"><use href="#i-cart"/></svg>
+        <span class="cart-count" data-cart-count>0</span>
+      </a>
+    </div>
+  </div>
+</header>
+<!-- /partial: header -->
+<main id="main">
+  <h1 class="wrap">Voucher — skeleton</h1>
+</main>
+<!-- partial: footer -->
+<footer class="site-footer">
+  <div class="wrap">
+    <!-- TODO: confirm with client — column headings and links are placeholders -->
+    <div class="site-footer__cols">
+      <div>
+        <h2>Shop</h2>
+        <ul>
+          <li><a href="#">All hampers</a></li>
+          <li><a href="#">Occasions</a></li>
+          <li><a href="#">Corporate gifting</a></li>
+        </ul>
+      </div>
+      <div>
+        <h2>Help</h2>
+        <ul>
+          <li><a href="#">Track order</a></li>
+          <li><a href="#">Delivery</a></li>
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </div>
+      <div>
+        <h2>BoxTop</h2>
+        <ul>
+          <li><a href="#">About</a></li>
+          <li><a href="#">Privacy</a></li>
+          <li><a href="#">Terms</a></li>
+        </ul>
+      </div>
+    </div>
+    <p class="site-footer__legal">&copy; BoxTop</p>
+  </div>
+</footer>
+<!-- /partial: footer -->
+<!-- partial: scripts -->
+<script src="../../assets/js/catalogue-data.js" defer></script>
+<script src="../../assets/js/site-config.js" defer></script>
+<script src="../../assets/js/search-core.js" defer></script>
+<script src="../../assets/js/search-suggest.js" defer></script>
+<script src="../../assets/js/proto-search.js" defer></script>
+<script src="../../assets/js/app.js" defer></script>
+<!-- /partial: scripts -->
+</body>
+</html>

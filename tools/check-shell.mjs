@@ -31,7 +31,7 @@ for (const [pagePath, variantName] of Object.entries(pages)) {
 
 const htmlDir = path.join(ROOT, 'html');
 if (existsSync(htmlDir)) {
-  for (const f of readdirSync(htmlDir).filter((f) => f.endsWith('.html'))) {
+  for (const f of readdirSync(htmlDir, { recursive: true }).map((f) => f.split(path.sep).join('/')).filter((f) => f.endsWith('.html'))) {
     if (!(`html/${f}` in pages)) problems.push(`html/${f}: on disk but not listed in shell-map.json`);
   }
 }

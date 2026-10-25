@@ -19,6 +19,7 @@ Every component class defined in `assets/css/components.css`. Names and values c
 | `.pv-grid` | components.css | Product card grid: 2 columns, 4 from 900px |
 | `.pv-card` (+ `--flat`, `--list`, `--oos`) | components.css | Hamper product card and its states |
 | `.pv-thumb` (+ `--sm`), `.pv-badge` (+ `--oos`), `.pv-info` (+ `--list`), `.pv-name`, `.pv-row`, `.pv-price` | components.css | Card parts |
+| `.pv-quickadd` | components.css | Quick-add pill centred on the standard card (dark ink, cream text). With a mouse (`(hover: hover) and (pointer: fine)`) it is hidden and scaled to .85, then fades and scales in on card hover or keyboard focus (`:focus-within`). On touch it is always visible, full opacity, no animation |
 | `.skip-link` **(shell)** | components.css | Skip to main content link |
 | `.site-header`, `.site-header__inner`, `.wordmark`, `.primary-nav`, `.header-actions`, `.nav-toggle` **(shell)** | components.css | Header: wordmark, nav (from 900px), actions, hamburger trigger (below 900px) |
 | `.icon-btn`, `.cart-count` **(shell)** | components.css | 44px icon button, cart badge |

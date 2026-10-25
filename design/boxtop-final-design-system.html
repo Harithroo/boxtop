@@ -142,6 +142,12 @@ input[type=text]:focus,input[type=email]:focus,select:focus,textarea:focus{borde
 .pv-card--list{display:flex; align-items:center; gap:12px; padding:10px; grid-column:span 2;}
 .pv-info--list{flex:1; display:flex; justify-content:space-between; align-items:center; padding:0;}
 .pv-card--oos{opacity:.6;}
+.pv-quickadd{position:absolute; z-index:3; left:50%; top:50%; transform:translate(-50%,-50%); background:var(--ink); color:var(--bg); font-family:var(--font-body); font-weight:600; font-size:var(--text-xs); text-align:center; padding:0 20px; min-height:var(--tap); display:inline-flex; align-items:center; justify-content:center; border:none; border-radius:var(--radius-pill); cursor:pointer; white-space:nowrap;}
+@media (hover:hover) and (pointer:fine){
+  .pv-quickadd{opacity:0; transform:translate(-50%,-50%) scale(.85); transition:opacity var(--dur-base) var(--ease), transform var(--dur-base) var(--ease);}
+  .pv-card:hover .pv-quickadd,
+  .pv-card:focus-within .pv-quickadd{opacity:1; transform:translate(-50%,-50%) scale(1);}
+}
 
 /* motion */
 .motion-cols{display:grid; grid-template-columns:1fr 1fr; gap:20px;}
@@ -387,12 +393,13 @@ footer.page p{max-width:64ch;}
 
   <section id="cards">
     <h2>Cards</h2>
-    <p class="intro">Hamper product card, four states: standard, flat (no hover lift, for dense grids), compact list-row, sold out.</p>
+    <p class="intro">Hamper product card, four states: standard, flat (no hover lift, for dense grids), compact list-row, sold out. The standard card also carries a quick-add interaction — see below.</p>
     <div class="block">
       <div class="pv-grid">
         <div class="pv-card">
           <span class="pv-badge">Bestseller</span>
           <div class="pv-thumb"><svg width="34" height="34" style="stroke:var(--ink-soft);fill:none;stroke-width:1.6;"><use href="#i-gift"/></svg></div>
+          <button type="button" class="pv-quickadd">+ Quick add</button>
           <div class="pv-info">
             <p class="pv-name">Meet the Makers Artisan Box</p>
             <div class="pv-row"><span class="pv-price">LKR 5,800</span></div>
@@ -422,6 +429,7 @@ footer.page p{max-width:64ch;}
           </div>
         </div>
       </div>
+      <p style="color:var(--ink-soft); font-size:var(--text-sm); margin:16px 0 0;">Quick add is the Blush Petal direction's centre-bloom interaction, carried over and recoloured for Kraft &amp; Ribbon (dark ink pill, cream text, instead of Blush Petal's own ink/bg pair): on a mouse it fades and scales in from the middle of the thumbnail on hover <em>or keyboard focus</em>. On touch, where there's no hover to trigger it, the button is simply always visible, full-opacity, no animation — never hover-only with no equivalent, per the Motion rules below.</p>
     </div>
   </section>
 
@@ -454,7 +462,7 @@ footer.page p{max-width:64ch;}
 
 <footer class="page">
   <div class="wrap">
-    <p>Locked from the Kraft &amp; Ribbon direction in boxtop-design-system.html, retyped in Montserrat per the client's request, with ink-soft and accent-badge text corrected for AA contrast. This file is the single source of truth for tokens going into html/assets/css/tokens.css — nothing here is final artwork, especially the icons; both get refined as real pages are built.</p>
+    <p>Locked from the Kraft &amp; Ribbon direction in boxtop-design-system.html, retyped in Montserrat per the client's request, with ink-soft and accent-badge text corrected for AA contrast, and the Blush Petal direction's centre-bloom quick-add carried onto the standard product card. This file is the single source of truth for tokens going into html/assets/css/tokens.css — nothing here is final artwork, especially the icons; both get refined as real pages are built.</p>
   </div>
 </footer>
 

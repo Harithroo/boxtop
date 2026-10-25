@@ -65,6 +65,12 @@ input[type=text]:focus,input[type=email]:focus,select:focus,textarea:focus{borde
 .pv-card--list{display:flex; align-items:center; gap:12px; padding:10px; grid-column:span 2;}
 .pv-info--list{flex:1; display:flex; justify-content:space-between; align-items:center; padding:0;}
 .pv-card--oos{opacity:.6;}
+.pv-quickadd{position:absolute; z-index:3; left:50%; top:50%; transform:translate(-50%,-50%); background:var(--ink); color:var(--bg); font-family:var(--font-body); font-weight:600; font-size:var(--text-xs); text-align:center; padding:0 20px; min-height:var(--tap); display:inline-flex; align-items:center; justify-content:center; border:none; border-radius:var(--radius-pill); cursor:pointer; white-space:nowrap;}
+@media (hover:hover) and (pointer:fine){
+  .pv-quickadd{opacity:0; transform:translate(-50%,-50%) scale(.85); transition:opacity var(--dur-base) var(--ease), transform var(--dur-base) var(--ease);}
+  .pv-card:hover .pv-quickadd,
+  .pv-card:focus-within .pv-quickadd{opacity:1; transform:translate(-50%,-50%) scale(1);}
+}
 
 /* site shell: skip link, header, footer */
 .skip-link{position:absolute; left:var(--space-4); top:-100px; z-index:100; background:var(--primary-deep); color:#fff; padding:var(--space-3) var(--space-4); border-radius:var(--radius-sm); text-decoration:none; font-weight:600;}

@@ -4,6 +4,130 @@
     "html/index.html": {
       "title": "BoxTop | Foundation proof page",
       "description": "Foundation proof page for the BoxTop static prototype, used to check the extracted design tokens, components and shared site shell."
+    },
+    "html/shop.html": {
+      "title": "Shop — skeleton | BoxTop",
+      "description": "Skeleton page for the /shop route in the BoxTop static prototype. It carries the shared shell only; real content arrives in a later prompt."
+    },
+    "html/box/sample-hamper.html": {
+      "title": "Hamper detail — skeleton | BoxTop",
+      "description": "Skeleton page for the /box/[slug] route in the BoxTop static prototype. It carries the shared shell only; real content arrives in a later prompt."
+    },
+    "html/occasion/sample-occasion.html": {
+      "title": "Occasion — skeleton | BoxTop",
+      "description": "Skeleton page for the /occasion/[slug] route in the BoxTop static prototype. It carries the shared shell only; real content arrives in a later prompt."
+    },
+    "html/for/sample-recipient.html": {
+      "title": "Gifts for — skeleton | BoxTop",
+      "description": "Skeleton page for the /for/[slug] route in the BoxTop static prototype. It carries the shared shell only; real content arrives in a later prompt."
+    },
+    "html/search.html": {
+      "title": "Search — skeleton | BoxTop",
+      "description": "Skeleton page for the /search route in the BoxTop static prototype. It carries the shared shell only; real content arrives in a later prompt."
+    },
+    "html/build.html": {
+      "title": "Build your own — skeleton | BoxTop",
+      "description": "Skeleton page for the /build route in the BoxTop static prototype. It carries the shared shell only; real content arrives in a later prompt."
+    },
+    "html/gift-finder.html": {
+      "title": "Gift finder — skeleton | BoxTop",
+      "description": "Skeleton page for the /gift-finder route in the BoxTop static prototype. It carries the shared shell only; real content arrives in a later prompt."
+    },
+    "html/cart.html": {
+      "title": "Hamper — skeleton | BoxTop",
+      "description": "Skeleton page for the /cart route in the BoxTop static prototype. It carries the shared shell only; real content arrives in a later prompt."
+    },
+    "html/checkout.html": {
+      "title": "Checkout — skeleton | BoxTop",
+      "description": "Skeleton page for the /checkout route in the BoxTop static prototype. It carries the shared shell only; real content arrives in a later prompt."
+    },
+    "html/order/sample-order.html": {
+      "title": "Order — skeleton | BoxTop",
+      "description": "Skeleton page for the /order/[number] route in the BoxTop static prototype. It carries the shared shell only; real content arrives in a later prompt."
+    },
+    "html/track.html": {
+      "title": "Track order — skeleton | BoxTop",
+      "description": "Skeleton page for the /track route in the BoxTop static prototype. It carries the shared shell only; real content arrives in a later prompt."
+    },
+    "html/account.html": {
+      "title": "Account — skeleton | BoxTop",
+      "description": "Skeleton page for the /account route in the BoxTop static prototype. It carries the shared shell only; real content arrives in a later prompt."
+    },
+    "html/account/reminders.html": {
+      "title": "Reminders — skeleton | BoxTop",
+      "description": "Skeleton page for the /account/reminders route in the BoxTop static prototype. It carries the shared shell only; real content arrives in a later prompt."
+    },
+    "html/vouchers.html": {
+      "title": "Vouchers — skeleton | BoxTop",
+      "description": "Skeleton page for the /vouchers route in the BoxTop static prototype. It carries the shared shell only; real content arrives in a later prompt."
+    },
+    "html/vouchers/sample-token.html": {
+      "title": "Voucher — skeleton | BoxTop",
+      "description": "Skeleton page for the /vouchers/[token] route in the BoxTop static prototype. It carries the shared shell only; real content arrives in a later prompt."
+    },
+    "html/corporate.html": {
+      "title": "Corporate — skeleton | BoxTop",
+      "description": "Skeleton page for the /corporate route in the BoxTop static prototype. It carries the shared shell only; real content arrives in a later prompt."
+    },
+    "html/corporate/bulk.html": {
+      "title": "Corporate bulk — skeleton | BoxTop",
+      "description": "Skeleton page for the /corporate/bulk route in the BoxTop static prototype. It carries the shared shell only; real content arrives in a later prompt."
+    },
+    "html/quote/sample-token.html": {
+      "title": "Quote — skeleton | BoxTop",
+      "description": "Skeleton page for the /quote/[token] route in the BoxTop static prototype. It carries the shared shell only; real content arrives in a later prompt."
+    },
+    "html/bulk/sample-ref.html": {
+      "title": "Bulk order — skeleton | BoxTop",
+      "description": "Skeleton page for the /bulk/[ref] route in the BoxTop static prototype. It carries the shared shell only; real content arrives in a later prompt."
+    },
+    "html/custom.html": {
+      "title": "Custom — skeleton | BoxTop",
+      "description": "Skeleton page for the /custom route in the BoxTop static prototype. It carries the shared shell only; real content arrives in a later prompt."
+    },
+    "html/review/sample-token.html": {
+      "title": "Review — skeleton | BoxTop",
+      "description": "Skeleton page for the /review/[token] route in the BoxTop static prototype. It carries the shared shell only; real content arrives in a later prompt."
+    },
+    "html/makers.html": {
+      "title": "Makers — skeleton | BoxTop",
+      "description": "Skeleton page for the /makers route in the BoxTop static prototype. It carries the shared shell only; real content arrives in a later prompt."
+    },
+    "html/delivery.html": {
+      "title": "Delivery — skeleton | BoxTop",
+      "description": "Skeleton page for the /delivery route in the BoxTop static prototype. It carries the shared shell only; real content arrives in a later prompt."
+    },
+    "html/faq.html": {
+      "title": "FAQ — skeleton | BoxTop",
+      "description": "Skeleton page for the /faq route in the BoxTop static prototype. It carries the shared shell only; real content arrives in a later prompt."
+    },
+    "html/contact.html": {
+      "title": "Contact — skeleton | BoxTop",
+      "description": "Skeleton page for the /contact route in the BoxTop static prototype. It carries the shared shell only; real content arrives in a later prompt."
+    },
+    "html/about.html": {
+      "title": "About — skeleton | BoxTop",
+      "description": "Skeleton page for the /about route in the BoxTop static prototype. It carries the shared shell only; real content arrives in a later prompt."
+    },
+    "html/terms.html": {
+      "title": "Terms — skeleton | BoxTop",
+      "description": "Skeleton page for the /terms route in the BoxTop static prototype. It carries the shared shell only; real content arrives in a later prompt."
+    },
+    "html/privacy.html": {
+      "title": "Privacy — skeleton | BoxTop",
+      "description": "Skeleton page for the /privacy route in the BoxTop static prototype. It carries the shared shell only; real content arrives in a later prompt."
+    },
+    "html/refunds.html": {
+      "title": "Refunds — skeleton | BoxTop",
+      "description": "Skeleton page for the /refunds route in the BoxTop static prototype. It carries the shared shell only; real content arrives in a later prompt."
+    },
+    "html/delivery-policy.html": {
+      "title": "Delivery policy — skeleton | BoxTop",
+      "description": "Skeleton page for the /delivery-policy route in the BoxTop static prototype. It carries the shared shell only; real content arrives in a later prompt."
+    },
+    "html/404.html": {
+      "title": "Page not found — skeleton | BoxTop",
+      "description": "Skeleton page for the not-found route in the BoxTop static prototype. It carries the shared shell only; real content arrives in a later prompt."
     }
   }
 }
