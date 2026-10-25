@@ -2,6 +2,10 @@
 
 What each static page needs from the real backend (Next.js App Router, server actions, Drizzle) at conversion time. Update whenever a page, form or param changes.
 
+## Catalogue and config (static stand-ins)
+
+`tools/catalogue.json` and `tools/site-config.json` are static JSON standing in for real API / DB calls. `sync-shell` publishes them to `assets/js/catalogue-data.js` (`window.BOXTOP_CATALOGUE`) and `assets/js/site-config.js` (`window.BOXTOP_CONFIG`). At conversion these become server-side reads of the boxes, occasions, recipients, add-ons and settings tables (`getSettings()`), rendered by React Server Components. All values are placeholders; see `docs/content/site-config-todos.md`.
+
 ## Pages
 
 | Route | File | Shell variant | Backend calls |

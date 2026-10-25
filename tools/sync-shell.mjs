@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 // Injects shared partials into every page listed in tools/shell-map.json.
+// Also validates catalogue.json, fills <!-- gen: NAME --> regions, and writes assets/js/catalogue-data.js + site-config.js.
 // Usage: node tools/sync-shell.mjs [--check]
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { createHash } from 'node:crypto';
@@ -7,6 +8,7 @@ import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { MARKERS, VARIANTS, markerRe } from './shell-variants.mjs';
+import { dataErrors, generatedFiles, fillGen } from './shell-data.mjs';
 
 const TOOLS = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(TOOLS, '..');
@@ -37,7 +39,9 @@ function partial(name) {
 const hashCache = new Map();
 function fileHash(abs) {
   if (!hashCache.has(abs)) {
-    hashCache.set(abs, existsSync(abs) ? createHash('sha1').update(readFileSync(abs)).digest('hex').slice(0, 8) : null);
+    // generated data files: hash what they will contain, so --check agrees with a real run
+    if (generatedFiles.has(abs)) hashCache.set(abs, createHash('sha1').update(generatedFiles.get(abs)).digest('hex').slice(0, 8));
+    else hashCache.set(abs, existsSync(abs) ? createHash('sha1').update(readFileSync(abs)).digest('hex').slice(0, 8) : null);
   }
   return hashCache.get(abs);
 }
@@ -66,6 +70,8 @@ function build(pagePath, variantName) {
     html = html.replace(re, () => `<!-- partial: ${name} -->\n${body ? body + '\n' : ''}<!-- /partial: ${name} -->`);
   }
 
+  html = fillGen(html, { root }, pagePath);
+
   // ?v=<first 8 hex of sha1> on every local css/js reference; files that don't exist yet stay unversioned
   html = html.replace(/(href|src)="([^"#]+?\.(?:css|js))(?:\?v=[0-9a-f]+)?"/g, (m, attr, url) => {
     if (/^(?:[a-z]+:)?\/\//i.test(url) || url.startsWith('data:')) return m;
@@ -82,6 +88,14 @@ function build(pagePath, variantName) {
 const pages = Object.entries(shellMap.pages ?? {});
 const stale = [];
 let failed = false;
+for (const e of dataErrors) { failed = true; console.error(`ERROR ${e}`); }
+for (const [abs, content] of generatedFiles) {
+  const current = existsSync(abs) ? lf(readFileSync(abs, 'utf8')) : null;
+  if (current !== content) {
+    stale.push(path.relative(ROOT, abs).split(path.sep).join('/'));
+    if (!check) writeFileSync(abs, content);
+  }
+}
 for (const [pagePath, variantName] of pages) {
   try {
     const { abs, html } = build(pagePath, variantName);
@@ -103,6 +117,6 @@ if (check) {
   console.log(`sync-shell --check: ${pages.length} page(s) up to date`);
 } else {
   for (const p of stale) console.log(`updated: ${p}`);
-  console.log(`sync-shell: ${stale.length} updated, ${pages.length - stale.length} unchanged`);
+  console.log(`sync-shell: ${stale.length} file(s) updated (${pages.length} pages checked)`);
   if (failed) process.exit(1);
 }

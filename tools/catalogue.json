@@ -1,6 +1,111 @@
 {
-  "occasions": [],
-  "recipients": [],
-  "hampers": [],
-  "addons": []
+  "_todo": "[[TODO: confirm with client]] Every hamper name, content item, package number and price below is placeholder seed data, not a confirmed range.",
+  "occasions": [
+    { "slug": "birthday", "name": "Birthday" },
+    { "slug": "corporate", "name": "Corporate" },
+    { "slug": "new-baby", "name": "New baby" },
+    { "slug": "condolence", "name": "Condolence" },
+    { "slug": "festive", "name": "Festive & seasonal" },
+    { "slug": "weddings", "name": "Weddings" }
+  ],
+  "recipients": [
+    { "slug": "her", "name": "For her" },
+    { "slug": "him", "name": "For him" },
+    { "slug": "kids", "name": "For kids" },
+    { "slug": "parents", "name": "For parents" },
+    { "slug": "colleagues", "name": "For colleagues" }
+  ],
+  "hampers": [
+    {
+      "slug": "ceylon-tea-trio", "name": "Small-Batch Ceylon Tea Trio", "package": "P01", "price": 3400,
+      "contents": ["Single-estate Ceylon black tea", "Ceylon green tea", "Cinnamon-leaf tea", "Hand-stitched cotton tea pouch"],
+      "occasions": ["birthday", "festive"], "recipients": ["her", "parents"],
+      "image": "placeholder:tea", "featured": true, "new": false, "oos": false
+    },
+    {
+      "slug": "meet-the-makers-artisan-box", "name": "Meet the Makers Artisan Box", "package": "P02", "price": 5800,
+      "contents": ["Hand-poured coconut-wax candle", "Kithul treacle", "Cinnamon-bark soap", "Woven pandan coaster"],
+      "occasions": ["birthday", "weddings"], "recipients": ["her", "parents"],
+      "image": "placeholder:craft", "featured": true, "new": false, "oos": false
+    },
+    {
+      "slug": "handloom-keepsake-box", "name": "Handloom-Wrapped Keepsake Box", "package": "P03", "price": 6700,
+      "contents": ["Handloom cotton wrap", "Dark chocolate with Ceylon cinnamon", "Wild forest honey", "Brass bookmark"],
+      "occasions": ["weddings", "birthday"], "recipients": ["her", "parents"],
+      "image": "placeholder:handloom", "featured": false, "new": false, "oos": true
+    },
+    {
+      "slug": "treacle-and-honey-breakfast-box", "name": "Kithul Treacle & Honey Breakfast Box", "package": "P04", "price": 4200,
+      "contents": ["Kithul treacle", "Wild forest honey", "Woodapple jam", "Stone-ground kurakkan flour"],
+      "occasions": ["birthday", "new-baby"], "recipients": ["parents", "him"],
+      "image": "placeholder:honey", "featured": false, "new": false, "oos": false
+    },
+    {
+      "slug": "dark-chocolate-cinnamon-box", "name": "Dark Chocolate & Cinnamon Box", "package": "P05", "price": 3900,
+      "contents": ["70% single-origin dark chocolate", "Cinnamon-stick bark chocolate", "Cashew praline", "Cocoa nib tea"],
+      "occasions": ["birthday", "corporate"], "recipients": ["her", "colleagues"],
+      "image": "placeholder:chocolate", "featured": true, "new": false, "oos": false
+    },
+    {
+      "slug": "little-hands-baby-box", "name": "Little Hands Baby Box", "package": "P06", "price": 5200,
+      "contents": ["Organic cotton muslin swaddle", "Cold-pressed coconut oil", "Handloom baby blanket", "Wooden rattle"],
+      "occasions": ["new-baby"], "recipients": ["parents"],
+      "image": "placeholder:baby", "featured": false, "new": true, "oos": false
+    },
+    {
+      "slug": "quiet-comfort-tea-box", "name": "Quiet Comfort Tea & Biscuit Box", "package": "P07", "price": 3600,
+      "contents": ["Ginger and lemongrass tea", "Plain Ceylon black tea", "Butter biscuits", "White ceramic cup"],
+      "occasions": ["condolence"], "recipients": ["parents", "colleagues"],
+      "image": "placeholder:tea", "featured": false, "new": false, "oos": false
+    },
+    {
+      "slug": "avurudu-kavum-kokis-hamper", "name": "Avurudu Kavum & Kokis Hamper", "package": "P08", "price": 4800,
+      "contents": ["Kavum", "Kokis", "Aluwa", "Milk toffee", "Banana-leaf wrap"],
+      "occasions": ["festive"], "recipients": ["parents", "colleagues"],
+      "image": "placeholder:sweets", "featured": true, "new": false, "oos": false
+    },
+    {
+      "slug": "wedding-welcome-hamper", "name": "Wedding Welcome Hamper", "package": "P09", "price": 7400,
+      "contents": ["Handloom table napkins", "Jaggery and cardamom sweets", "Cinnamon-leaf tea", "Hand-lettered welcome card"],
+      "occasions": ["weddings"], "recipients": ["her", "him"],
+      "image": "placeholder:handloom", "featured": false, "new": false, "oos": false
+    },
+    {
+      "slug": "office-tea-break-box", "name": "Office Tea Break Box", "package": "P10", "price": 8900,
+      "contents": ["Three Ceylon teas, 25 bags each", "Roasted cashews", "Coconut-jaggery bites", "Pandan coaster set"],
+      "occasions": ["corporate"], "recipients": ["colleagues"],
+      "image": "placeholder:tea", "featured": false, "new": false, "oos": false
+    },
+    {
+      "slug": "thank-you-spice-box", "name": "Thank-You Spice Box", "package": "P11", "price": 4500,
+      "contents": ["Cinnamon quills", "Black pepper", "Cardamom pods", "Goraka", "Wooden spice spoon"],
+      "occasions": ["corporate", "festive"], "recipients": ["colleagues", "parents"],
+      "image": "placeholder:spice", "featured": false, "new": false, "oos": false
+    },
+    {
+      "slug": "little-explorer-box", "name": "Little Explorer Box", "package": "P12", "price": 3200,
+      "contents": ["Lacquer-work spinning top", "Coconut candy", "Wood-bead abacus", "Illustrated Sri Lankan animals card set"],
+      "occasions": ["birthday"], "recipients": ["kids"],
+      "image": "placeholder:kids", "featured": false, "new": true, "oos": false
+    },
+    {
+      "slug": "gentlemans-coffee-cashew-box", "name": "Gentleman's Coffee & Cashew Box", "package": "P13", "price": 5400,
+      "contents": ["Hill-country ground coffee", "Roasted cashews", "Kithul jaggery", "Leather luggage tag"],
+      "occasions": ["birthday", "corporate"], "recipients": ["him", "colleagues"],
+      "image": "placeholder:coffee", "featured": false, "new": false, "oos": false
+    },
+    {
+      "slug": "sandalwood-spa-box", "name": "Sandalwood Spa Box", "package": "P14", "price": 6100,
+      "contents": ["Sandalwood soap", "Coconut-oil body butter", "Herbal bath salts", "Chamomile and rose tea"],
+      "occasions": ["birthday", "weddings"], "recipients": ["her"],
+      "image": "placeholder:spa", "featured": false, "new": true, "oos": false
+    }
+  ],
+  "addons": [
+    { "slug": "gift-note", "name": "Handwritten gift note", "price": 0 },
+    { "slug": "gift-wrap", "name": "Gift wrap", "price": 350 },
+    { "slug": "flowers", "name": "Fresh flower posy", "price": 1500 },
+    { "slug": "ribbon-upgrade", "name": "Handloom ribbon upgrade", "price": 450 },
+    { "slug": "greeting-card", "name": "Hand-lettered greeting card", "price": 250 }
+  ]
 }

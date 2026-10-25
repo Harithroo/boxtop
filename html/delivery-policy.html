@@ -16,7 +16,7 @@
 <!-- partial: styles -->
 <link rel="stylesheet" href="../assets/css/tokens.css?v=937688fc">
 <link rel="stylesheet" href="../assets/css/base.css?v=4449c51a">
-<link rel="stylesheet" href="../assets/css/components.css?v=8885a9ef">
+<link rel="stylesheet" href="../assets/css/components.css?v=a03c830a">
 <link rel="stylesheet" href="../assets/css/layout.css?v=84ada3ed">
 <!-- /partial: styles -->
 </head>
@@ -50,7 +50,7 @@
     <!-- TODO: confirm with client — primary nav labels and targets below are placeholders; pages don't exist yet -->
     <nav class="primary-nav" aria-label="Primary">
       <ul>
-        <li><a href="#" data-nav="shop">Shop</a></li>
+        <li><a href="#" data-nav="shop box">Shop</a></li>
         <li><a href="#" data-nav="occasion">Occasions</a></li>
         <li><a href="#" data-nav="for">Gifts for</a></li>
         <li><a href="#" data-nav="corporate">Corporate</a></li>
@@ -60,13 +60,39 @@
     <div class="header-actions">
       <a class="icon-btn" href="#" aria-label="Search" data-nav="search"><svg class="icon" aria-hidden="true"><use href="#i-search"/></svg></a>
       <a class="icon-btn" href="#" aria-label="Account" data-nav="account"><svg class="icon" aria-hidden="true"><use href="#i-user"/></svg></a>
-      <a class="icon-btn" href="#" aria-label="Hamper, 0 items" data-nav="cart">
+      <a class="icon-btn" href="#" aria-label="Hamper" data-nav="cart">
         <svg class="icon" aria-hidden="true"><use href="#i-cart"/></svg>
         <span class="cart-count" data-cart-count>0</span>
       </a>
     </div>
   </div>
+  <div class="nav-drawer" id="nav-drawer" role="dialog" aria-modal="true" aria-label="Menu" hidden>
+    <div class="nav-drawer__panel">
+      <div class="nav-drawer__head">
+        <span class="wordmark">BoxTop</span>
+        <button class="icon-btn" type="button" aria-label="Close menu" data-nav-close>
+          <svg class="icon" aria-hidden="true"><use href="#i-close"/></svg>
+        </button>
+      </div>
+      <nav aria-label="Mobile">
+        <ul class="nav-drawer__list">
+          <li><a href="#" data-nav="shop box">Shop</a></li>
+          <li><a href="#" data-nav="occasion">Occasions</a></li>
+          <li><a href="#" data-nav="for">Gifts for</a></li>
+          <li><a href="#" data-nav="corporate">Corporate</a></li>
+          <li><a href="#" data-nav="about">About</a></li>
+          <li><a href="#" data-nav="track">Track order</a></li>
+        </ul>
+      </nav>
+    </div>
+  </div>
 </header>
+<nav class="tab-bar" aria-label="Quick links">
+  <a href="#" data-nav="shop box"><svg class="icon" aria-hidden="true"><use href="#i-gift"/></svg><span>Shop</span></a>
+  <a href="#" data-nav="search"><svg class="icon" aria-hidden="true"><use href="#i-search"/></svg><span>Search</span></a>
+  <a href="#" data-nav="cart"><svg class="icon" aria-hidden="true"><use href="#i-cart"/></svg><span>Hamper</span></a>
+  <a href="#" data-nav="account"><svg class="icon" aria-hidden="true"><use href="#i-user"/></svg><span>Account</span></a>
+</nav>
 <!-- /partial: header -->
 <main id="main">
   <h1 class="wrap">Delivery policy — skeleton</h1>
@@ -101,17 +127,19 @@
         </ul>
       </div>
     </div>
+    <p class="site-footer__legal">Support: <span data-cfg="support_hours"></span> &middot; WhatsApp <a class="site-footer__wa" href="#" data-cfg="whatsapp_number" data-cfg-attr="href:whatsapp_url"></a></p>
     <p class="site-footer__legal">&copy; BoxTop</p>
   </div>
 </footer>
 <!-- /partial: footer -->
 <!-- partial: scripts -->
-<script src="../assets/js/catalogue-data.js" defer></script>
-<script src="../assets/js/site-config.js" defer></script>
-<script src="../assets/js/search-core.js" defer></script>
-<script src="../assets/js/search-suggest.js" defer></script>
-<script src="../assets/js/proto-search.js" defer></script>
-<script src="../assets/js/app.js" defer></script>
+<script src="../assets/js/catalogue-data.js?v=54eb2fd6" defer></script>
+<script src="../assets/js/site-config.js?v=4d3076f5" defer></script>
+<script src="../assets/js/format.js?v=f26795d6" defer></script>
+<script src="../assets/js/search-core.js?v=8d8a1167" defer></script>
+<script src="../assets/js/search-suggest.js?v=92fd2b21" defer></script>
+<script src="../assets/js/proto-search.js?v=ba7f0386" defer></script>
+<script src="../assets/js/app.js?v=412c7937" defer></script>
 <!-- /partial: scripts -->
 </body>
 </html>

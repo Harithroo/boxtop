@@ -1,11 +1,27 @@
 {
+  "_todo": {
+    "shipping_fee": "[[TODO: confirm with client]] flat fee placeholder; real fee likely varies by delivery zone",
+    "free_delivery_threshold": "[[TODO: confirm with client]] placeholder",
+    "same_day_cutoff": "[[TODO: confirm with client]] 2 PM comes from the design system's sample copy, not from the client",
+    "delivery_days": "[[TODO: confirm with client]] generic Colombo / Islandwide split; real zone boundaries unknown",
+    "support_hours": "[[TODO: confirm with client]] placeholder",
+    "whatsapp_number": "[[TODO: confirm with client]] placeholder number",
+    "whatsapp_url": "[[TODO: confirm with client]] placeholder wa.me link, not a working number",
+    "bank_accounts": "[[TODO: confirm with client]] every bank, account name, number and branch is a placeholder",
+    "cod_enabled": "Per HANDOFF.md: cash on delivery and bank transfer are the only payment methods"
+  },
   "currency_prefix": "LKR ",
-  "shipping_fee": null,
-  "free_delivery_threshold": null,
-  "same_day_cutoff": null,
-  "delivery_days": { "colombo": null, "islandwide": null },
-  "support_hours": null,
-  "whatsapp": null,
+  "timezone": "Asia/Colombo",
+  "shipping_fee": 450,
+  "free_delivery_threshold": 10000,
+  "same_day_cutoff": "14:00",
+  "delivery_days": { "colombo": "1 day", "islandwide": "2 to 4 days" },
+  "support_hours": "Mon to Sat, 9:00 AM to 6:00 PM",
+  "whatsapp_number": "+94 7X XXX XXXX",
+  "whatsapp_url": "https://wa.me/947XXXXXXXX",
   "cod_enabled": true,
-  "bank_accounts": []
+  "bank_accounts": [
+    { "bank": "Placeholder Bank A", "account_name": "BoxTop (placeholder)", "account_number": "XXXX XXXX XXXX", "branch": "Colombo (placeholder)" },
+    { "bank": "Placeholder Bank B", "account_name": "BoxTop (placeholder)", "account_number": "XXXX XXXX XXXX", "branch": "Colombo (placeholder)" }
+  ]
 }

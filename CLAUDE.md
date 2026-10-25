@@ -9,7 +9,7 @@ Static prototype of the BoxTop gift-hamper storefront. Backend (Next.js 16 App R
 - Mobile-first. Breakpoints: 420, 600, 900, 1100, 1200. At 900 the nav switches: below = hamburger drawer + bottom tab bar; above = full header nav.
 - Never use emoji as UI. Icons come from `assets/icons/sprite.svg` (pulled from the design system file); each page inlines the sprite once (`<!-- partial: sprite -->`) and references icons as `<use href="#i-name">`. `node tools/sync-shell.mjs` refreshes every page.
 - Prototype-only JS lives in `assets/js/proto-*.js` and is deleted at conversion. Production behaviour stays and must not depend on proto files.
-- Scripts: the `scripts` partial loads `catalogue-data.js`, `site-config.js`, `search-core.js`, `search-suggest.js`, `proto-search.js`, then `app.js`; page scripts follow it (production file first, then the `proto-*` file that fakes the server).
+- Scripts: the `scripts` partial loads `catalogue-data.js`, `site-config.js`, `format.js`, `search-core.js`, `search-suggest.js`, `proto-search.js`, then `app.js`; page scripts follow it (production file first, then the `proto-*` file that fakes the server).
 - CSS: no app.css and no `@import`. The `styles` partial holds direct `<link>` tags for tokens, fonts, base, components, layout; page CSS is a separate `<link>` after it. `sync-shell` sets `?v=<first 8 hex of sha1>` on every local `.css`/`.js` reference; re-run it after editing any CSS or JS.
 - Product images are 4:5. Use the `.media` placeholder (`data-placeholder`) until real photos exist — there are none yet; everything on the live site today is seed data.
 

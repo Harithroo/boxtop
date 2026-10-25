@@ -23,8 +23,21 @@ Every component class defined in `assets/css/components.css`. Names and values c
 | `.skip-link` **(shell)** | components.css | Skip to main content link |
 | `.site-header`, `.site-header__inner`, `.wordmark`, `.primary-nav`, `.header-actions`, `.nav-toggle` **(shell)** | components.css | Header: wordmark, nav (from 900px), actions, hamburger trigger (below 900px) |
 | `.icon-btn`, `.cart-count` **(shell)** | components.css | 44px icon button, cart badge |
+| `.nav-drawer`, `.nav-drawer__panel`, `.nav-drawer__head`, `.nav-drawer__list` **(shell)** | components.css | Mobile menu drawer, below 900px only. Opened by `[data-nav-toggle]`; `app.js` handles focus trap, ESC, click-outside and focus return |
+| `.tab-bar` **(shell)** | components.css | Bottom tab bar (Shop, Search, Hamper, Account), below 900px only; the active item gets `aria-current` from `app.js` |
 | `.site-footer`, `.site-footer__cols`, `.site-footer__legal` **(shell)** | components.css | Footer shell |
 
 Other shared classes outside `components.css`: `.sprite`, `.visually-hidden` (base.css); `.wrap`, `.section`, `.cta-row` (layout.css).
 
 Design-system documentation-only classes (swatches, type rows, `.block`, motion columns, etc.) were not extracted.
+
+## app.js behaviours (assets/js/app.js)
+
+- **Current page:** `document.body.dataset.page` and `[data-nav]` are both space-separated token lists. Any `[data-nav]` link sharing a token gets `aria-current="page"`, which covers the header nav, drawer and tab bar. `data-nav="shop box"` lets the Shop links light up on hamper detail pages.
+- **Drawer:** the `[data-nav-toggle]` button opens `#nav-drawer`. Focus moves to the close button; Tab and Shift+Tab are trapped inside; ESC, the close button and a click on the dim overlay all close it, and focus returns to the trigger. Body scroll is locked while open (`body.nav-open`). Resizing to 900px or wider closes it. Links that point at `#` close it too.
+- **Config filling:** `data-cfg="key"` sets text from `window.BOXTOP_CONFIG` (dotted paths work; add `data-cfg-format="money"` to run it through `money()`). `data-cfg-attr="href:whatsapp_url;title:other_key"` sets attributes.
+- **Not wired yet:** `[data-quickadd]` buttons and `[data-cart-count]` do nothing until the cart prompt.
+
+## Catalogue card pattern (generated)
+
+`<!-- gen: hamper-preview -->` (first 3 in-stock hampers, featured first) and `<!-- gen: hampers-all -->` are filled by `sync-shell` with the standard `.pv-card`: optional `.pv-badge` (Sold out beats New beats Featured), `.pv-thumb` with `data-placeholder`, `.pv-quickadd` (omitted when sold out), a name link, and a price from the same `money()` the browser uses. Other regions: `occasion-list`, `recipient-list`, `addon-list`. Never edit between gen markers.
