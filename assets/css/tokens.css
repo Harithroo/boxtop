@@ -1,0 +1,18 @@
+/* Design tokens: extracted from design/boxtop-final-design-system.html (Kraft & Ribbon, Montserrat).
+   Do not edit values here without updating the design system file. Flag, don't improve.
+   Breakpoints (custom properties can't be used in media queries): 420 / 600 / 900 / 1100 / 1200. */
+:root{
+  --bg:#F5EFE3; --surface:#FFFDF7; --primary:#CBB7E0; --primary-deep:#5B3A87;
+  --accent:#D5136F; --accent-ink:#FFFFFF; --secondary:#EFE4CE;
+  --ink:#3B2E22; --ink-soft:#6B5D48; --line:#E3D5BC;
+  --success:#276B45; --danger:#B3261E;
+  --font-display:'Montserrat',sans-serif; --font-body:'Montserrat',sans-serif;
+  --text-xs:12.5px; --text-sm:14px; --text-base:16px; --text-lg:18px; --text-xl:21px; --text-2xl:26px; --text-3xl:33px;
+  --text-display:clamp(2.75rem,6vw,5rem);
+  --space-1:4px; --space-2:8px; --space-3:12px; --space-4:16px; --space-5:24px; --space-6:32px; --space-7:48px; --space-8:64px; --space-9:96px;
+  --radius-sm:8px; --radius-md:14px; --radius-lg:22px; --radius-pill:999px;
+  --shadow-card:0 10px 24px -14px rgba(59,46,34,.28);
+  --shadow-raised:0 20px 40px -18px rgba(59,46,34,.34);
+  --ease:cubic-bezier(.4,0,.2,1); --dur-fast:160ms; --dur-base:220ms; --dur-slow:360ms;
+  --tap:44px; --focus-ring:#5B3A87; --focus-offset:2px;
+}

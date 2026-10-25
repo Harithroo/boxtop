@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BoxTop — Final Design System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F5EFE3; --surface:#FFFDF7; --primary:#CBB7E0; --primary-deep:#5B3A87;
+  --accent:#D5136F; --accent-ink:#FFFFFF; --secondary:#EFE4CE;
+  --ink:#3B2E22; --ink-soft:#6B5D48; --line:#E3D5BC;
+  --success:#276B45; --danger:#B3261E;
+  --font-display:'Montserrat',sans-serif; --font-body:'Montserrat',sans-serif;
+  --text-xs:12.5px; --text-sm:14px; --text-base:16px; --text-lg:18px; --text-xl:21px; --text-2xl:26px; --text-3xl:33px;
+  --text-display:clamp(2.75rem,6vw,5rem);
+  --space-1:4px; --space-2:8px; --space-3:12px; --space-4:16px; --space-5:24px; --space-6:32px; --space-7:48px; --space-8:64px; --space-9:96px;
+  --radius-sm:8px; --radius-md:14px; --radius-lg:22px; --radius-pill:999px;
+  --shadow-card:0 10px 24px -14px rgba(59,46,34,.28);
+  --shadow-raised:0 20px 40px -18px rgba(59,46,34,.34);
+  --ease:cubic-bezier(.4,0,.2,1); --dur-fast:160ms; --dur-base:220ms; --dur-slow:360ms;
+  --tap:44px; --focus-ring:#5B3A87; --focus-offset:2px;
+}
+@media (prefers-reduced-motion: reduce){ :root{--dur-fast:0ms;--dur-base:0ms;--dur-slow:0ms;} }
+*{box-sizing:border-box;}
+html{scroll-padding-top:60px; scroll-behavior:smooth;}
+@media (prefers-reduced-motion: reduce){ html{scroll-behavior:auto;} }
+body{margin:0; background:var(--bg); color:var(--ink); font-family:var(--font-body); line-height:1.6; -webkit-font-smoothing:antialiased;}
+:focus-visible{outline:2px solid var(--focus-ring); outline-offset:var(--focus-offset);}
+.wrap{max-width:1080px; margin:0 auto; padding:0 24px;}
+header.hero{padding:56px 0 40px; border-bottom:1px solid var(--line);}
+.eyebrow{font-weight:700; font-size:var(--text-xs); letter-spacing:.06em; text-transform:uppercase; color:var(--accent); margin:0 0 12px;}
+h1{font-family:var(--font-display); font-weight:800; font-size:clamp(1.9rem,4.2vw,2.8rem); line-height:1.1; margin:0 0 14px; max-width:20ch;}
+.lede{color:var(--ink-soft); max-width:62ch; font-size:var(--text-lg); margin:0;}
+nav.subnav{position:sticky; top:0; z-index:30; background:var(--bg); border-bottom:1px solid var(--line);}
+nav.subnav .wrap{display:flex; gap:20px; overflow-x:auto; scrollbar-width:none;}
+nav.subnav .wrap::-webkit-scrollbar{display:none;}
+nav.subnav a{white-space:nowrap; color:var(--ink-soft); text-decoration:none; font-weight:600; font-size:var(--text-sm); padding:14px 2px; border-bottom:2px solid transparent;}
+nav.subnav a:hover{color:var(--primary-deep); border-color:var(--accent);}
+main{padding:56px 0 20px;}
+section{margin-bottom:72px;}
+section h2{font-family:var(--font-display); font-weight:700; font-size:var(--text-3xl); margin:0 0 8px;}
+section > p.intro{color:var(--ink-soft); max-width:64ch; margin:0 0 28px; font-size:var(--text-base);}
+h3{font-family:var(--font-display); font-weight:600; font-size:var(--text-lg); margin:0 0 10px;}
+.block{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-lg); padding:28px; margin-bottom:20px;}
+.block-title{font-size:var(--text-xs); font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--ink-soft); margin:0 0 18px;}
+
+/* palette */
+.swatches{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:14px;}
+.swatch{border-radius:var(--radius-md); overflow:hidden; border:1px solid var(--line);}
+.swatch-fill{height:64px;}
+.swatch-meta{padding:10px 12px; font-size:var(--text-xs); background:var(--surface);}
+.swatch-meta b{display:block; font-size:var(--text-sm); font-weight:700;}
+table{border-collapse:collapse; width:100%; font-size:var(--text-sm);}
+th,td{text-align:left; padding:11px 14px; border-bottom:1px solid var(--line); vertical-align:middle;}
+th{font-weight:700; color:var(--ink-soft); font-size:var(--text-xs); text-transform:uppercase; letter-spacing:.03em;}
+td.pass{color:var(--success); font-weight:700;}
+.table-scroll{overflow-x:auto; border:1px solid var(--line); border-radius:var(--radius-md); margin-top:8px;}
+.table-scroll table{min-width:560px;}
+.correction{border-left:4px solid var(--accent); background:var(--secondary); border-radius:var(--radius-sm); padding:16px 18px; font-size:var(--text-sm); margin-top:16px;}
+.correction b{display:block; font-family:var(--font-display); font-size:var(--text-base); margin-bottom:4px;}
+
+/* type */
+.type-row{display:grid; grid-template-columns:90px 1fr; gap:18px; align-items:baseline; padding:16px 0; border-bottom:1px dashed var(--line);}
+.type-row:last-child{border-bottom:none;}
+.type-label{font-size:var(--text-xs); color:var(--ink-soft); font-weight:700;}
+.type-sample{font-family:var(--font-display); margin:0; overflow-wrap:break-word;}
+
+/* spacing */
+.space-row{display:grid; grid-template-columns:70px 1fr 50px; align-items:center; gap:14px; margin-bottom:10px; font-size:var(--text-sm);}
+.space-bar{height:18px; background:var(--primary-deep); border-radius:4px;}
+
+/* radius/elevation */
+.rad-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:16px;}
+.rad-box{background:var(--secondary); height:90px; display:flex; align-items:flex-end; justify-content:center; padding-bottom:10px; font-size:var(--text-xs); font-weight:700; color:var(--ink-soft);}
+.shadow-box{background:var(--surface); height:90px; border-radius:var(--radius-md); display:flex; align-items:flex-end; justify-content:center; padding-bottom:10px; font-size:var(--text-xs); font-weight:700; color:var(--ink-soft);}
+
+/* icons */
+.icon-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(96px,1fr)); gap:4px; text-align:center;}
+.icon-cell{padding:16px 8px; border-radius:var(--radius-md);}
+.icon-cell:hover{background:var(--secondary);}
+.icon-cell svg{width:26px; height:26px; stroke:var(--primary-deep); fill:none; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;}
+.icon-cell span{display:block; margin-top:8px; font-size:11px; color:var(--ink-soft); font-weight:600;}
+
+/* buttons */
+.cta-row{display:flex; gap:14px; flex-wrap:wrap; align-items:center;}
+.btn{font-family:var(--font-body); font-weight:600; font-size:var(--text-sm); padding:13px 26px; min-height:var(--tap); border-radius:var(--radius-pill); border:none; cursor:pointer; letter-spacing:.01em;}
+.btn-sm{padding:9px 18px; min-height:40px; font-size:13px;}
+.btn-primary{background:var(--primary-deep); color:#fff; transition:transform var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease);}
+@media (hover:hover) and (pointer:fine){ .btn-primary:hover{transform:translateY(-2px); box-shadow:var(--shadow-raised);} }
+.btn-secondary{background:transparent; color:var(--primary-deep); border:1.5px solid var(--primary-deep);}
+@media (hover:hover) and (pointer:fine){ .btn-secondary:hover{background:var(--primary-deep); color:#fff;} }
+.btn-ghost{background:var(--secondary); color:var(--ink);}
+.btn-disabled{background:var(--line); color:var(--ink-soft); cursor:not-allowed; opacity:.75;}
+.link-arrow{font-weight:700; font-size:var(--text-sm); color:var(--primary-deep); display:inline-flex; align-items:center; gap:6px; text-decoration:none;}
+.link-arrow span{transition:transform var(--dur-fast) var(--ease); display:inline-block;}
+@media (hover:hover) and (pointer:fine){ .link-arrow:hover span{transform:translateX(5px);} }
+
+/* badges / status */
+.badge{display:inline-block; font-size:12px; font-weight:700; padding:7px 14px; border-radius:var(--radius-pill);}
+.badge-primary{background:var(--primary); color:var(--ink);}
+.badge-accent{background:var(--accent); color:var(--accent-ink);}
+.badge-outline{background:transparent; border:1.5px solid var(--line); color:var(--ink-soft);}
+.alert{display:flex; gap:10px; align-items:flex-start; padding:14px 16px; border-radius:var(--radius-md); font-size:var(--text-sm); font-weight:500;}
+.alert-success{background:var(--success); color:#fff;}
+.alert-danger{background:var(--danger); color:#fff;}
+.alert svg{width:18px; height:18px; flex:0 0 auto; margin-top:2px; stroke:#fff; fill:none; stroke-width:2;}
+
+/* forms */
+.form-grid{display:grid; grid-template-columns:1fr 1fr; gap:20px;}
+@media (max-width:640px){.form-grid{grid-template-columns:1fr;}}
+.field{margin-bottom:18px;}
+.field label{display:block; font-size:var(--text-sm); font-weight:600; margin-bottom:6px;}
+.field .hint{font-size:12px; color:var(--ink-soft); margin-top:5px;}
+.field .err{font-size:12px; color:var(--danger); margin-top:5px; font-weight:600;}
+input[type=text],input[type=email],select,textarea{
+  width:100%; font-family:var(--font-body); font-size:16px; padding:12px 14px; min-height:var(--tap);
+  border:1.5px solid var(--line); border-radius:var(--radius-sm); background:var(--surface); color:var(--ink);
+}
+textarea{min-height:100px; resize:vertical;}
+input[type=text]:focus,input[type=email]:focus,select:focus,textarea:focus{border-color:var(--primary-deep);}
+.field.has-error input{border-color:var(--danger);}
+.check-row{display:flex; align-items:center; gap:10px; margin-bottom:10px; font-size:var(--text-sm);}
+.check-row input{width:20px; height:20px; accent-color:var(--primary-deep);}
+
+/* cards */
+.pv-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:16px;}
+@media (max-width:900px){.pv-grid{grid-template-columns:repeat(2,1fr);}}
+.pv-card{position:relative; background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-lg); overflow:hidden; transition:box-shadow var(--dur-base) var(--ease), transform var(--dur-base) var(--ease);}
+@media (hover:hover) and (pointer:fine){ .pv-card:hover{box-shadow:var(--shadow-raised); transform:translateY(-4px);} }
+.pv-thumb{aspect-ratio:4/5; background:var(--secondary); display:flex; align-items:center; justify-content:center; font-size:36px;}
+.pv-thumb--sm{aspect-ratio:auto; width:64px; height:64px; border-radius:var(--radius-sm); flex:0 0 auto;}
+.pv-badge{position:absolute; top:10px; left:10px; font-size:10.5px; font-weight:700; padding:4px 10px; border-radius:var(--radius-pill); background:var(--accent); color:var(--accent-ink); z-index:2;}
+.pv-badge--oos{background:var(--line); color:var(--ink-soft);}
+.pv-info{padding:14px 14px 16px;}
+.pv-name{font-weight:600; font-size:13.5px; margin:0 0 6px;}
+.pv-row{display:flex; justify-content:space-between; align-items:center;}
+.pv-price{font-weight:700; font-size:14px; color:var(--primary-deep);}
+.pv-card--flat{box-shadow:none;}
+.pv-card--list{display:flex; align-items:center; gap:12px; padding:10px; grid-column:span 2;}
+.pv-info--list{flex:1; display:flex; justify-content:space-between; align-items:center; padding:0;}
+.pv-card--oos{opacity:.6;}
+
+/* motion */
+.motion-cols{display:grid; grid-template-columns:1fr 1fr; gap:20px;}
+@media (max-width:640px){.motion-cols{grid-template-columns:1fr;}}
+.motion-cols ul{margin:0; padding-left:20px; font-size:var(--text-sm);}
+.motion-cols li{margin-bottom:10px;}
+.motion-cols h3{display:flex; align-items:center; gap:8px;}
+.dot{width:10px; height:10px; border-radius:50%; display:inline-block;}
+
+footer.page{border-top:1px solid var(--line); padding:32px 0 60px; color:var(--ink-soft); font-size:var(--text-sm);}
+footer.page p{max-width:64ch;}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-cart" viewBox="0 0 24 24"><path d="M3 4h2l2.4 12.2a2 2 0 0 0 2 1.6h7.2a2 2 0 0 0 2-1.6L20 8H6.2"/><circle cx="9.5" cy="20.5" r="1.5" fill="currentColor" stroke="none"/><circle cx="17" cy="20.5" r="1.5" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20.25c-.3 0-.6-.1-.8-.3C7 16.5 3.5 13 3.5 9A4.5 4.5 0 0 1 12 6.5 4.5 4.5 0 0 1 20.5 9c0 4-3.5 7.5-7.7 11-.2.2-.5.3-.8.3z"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><line x1="20" y1="20" x2="15.3" y2="15.3"/></symbol>
+  <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4V5z"/></symbol>
+  <symbol id="i-chevron-down" viewBox="0 0 24 24"><polyline points="5,9 12,16 19,9"/></symbol>
+  <symbol id="i-chevron-right" viewBox="0 0 24 24"><polyline points="9,5 16,12 9,19"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><polyline points="4,13 9,18 20,6"/></symbol>
+  <symbol id="i-star" viewBox="0 0 24 24"><polygon points="12,3 14.7,9.2 21.5,9.9 16.4,14.4 17.9,21 12,17.5 6.1,21 7.6,14.4 2.5,9.9 9.3,9.2"/></symbol>
+  <symbol id="i-truck" viewBox="0 0 24 24"><rect x="2" y="7" width="12" height="9"/><path d="M14 10h4l3 3v3h-7z"/><circle cx="7" cy="19" r="1.8" fill="currentColor" stroke="none"/><circle cx="17.5" cy="19" r="1.8" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-gift" viewBox="0 0 24 24"><rect x="3" y="9" width="18" height="12"/><line x1="3" y1="13.5" x2="21" y2="13.5"/><line x1="12" y1="9" x2="12" y2="21"/><path d="M12 9C9 9 8 6.5 9.5 5 11 3.5 12 6 12 9zM12 9c3 0 4-2.5 2.5-4-1.5-1.5-2.5 1-2.5 4z"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 20c1.5-4 5-5.5 7.5-5.5s6 1.5 7.5 5.5"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.4"/></symbol>
+</svg>
+
+<header class="hero">
+  <div class="wrap">
+    <p class="eyebrow">BoxTop · Final Design System</p>
+    <h1>Kraft &amp; Ribbon, locked — in Montserrat</h1>
+    <p class="lede">The one system every page gets built from from here. Palette locked to Kraft &amp; Ribbon; typeface switched to Montserrat throughout — weight and scale carry the hierarchy instead of a second typeface, at the client's request. Two colour pairs below were corrected for contrast, calculated rather than eyeballed.</p>
+  </div>
+</header>
+
+<nav class="subnav">
+  <div class="wrap">
+    <a href="#palette">Palette</a>
+    <a href="#type">Type</a>
+    <a href="#spacing">Spacing</a>
+    <a href="#radius">Radius &amp; elevation</a>
+    <a href="#icons">Icons</a>
+    <a href="#buttons">Buttons</a>
+    <a href="#badges">Badges &amp; status</a>
+    <a href="#forms">Forms</a>
+    <a href="#cards">Cards</a>
+    <a href="#motion">Motion</a>
+  </div>
+</nav>
+
+<main class="wrap">
+
+  <section id="palette">
+    <h2>Colour palette</h2>
+    <p class="intro">Kraft-paper cream grounds it; purple carries the calls to action; the brand's magenta pink stays an accent rather than the main event — the "sourced and wrapped by hand" direction the client picked.</p>
+    <div class="block">
+      <p class="block-title">Core tokens</p>
+      <div class="swatches">
+        <div class="swatch"><div class="swatch-fill" style="background:#F5EFE3;"></div><div class="swatch-meta"><b>Background</b>--bg #F5EFE3</div></div>
+        <div class="swatch"><div class="swatch-fill" style="background:#FFFDF7;"></div><div class="swatch-meta"><b>Surface</b>--surface #FFFDF7</div></div>
+        <div class="swatch"><div class="swatch-fill" style="background:#CBB7E0;"></div><div class="swatch-meta"><b>Primary</b>--primary #CBB7E0</div></div>
+        <div class="swatch"><div class="swatch-fill" style="background:#5B3A87;"></div><div class="swatch-meta"><b>Primary deep / CTA</b>--primary-deep #5B3A87</div></div>
+        <div class="swatch"><div class="swatch-fill" style="background:#D5136F;"></div><div class="swatch-meta"><b>Accent</b>--accent #D5136F</div></div>
+        <div class="swatch"><div class="swatch-fill" style="background:#EFE4CE;"></div><div class="swatch-meta"><b>Secondary</b>--secondary #EFE4CE</div></div>
+        <div class="swatch"><div class="swatch-fill" style="background:#3B2E22;"></div><div class="swatch-meta"><b>Ink / text</b>--ink #3B2E22</div></div>
+        <div class="swatch"><div class="swatch-fill" style="background:#6B5D48;"></div><div class="swatch-meta"><b>Ink soft / muted</b>--ink-soft #6B5D48</div></div>
+        <div class="swatch"><div class="swatch-fill" style="background:#E3D5BC;"></div><div class="swatch-meta"><b>Line / border</b>--line #E3D5BC</div></div>
+        <div class="swatch"><div class="swatch-fill" style="background:#276B45;"></div><div class="swatch-meta"><b>Success</b>--success #276B45</div></div>
+        <div class="swatch"><div class="swatch-fill" style="background:#B3261E;"></div><div class="swatch-meta"><b>Danger</b>--danger #B3261E</div></div>
+      </div>
+    </div>
+    <div class="block">
+      <p class="block-title">Contrast table (WCAG 2.1, calculated)</p>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>Pair</th><th>Used for</th><th>Ratio</th><th>Level</th></tr></thead>
+          <tbody>
+            <tr><td>Ink on Background</td><td>Body text on page</td><td>11.48:1</td><td class="pass">AAA</td></tr>
+            <tr><td>Ink on Surface</td><td>Body text on cards</td><td>12.92:1</td><td class="pass">AAA</td></tr>
+            <tr><td>Ink-soft on Background</td><td>Muted text, captions</td><td>5.58:1</td><td class="pass">AA</td></tr>
+            <tr><td>Ink-soft on Surface</td><td>Muted text on cards</td><td>6.28:1</td><td class="pass">AA</td></tr>
+            <tr><td>White on Primary-deep</td><td>Primary button text</td><td>8.75:1</td><td class="pass">AAA</td></tr>
+            <tr><td>Primary-deep on Background</td><td>Secondary button, links</td><td>7.64:1</td><td class="pass">AAA</td></tr>
+            <tr><td>Ink on Primary</td><td>Default badge</td><td>7.13:1</td><td class="pass">AAA</td></tr>
+            <tr><td>White on Accent</td><td>Accent badge, price flag</td><td>5.06:1</td><td class="pass">AA</td></tr>
+            <tr><td>Ink on Secondary</td><td>Ghost button</td><td>10.42:1</td><td class="pass">AAA</td></tr>
+            <tr><td>White on Success / Danger</td><td>Alerts</td><td>6.41:1 / 6.53:1</td><td class="pass">AA</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="correction">
+        <b>Two corrections, not eyeballed</b>
+        Ink-soft was #8A7A64 in the direction file — 3.63:1 on the cream background, failing AA. Darkened to #6B5D48 (5.58:1). Accent badges used dark ink text on the pink accent — 2.60:1, failing badly. Switched to white text (5.06:1). Every other pair above was checked at the same time; none needed changing.
+      </div>
+    </div>
+  </section>
+
+  <section id="type">
+    <h2>Type</h2>
+    <p class="intro">One family, Montserrat, in place of the Lora/Karla pairing from the direction file — the client wants the whole hierarchy carried by weight and size, not a second typeface. ExtraBold for display, Bold/SemiBold for headings, Regular/Medium for reading text.</p>
+    <div class="block">
+      <div class="type-row"><span class="type-label">Display<br>800</span><p class="type-sample" style="font-size:var(--text-display); font-weight:800; line-height:1.05; margin:0;">Taste for gift</p></div>
+      <div class="type-row"><span class="type-label">H2<br>700</span><p class="type-sample" style="font-size:var(--text-3xl); font-weight:700; margin:0;">Hampers worth sending</p></div>
+      <div class="type-row"><span class="type-label">H3<br>600</span><p class="type-sample" style="font-size:var(--text-2xl); font-weight:600; margin:0;">Meet the makers behind every box</p></div>
+      <div class="type-row"><span class="type-label">Lead<br>500</span><p class="type-sample" style="font-size:var(--text-lg); font-weight:500; margin:0;">Each hamper is sourced from trusted local brands and independent artisans, then wrapped by hand.</p></div>
+      <div class="type-row"><span class="type-label">Body<br>400</span><p class="type-sample" style="font-size:var(--text-base); font-weight:400; margin:0;">Free same-day delivery in Colombo before 2 PM, islandwide delivery for a fee, and a gift note on every order.</p></div>
+      <div class="type-row"><span class="type-label">UI label<br>600</span><p class="type-sample" style="font-size:var(--text-sm); font-weight:600; letter-spacing:.01em; margin:0;">Add to hamper · View contents · Track order</p></div>
+      <div class="type-row"><span class="type-label">Caption<br>500</span><p class="type-sample" style="font-size:var(--text-xs); font-weight:500; color:var(--ink-soft); margin:0;">Prices shown in LKR. Delivery calculated at checkout.</p></div>
+    </div>
+  </section>
+
+  <section id="spacing">
+    <h2>Spacing</h2>
+    <p class="intro">An 4px-based scale, nine steps. Use these, not one-off pixel values.</p>
+    <div class="block">
+      <div class="space-row"><span>--space-1</span><div class="space-bar" style="width:4px;"></div><span>4px</span></div>
+      <div class="space-row"><span>--space-2</span><div class="space-bar" style="width:8px;"></div><span>8px</span></div>
+      <div class="space-row"><span>--space-3</span><div class="space-bar" style="width:12px;"></div><span>12px</span></div>
+      <div class="space-row"><span>--space-4</span><div class="space-bar" style="width:16px;"></div><span>16px</span></div>
+      <div class="space-row"><span>--space-5</span><div class="space-bar" style="width:24px;"></div><span>24px</span></div>
+      <div class="space-row"><span>--space-6</span><div class="space-bar" style="width:32px;"></div><span>32px</span></div>
+      <div class="space-row"><span>--space-7</span><div class="space-bar" style="width:48px;"></div><span>48px</span></div>
+      <div class="space-row"><span>--space-8</span><div class="space-bar" style="width:64px;"></div><span>64px</span></div>
+      <div class="space-row"><span>--space-9</span><div class="space-bar" style="width:96px;"></div><span>96px</span></div>
+    </div>
+  </section>
+
+  <section id="radius">
+    <h2>Radius &amp; elevation</h2>
+    <p class="intro">Pill buttons and badges throughout; cards and panels on the larger radii; two shadow levels, both tinted from the ink colour rather than neutral grey.</p>
+    <div class="block">
+      <p class="block-title">Radius</p>
+      <div class="rad-grid">
+        <div class="rad-box" style="border-radius:var(--radius-sm);">sm — 8px</div>
+        <div class="rad-box" style="border-radius:var(--radius-md);">md — 14px</div>
+        <div class="rad-box" style="border-radius:var(--radius-lg);">lg — 22px</div>
+        <div class="rad-box" style="border-radius:var(--radius-pill);">pill — 999px</div>
+      </div>
+    </div>
+    <div class="block">
+      <p class="block-title">Elevation</p>
+      <div class="rad-grid">
+        <div class="shadow-box" style="box-shadow:var(--shadow-card);">shadow-card</div>
+        <div class="shadow-box" style="box-shadow:var(--shadow-raised);">shadow-raised</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="icons">
+    <h2>Icons</h2>
+    <p class="intro">A starting sprite — thin stroke, rounded joins, 24×24. Inlined once per page (external sprite references fail over file://), referenced everywhere else as <code>&lt;use href="#i-name"&gt;</code>. More get added as pages need them; nothing here is final artwork.</p>
+    <div class="block">
+      <div class="icon-grid">
+        <div class="icon-cell"><svg><use href="#i-cart"/></svg><span>cart</span></div>
+        <div class="icon-cell"><svg><use href="#i-heart"/></svg><span>heart</span></div>
+        <div class="icon-cell"><svg><use href="#i-search"/></svg><span>search</span></div>
+        <div class="icon-cell"><svg><use href="#i-chat"/></svg><span>chat</span></div>
+        <div class="icon-cell"><svg><use href="#i-chevron-down"/></svg><span>chevron-down</span></div>
+        <div class="icon-cell"><svg><use href="#i-chevron-right"/></svg><span>chevron-right</span></div>
+        <div class="icon-cell"><svg><use href="#i-close"/></svg><span>close</span></div>
+        <div class="icon-cell"><svg><use href="#i-check"/></svg><span>check</span></div>
+        <div class="icon-cell"><svg><use href="#i-star"/></svg><span>star</span></div>
+        <div class="icon-cell"><svg><use href="#i-truck"/></svg><span>truck</span></div>
+        <div class="icon-cell"><svg><use href="#i-gift"/></svg><span>gift</span></div>
+        <div class="icon-cell"><svg><use href="#i-menu"/></svg><span>menu</span></div>
+        <div class="icon-cell"><svg><use href="#i-user"/></svg><span>user</span></div>
+        <div class="icon-cell"><svg><use href="#i-pin"/></svg><span>pin</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="buttons">
+    <h2>Buttons</h2>
+    <p class="intro">44px minimum target everywhere; small variants drop to 40px on desktop only. Hover lift lives under a hover-capable media query, never on touch.</p>
+    <div class="block">
+      <div class="cta-row">
+        <button class="btn btn-primary">Add to hamper</button>
+        <button class="btn btn-secondary">Save for later</button>
+        <button class="btn btn-ghost">View contents</button>
+        <button class="btn btn-disabled" disabled>Sold out</button>
+        <a href="#" class="link-arrow">See full hamper contents <span><svg width="14" height="14" style="stroke:currentColor;fill:none;stroke-width:2;"><use href="#i-chevron-right"/></svg></span></a>
+      </div>
+      <div class="cta-row" style="margin-top:16px;">
+        <button class="btn btn-primary btn-sm">Add — small</button>
+        <button class="btn btn-secondary btn-sm">Secondary — small</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="badges">
+    <h2>Badges &amp; status</h2>
+    <div class="block">
+      <p class="block-title">Badges</p>
+      <div class="cta-row">
+        <span class="badge badge-primary">New</span>
+        <span class="badge badge-accent">Sale −15%</span>
+        <span class="badge badge-outline">Verified purchase</span>
+      </div>
+    </div>
+    <div class="block">
+      <p class="block-title">Alerts</p>
+      <div class="cta-row" style="flex-direction:column; align-items:stretch;">
+        <div class="alert alert-success"><svg><use href="#i-check"/></svg>Your order has been confirmed — a text will follow with the delivery window.</div>
+        <div class="alert alert-danger"><svg><use href="#i-close"/></svg>That voucher code has expired. Try another or check out without one.</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="forms">
+    <h2>Forms</h2>
+    <p class="intro">16px inputs everywhere (stops iOS auto-zoom), a 1.5px border that moves to purple on focus, errors in text plus colour — never colour alone.</p>
+    <div class="block">
+      <div class="form-grid">
+        <div class="field">
+          <label for="ds-name">Full name</label>
+          <input type="text" id="ds-name" placeholder="Nimali Perera">
+        </div>
+        <div class="field has-error">
+          <label for="ds-email">Email</label>
+          <input type="email" id="ds-email" value="nimali@">
+          <p class="err">Enter a valid email address.</p>
+        </div>
+        <div class="field">
+          <label for="ds-zone">Delivery zone</label>
+          <select id="ds-zone"><option>Colombo</option><option>Kandy</option><option>Islandwide</option></select>
+          <p class="hint">Delivery fee is calculated after this.</p>
+        </div>
+        <div class="field">
+          <label for="ds-note">Gift note</label>
+          <textarea id="ds-note" placeholder="Happy birthday, Amma!"></textarea>
+        </div>
+      </div>
+      <div class="check-row"><input type="checkbox" id="ds-wrap"><label for="ds-wrap">Add gift wrap (+LKR 350)</label></div>
+      <div class="check-row"><input type="radio" name="ds-pay" id="ds-cod"><label for="ds-cod">Cash on delivery</label></div>
+      <div class="check-row"><input type="radio" name="ds-pay" id="ds-bank"><label for="ds-bank">Bank transfer, upload slip</label></div>
+    </div>
+  </section>
+
+  <section id="cards">
+    <h2>Cards</h2>
+    <p class="intro">Hamper product card, four states: standard, flat (no hover lift, for dense grids), compact list-row, sold out.</p>
+    <div class="block">
+      <div class="pv-grid">
+        <div class="pv-card">
+          <span class="pv-badge">Bestseller</span>
+          <div class="pv-thumb"><svg width="34" height="34" style="stroke:var(--ink-soft);fill:none;stroke-width:1.6;"><use href="#i-gift"/></svg></div>
+          <div class="pv-info">
+            <p class="pv-name">Meet the Makers Artisan Box</p>
+            <div class="pv-row"><span class="pv-price">LKR 5,800</span></div>
+          </div>
+        </div>
+        <div class="pv-card pv-card--flat">
+          <div class="pv-thumb"><svg width="34" height="34" style="stroke:var(--ink-soft);fill:none;stroke-width:1.6;"><use href="#i-gift"/></svg></div>
+          <div class="pv-info">
+            <p class="pv-name">Small-Batch Ceylon Tea Trio</p>
+            <div class="pv-row"><span class="pv-price">LKR 3,400</span></div>
+          </div>
+        </div>
+        <div class="pv-card pv-card--list">
+          <div class="pv-thumb pv-thumb--sm"><svg width="24" height="24" style="stroke:var(--ink-soft);fill:none;stroke-width:1.6;"><use href="#i-gift"/></svg></div>
+          <div class="pv-info pv-info--list">
+            <p class="pv-name">Local Honey &amp; Preserve Jar</p>
+            <span class="pv-price">LKR 1,250</span>
+          </div>
+          <button class="btn btn-ghost btn-sm">Add</button>
+        </div>
+        <div class="pv-card pv-card--oos">
+          <span class="pv-badge pv-badge--oos">Sold out</span>
+          <div class="pv-thumb"><svg width="34" height="34" style="stroke:var(--ink-soft);fill:none;stroke-width:1.6;"><use href="#i-gift"/></svg></div>
+          <div class="pv-info">
+            <p class="pv-name">Handloom-Wrapped Keepsake Box</p>
+            <div class="pv-row"><span class="pv-price">LKR 6,700</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="motion">
+    <h2>Motion</h2>
+    <p class="intro">"Vibrant and prominent" is a layout and imagery job more than a motion job. Spend boldness on scale, colour and type; keep movement quiet and purposeful.</p>
+    <div class="block motion-cols">
+      <div>
+        <h3><span class="dot" style="background:var(--success);"></span>Do</h3>
+        <ul>
+          <li>One satisfying add-to-hamper confirmation (icon-count bump, brief toast) — a single moment, not several competing ones</li>
+          <li>Hover lift + shadow on product cards, under <code>(hover: hover)</code> only</li>
+          <li>Respect <code>prefers-reduced-motion</code>: the duration tokens above zero out automatically</li>
+          <li>Reserve space with <code>aspect-ratio</code> so nothing shifts as images load</li>
+        </ul>
+      </div>
+      <div>
+        <h3><span class="dot" style="background:var(--danger);"></span>Don't</h3>
+        <ul>
+          <li>Fade-and-slide-up on every section as it scrolls into view — the generic default, and it fights "no horizontal scroll, no layout jump" on slow connections</li>
+          <li>Autoplay carousels or hero slideshows</li>
+          <li>Hover-only content with no touch equivalent</li>
+          <li>Motion as a substitute for a confident layout — a big headline and real product photography carry more "prominent" than any animation will</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="page">
+  <div class="wrap">
+    <p>Locked from the Kraft &amp; Ribbon direction in boxtop-design-system.html, retyped in Montserrat per the client's request, with ink-soft and accent-badge text corrected for AA contrast. This file is the single source of truth for tokens going into html/assets/css/tokens.css — nothing here is final artwork, especially the icons; both get refined as real pages are built.</p>
+  </div>
+</footer>
+
+</body>
+</html>

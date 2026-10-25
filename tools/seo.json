@@ -1,0 +1,9 @@
+{
+  "staging": true,
+  "pages": {
+    "html/index.html": {
+      "title": "BoxTop | Foundation proof page",
+      "description": "Foundation proof page for the BoxTop static prototype, used to check the extracted design tokens, components and shared site shell."
+    }
+  }
+}

@@ -1,0 +1,8 @@
+/* Layout: container width, section spacing, shared row helper. Mobile-first (420 / 600 / 900 / 1100 / 1200). */
+.wrap{max-width:1080px; margin:0 auto; padding-inline:var(--space-4);}
+@media (min-width:600px){ .wrap{padding-inline:var(--space-5);} }
+
+.section{padding-block:var(--space-7);}
+@media (min-width:900px){ .section{padding-block:var(--space-8);} }
+
+.cta-row{display:flex; flex-wrap:wrap; align-items:center; gap:var(--space-3) 14px;}

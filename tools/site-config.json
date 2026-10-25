@@ -1,0 +1,11 @@
+{
+  "currency_prefix": "LKR ",
+  "shipping_fee": null,
+  "free_delivery_threshold": null,
+  "same_day_cutoff": null,
+  "delivery_days": { "colombo": null, "islandwide": null },
+  "support_hours": null,
+  "whatsapp": null,
+  "cod_enabled": true,
+  "bank_accounts": []
+}
