@@ -31,6 +31,11 @@ export const dataErrors = [];
     for (const o of h.occasions ?? []) if (!occ.has(o)) dataErrors.push(`${w}: unknown occasion "${o}"`);
     for (const r of h.recipients ?? []) if (!rec.has(r)) dataErrors.push(`${w}: unknown recipient "${r}"`);
   }
+  // occasion icons must exist in the sprite (placeholder imagery until photography exists)
+  const spriteIds = new Set([...readFileSync(path.join(ROOT, 'assets/icons/sprite.svg'), 'utf8').matchAll(/<symbol id="([^"]+)"/g)].map((m) => m[1]));
+  for (const o of catalogue.occasions ?? []) {
+    if (o.icon && !spriteIds.has(o.icon)) dataErrors.push(`occasion "${o.slug}": icon "${o.icon}" is not in assets/icons/sprite.svg`);
+  }
   for (const a of catalogue.addons ?? []) {
     if (!Number.isInteger(a.price) || a.price < 0) dataErrors.push(`add-on "${a.slug}": price must be whole rupees`);
   }
@@ -62,6 +67,7 @@ function hamperCard(h, root) {
     `  <div class="pv-thumb" data-placeholder="${esc(tone)}"><svg class="icon" aria-hidden="true"><use href="#i-gift"/></svg></div>`,
     !h.oos && `  <button type="button" class="pv-quickadd" data-quickadd="${esc(h.slug)}">+ Quick add</button>`,
     '  <div class="pv-info">',
+    h.contents?.length && `    <small class="pv-meta">${esc(h.contents.slice(0, 2).join(', '))}</small>`,
     // every hamper links to the one sample detail page until the catalogue-driven prompts
     `    <p class="pv-name"><a href="${root}html/box/sample-hamper.html">${esc(h.name)}</a></p>`,
     `    <div class="pv-row"><span class="pv-price">${money(h.price)}</span></div>`,
@@ -69,11 +75,20 @@ function hamperCard(h, root) {
     '</div>',
   ].filter(Boolean).join('\n');
 }
+// every occasion links to the one sample occasion page until the catalogue-driven prompts
+const occasionCard = (o, root) => [
+  `<a class="pv-card pv-card--occasion" href="${root}html/occasion/sample-occasion.html" data-occasion="${esc(o.slug)}">`,
+  `  <div class="pv-thumb" data-placeholder="${esc(o.slug)}"><svg class="icon" aria-hidden="true"><use href="#${esc(o.icon ?? 'i-gift')}"/></svg></div>`,
+  `  <div class="pv-info"><p class="pv-name">${esc(o.name)}</p></div>`,
+  '</a>',
+].join('\n');
 const featuredFirst = (list) => [...list].sort((a, b) => Number(b.featured) - Number(a.featured));
 const nameList = (list) => (list ?? []).map((x) => `<li data-slug="${esc(x.slug)}">${esc(x.name)}</li>`).join('\n');
 
 const GENERATORS = {
   'hamper-preview': ({ root }) => featuredFirst((catalogue.hampers ?? []).filter((h) => !h.oos)).slice(0, 3).map((h) => hamperCard(h, root)).join('\n'),
+  'hamper-featured': ({ root }) => (catalogue.hampers ?? []).filter((h) => h.featured && !h.oos).map((h) => hamperCard(h, root)).join('\n'),
+  'occasion-cards': ({ root }) => (catalogue.occasions ?? []).map((o) => occasionCard(o, root)).join('\n'),
   'hampers-all': ({ root }) => (catalogue.hampers ?? []).map((h) => hamperCard(h, root)).join('\n'),
   'occasion-list': () => nameList(catalogue.occasions),
   'recipient-list': () => nameList(catalogue.recipients),

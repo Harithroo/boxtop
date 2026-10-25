@@ -2,8 +2,8 @@
   "staging": true,
   "pages": {
     "html/index.html": {
-      "title": "BoxTop | Foundation proof page",
-      "description": "Foundation proof page for the BoxTop static prototype, used to check the extracted design tokens, components and shared site shell."
+      "title": "BoxTop | Hand-wrapped gift hampers in Sri Lanka",
+      "description": "Hand-wrapped gift hampers with Ceylon tea, local honey and handloom wrapping from named Sri Lankan makers. Same-day delivery in Colombo."
     },
     "html/shop.html": {
       "title": "Shop — skeleton | BoxTop",

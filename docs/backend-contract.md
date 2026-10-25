@@ -10,7 +10,7 @@ What each static page needs from the real backend (Next.js App Router, server ac
 
 | Route | File | Shell variant | Backend calls |
 |---|---|---|---|
-| `/` | `html/index.html` | full | no backend calls yet |
+| `/` | `html/index.html` | full | catalogue occasions (`occasion-cards`), catalogue featured and in-stock hampers (`hamper-featured`), site config `same_day_cutoff` and `whatsapp_url`. All static JSON stand-ins for now |
 | `/shop` | `html/shop.html` | full | no backend calls yet |
 | `/box/[slug]` | `html/box/sample-hamper.html` | full | no backend calls yet |
 | `/occasion/[slug]` | `html/occasion/sample-occasion.html` | full | no backend calls yet |

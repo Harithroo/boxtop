@@ -3,27 +3,33 @@ window.BOXTOP_CATALOGUE = {
   "occasions": [
     {
       "slug": "birthday",
-      "name": "Birthday"
+      "name": "Birthday",
+      "icon": "i-gift"
     },
     {
       "slug": "corporate",
-      "name": "Corporate"
+      "name": "Corporate",
+      "icon": "i-user"
     },
     {
       "slug": "new-baby",
-      "name": "New baby"
+      "name": "New baby",
+      "icon": "i-heart"
     },
     {
       "slug": "condolence",
-      "name": "Condolence"
+      "name": "Condolence",
+      "icon": "i-chat"
     },
     {
       "slug": "festive",
-      "name": "Festive & seasonal"
+      "name": "Festive & seasonal",
+      "icon": "i-star"
     },
     {
       "slug": "weddings",
-      "name": "Weddings"
+      "name": "Weddings",
+      "icon": "i-check"
     }
   ],
   "recipients": [

@@ -4,8 +4,8 @@
 <!-- partial: head -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>BoxTop | Foundation proof page</title>
-<meta name="description" content="Foundation proof page for the BoxTop static prototype, used to check the extracted design tokens, components and shared site shell.">
+<title>BoxTop | Hand-wrapped gift hampers in Sri Lanka</title>
+<meta name="description" content="Hand-wrapped gift hampers with Ceylon tea, local honey and handloom wrapping from named Sri Lankan makers. Same-day delivery in Colombo.">
 <meta name="robots" content="noindex,nofollow">
 <meta name="theme-color" content="#F5EFE3">
 <link rel="icon" href="../assets/images/logo.jpg">
@@ -16,7 +16,7 @@
 <!-- partial: styles -->
 <link rel="stylesheet" href="../assets/css/tokens.css?v=937688fc">
 <link rel="stylesheet" href="../assets/css/base.css?v=4449c51a">
-<link rel="stylesheet" href="../assets/css/components.css?v=a03c830a">
+<link rel="stylesheet" href="../assets/css/components.css?v=613b33ba">
 <link rel="stylesheet" href="../assets/css/layout.css?v=84ada3ed">
 <!-- /partial: styles -->
 </head>
@@ -87,37 +87,83 @@
     </div>
   </div>
 </header>
-<nav class="tab-bar" aria-label="Quick links">
-  <a href="#" data-nav="shop box"><svg class="icon" aria-hidden="true"><use href="#i-gift"/></svg><span>Shop</span></a>
-  <a href="#" data-nav="search"><svg class="icon" aria-hidden="true"><use href="#i-search"/></svg><span>Search</span></a>
-  <a href="#" data-nav="cart"><svg class="icon" aria-hidden="true"><use href="#i-cart"/></svg><span>Hamper</span></a>
-  <a href="#" data-nav="account"><svg class="icon" aria-hidden="true"><use href="#i-user"/></svg><span>Account</span></a>
-</nav>
 <!-- /partial: header -->
 <main id="main">
-  <div class="wrap section">
-    <h1>BoxTop — foundation OK</h1>
-    <div class="cta-row">
-      <button class="btn btn-primary" type="button">Add to hamper</button>
-      <span class="badge badge-accent">New</span>
-    </div>
-    <div class="pv-grid">
-      <div class="pv-card">
-        <div class="pv-thumb"><svg class="icon" aria-hidden="true"><use href="#i-gift"/></svg></div>
-        <button type="button" class="pv-quickadd">+ Quick add</button>
-        <div class="pv-info">
-          <p class="pv-name">Example hamper card</p>
+
+  <section class="hero">
+    <div class="wrap hero__inner">
+      <div class="hero__text">
+        <p class="eyebrow">Hand-wrapped, delivered same day in Colombo</p>
+        <h1>Gifts that feel like they were chosen, not ordered.</h1>
+        <p class="lede">Ceylon tea, local honey, handloom wrapping, and the actual names of the people who made them — hampers sourced across Sri Lanka and tied together by hand before they reach your door.</p>
+        <div class="cta-row">
+          <a class="btn btn-primary" href="shop.html">Shop hampers</a>
+          <a class="btn btn-secondary" href="build.html">Build your own</a>
         </div>
       </div>
+      <div class="hero__media media" data-placeholder="hero" aria-hidden="true"><svg class="icon"><use href="#i-gift"/></svg></div>
     </div>
-    <h2>Catalogue preview</h2>
-    <div class="pv-grid">
-<!-- gen: hamper-preview -->
+  </section>
+
+  <section class="trust" aria-label="Why BoxTop">
+    <div class="wrap">
+      <ul class="trust-strip">
+        <li><svg class="icon" aria-hidden="true"><use href="#i-truck"/></svg><span>Same-day delivery in Colombo before <span data-cfg="same_day_cutoff"></span></span></li>
+        <!-- next: cod_enabled -->
+        <li><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg><span>Cash on delivery or bank transfer — no card needed</span></li>
+        <li><svg class="icon" aria-hidden="true"><use href="#i-gift"/></svg><span>A handwritten gift note on every order</span></li>
+        <li><svg class="icon" aria-hidden="true"><use href="#i-pin"/></svg><span>Sourced from named local makers, not a warehouse</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="occasions-h">
+    <div class="wrap">
+      <h2 id="occasions-h">Find the right hamper for the moment</h2>
+      <p class="intro">From a first baby to a condolence call, the occasion changes what belongs in the box.</p>
+      <div class="pv-grid pv-grid--3">
+<!-- gen: occasion-cards -->
+<a class="pv-card pv-card--occasion" href="../html/occasion/sample-occasion.html" data-occasion="birthday">
+  <div class="pv-thumb" data-placeholder="birthday"><svg class="icon" aria-hidden="true"><use href="#i-gift"/></svg></div>
+  <div class="pv-info"><p class="pv-name">Birthday</p></div>
+</a>
+<a class="pv-card pv-card--occasion" href="../html/occasion/sample-occasion.html" data-occasion="corporate">
+  <div class="pv-thumb" data-placeholder="corporate"><svg class="icon" aria-hidden="true"><use href="#i-user"/></svg></div>
+  <div class="pv-info"><p class="pv-name">Corporate</p></div>
+</a>
+<a class="pv-card pv-card--occasion" href="../html/occasion/sample-occasion.html" data-occasion="new-baby">
+  <div class="pv-thumb" data-placeholder="new-baby"><svg class="icon" aria-hidden="true"><use href="#i-heart"/></svg></div>
+  <div class="pv-info"><p class="pv-name">New baby</p></div>
+</a>
+<a class="pv-card pv-card--occasion" href="../html/occasion/sample-occasion.html" data-occasion="condolence">
+  <div class="pv-thumb" data-placeholder="condolence"><svg class="icon" aria-hidden="true"><use href="#i-chat"/></svg></div>
+  <div class="pv-info"><p class="pv-name">Condolence</p></div>
+</a>
+<a class="pv-card pv-card--occasion" href="../html/occasion/sample-occasion.html" data-occasion="festive">
+  <div class="pv-thumb" data-placeholder="festive"><svg class="icon" aria-hidden="true"><use href="#i-star"/></svg></div>
+  <div class="pv-info"><p class="pv-name">Festive &amp; seasonal</p></div>
+</a>
+<a class="pv-card pv-card--occasion" href="../html/occasion/sample-occasion.html" data-occasion="weddings">
+  <div class="pv-thumb" data-placeholder="weddings"><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg></div>
+  <div class="pv-info"><p class="pv-name">Weddings</p></div>
+</a>
+<!-- /gen: occasion-cards -->
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="bestsellers-h">
+    <div class="wrap">
+      <h2 id="bestsellers-h">What people are sending most</h2>
+      <p class="intro">The hampers that get reordered.</p>
+      <div class="pv-grid">
+<!-- gen: hamper-featured -->
 <div class="pv-card" data-package="P01">
   <span class="pv-badge">Featured</span>
   <div class="pv-thumb" data-placeholder="tea"><svg class="icon" aria-hidden="true"><use href="#i-gift"/></svg></div>
   <button type="button" class="pv-quickadd" data-quickadd="ceylon-tea-trio">+ Quick add</button>
   <div class="pv-info">
+    <small class="pv-meta">Single-estate Ceylon black tea, Ceylon green tea</small>
     <p class="pv-name"><a href="../html/box/sample-hamper.html">Small-Batch Ceylon Tea Trio</a></p>
     <div class="pv-row"><span class="pv-price">LKR 3,400</span></div>
   </div>
@@ -127,6 +173,7 @@
   <div class="pv-thumb" data-placeholder="craft"><svg class="icon" aria-hidden="true"><use href="#i-gift"/></svg></div>
   <button type="button" class="pv-quickadd" data-quickadd="meet-the-makers-artisan-box">+ Quick add</button>
   <div class="pv-info">
+    <small class="pv-meta">Hand-poured coconut-wax candle, Kithul treacle</small>
     <p class="pv-name"><a href="../html/box/sample-hamper.html">Meet the Makers Artisan Box</a></p>
     <div class="pv-row"><span class="pv-price">LKR 5,800</span></div>
   </div>
@@ -136,13 +183,60 @@
   <div class="pv-thumb" data-placeholder="chocolate"><svg class="icon" aria-hidden="true"><use href="#i-gift"/></svg></div>
   <button type="button" class="pv-quickadd" data-quickadd="dark-chocolate-cinnamon-box">+ Quick add</button>
   <div class="pv-info">
+    <small class="pv-meta">70% single-origin dark chocolate, Cinnamon-stick bark chocolate</small>
     <p class="pv-name"><a href="../html/box/sample-hamper.html">Dark Chocolate &amp; Cinnamon Box</a></p>
     <div class="pv-row"><span class="pv-price">LKR 3,900</span></div>
   </div>
 </div>
-<!-- /gen: hamper-preview -->
-    </div>
+<div class="pv-card" data-package="P08">
+  <span class="pv-badge">Featured</span>
+  <div class="pv-thumb" data-placeholder="sweets"><svg class="icon" aria-hidden="true"><use href="#i-gift"/></svg></div>
+  <button type="button" class="pv-quickadd" data-quickadd="avurudu-kavum-kokis-hamper">+ Quick add</button>
+  <div class="pv-info">
+    <small class="pv-meta">Kavum, Kokis</small>
+    <p class="pv-name"><a href="../html/box/sample-hamper.html">Avurudu Kavum &amp; Kokis Hamper</a></p>
+    <div class="pv-row"><span class="pv-price">LKR 4,800</span></div>
   </div>
+</div>
+<!-- /gen: hamper-featured -->
+      </div>
+      <div class="cta-row section__cta">
+        <a class="btn btn-secondary" href="shop.html">See every hamper</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="more-h">
+    <div class="wrap">
+      <h2 id="more-h" class="visually-hidden">More from BoxTop</h2>
+      <div class="teaser-grid">
+        <div class="block">
+          <h3>Sourced by hand, not by catalogue</h3>
+          <p>Small-batch Ceylon tea, local honey, and handloom wrapping — from named partners, not a warehouse shelf. Every hamper tells you exactly where it came from.</p>
+          <a class="btn btn-secondary" href="makers.html">Meet the makers</a>
+        </div>
+        <div class="block">
+          <h3>Gifting at scale, without losing the personal touch</h3>
+          <p>One enquiry, one delivery window, consistent hampers for the whole team or client list — built for the person approving the order, not browsing for one.</p>
+          <a class="btn btn-secondary" href="corporate.html">Corporate gifting</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-label="Contact">
+    <div class="wrap">
+      <div class="block block--center">
+        <!-- TODO: confirm with client -->
+        <p class="lede">Trusted by families and businesses across Sri Lanka.</p>
+        <p>Questions before you order?</p>
+        <div class="cta-row">
+          <a class="btn btn-primary" href="#" data-cfg-attr="href:whatsapp_url">WhatsApp us</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
 </main>
 <!-- partial: footer -->
 <footer class="site-footer">
@@ -178,9 +272,15 @@
     <p class="site-footer__legal">&copy; BoxTop</p>
   </div>
 </footer>
+<nav class="tab-bar" aria-label="Quick links">
+  <a href="#" data-nav="shop box"><svg class="icon" aria-hidden="true"><use href="#i-gift"/></svg><span>Shop</span></a>
+  <a href="#" data-nav="search"><svg class="icon" aria-hidden="true"><use href="#i-search"/></svg><span>Search</span></a>
+  <a href="#" data-nav="cart"><svg class="icon" aria-hidden="true"><use href="#i-cart"/></svg><span>Hamper</span></a>
+  <a href="#" data-nav="account"><svg class="icon" aria-hidden="true"><use href="#i-user"/></svg><span>Account</span></a>
+</nav>
 <!-- /partial: footer -->
 <!-- partial: scripts -->
-<script src="../assets/js/catalogue-data.js?v=54eb2fd6" defer></script>
+<script src="../assets/js/catalogue-data.js?v=b5e8901b" defer></script>
 <script src="../assets/js/site-config.js?v=4d3076f5" defer></script>
 <script src="../assets/js/format.js?v=f26795d6" defer></script>
 <script src="../assets/js/search-core.js?v=8d8a1167" defer></script>

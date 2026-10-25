@@ -41,3 +41,26 @@ Design-system documentation-only classes (swatches, type rows, `.block`, motion 
 ## Catalogue card pattern (generated)
 
 `<!-- gen: hamper-preview -->` (first 3 in-stock hampers, featured first) and `<!-- gen: hampers-all -->` are filled by `sync-shell` with the standard `.pv-card`: optional `.pv-badge` (Sold out beats New beats Featured), `.pv-thumb` with `data-placeholder`, `.pv-quickadd` (omitted when sold out), a name link, and a price from the same `money()` the browser uses. Other regions: `occasion-list`, `recipient-list`, `addon-list`. Never edit between gen markers.
+
+## Home page additions (Prompt 4)
+
+Extended from the nearest existing pattern unless noted. All in `assets/css/components.css`.
+
+| Class | Purpose |
+|---|---|
+| `.eyebrow` | Small uppercase label above a heading. From the design file, but coloured `--primary-deep` instead of `--accent`: magenta on the cream background measures about 4.4:1, under AA for 12.5px text. Flag, not a token change |
+| `.lede` | Larger intro paragraph (18px, 500) from the design file's hero |
+| `.intro` | Muted section intro paragraph |
+| `.media` | Image placeholder (`data-placeholder`, aspect ratio from `--ratio`, default 4/5) with a centred icon, until photography exists |
+| `.hero`, `.hero__inner`, `.hero__text`, `.hero__media` | Home hero: one column on mobile; text plus decorative media from 900px (media is hidden below 900px) |
+| `.trust`, `.trust-strip` | Four icon-and-text items: 2x2 on mobile, 4 across from 900px |
+| `.pv-grid--3` | Card grid: 2 columns, 3 from 900px (6 occasion cards) |
+| `.pv-card--occasion` | `.pv-card` as a single link with a 4/3 thumbnail, name only, no quick-add |
+| `.pv-meta` | Muted contents line under a hamper name (first two catalogue `contents`) |
+| `.pv-name a::after` | Stretched link: the whole hamper card is the click target (quick-add stays above it) |
+| `.block`, `.block--center`, `.teaser-grid` | Surface panel from the design file's `.block` (h3 at 21px), centred variant, and a 1-to-2 column grid for the teasers |
+| `.section__cta` | Spacing for the call-to-action row under a grid |
+
+`.wordmark` now has a 44px minimum height. The tab bar moved from the header partial to the end of the footer partial, so keyboard order reaches page content before it.
+
+New gen regions in `tools/shell-data.mjs`: `hamper-featured` (featured and in stock) and `occasion-cards` (from `catalogue.occasions`, using each occasion's optional `icon`, validated against the sprite).

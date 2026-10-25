@@ -1,12 +1,12 @@
 {
   "_todo": "[[TODO: confirm with client]] Every hamper name, content item, package number and price below is placeholder seed data, not a confirmed range.",
   "occasions": [
-    { "slug": "birthday", "name": "Birthday" },
-    { "slug": "corporate", "name": "Corporate" },
-    { "slug": "new-baby", "name": "New baby" },
-    { "slug": "condolence", "name": "Condolence" },
-    { "slug": "festive", "name": "Festive & seasonal" },
-    { "slug": "weddings", "name": "Weddings" }
+    { "slug": "birthday", "name": "Birthday", "icon": "i-gift" },
+    { "slug": "corporate", "name": "Corporate", "icon": "i-user" },
+    { "slug": "new-baby", "name": "New baby", "icon": "i-heart" },
+    { "slug": "condolence", "name": "Condolence", "icon": "i-chat" },
+    { "slug": "festive", "name": "Festive & seasonal", "icon": "i-star" },
+    { "slug": "weddings", "name": "Weddings", "icon": "i-check" }
   ],
   "recipients": [
     { "slug": "her", "name": "For her" },
