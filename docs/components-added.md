@@ -64,3 +64,9 @@ Extended from the nearest existing pattern unless noted. All in `assets/css/comp
 `.wordmark` now has a 44px minimum height. The tab bar moved from the header partial to the end of the footer partial, so keyboard order reaches page content before it.
 
 New gen regions in `tools/shell-data.mjs`: `hamper-featured` (featured and in stock) and `occasion-cards` (from `catalogue.occasions`, using each occasion's optional `icon`, validated against the sprite).
+
+## Display formatters (assets/js/format.js)
+
+- `money(n)` -> `"LKR 5,800"` (unchanged).
+- `prettyTime("HH:MM")` -> `"2:00 PM"`: 24-hour string to 12-hour with AM/PM (`"00:30"` -> `"12:30 AM"`, `"12:00"` -> `"12:00 PM"`). Returns `""` for anything that isn't a valid time. Display only; `site-config.json` keeps `"14:00"`.
+- Used through `data-cfg-format="time"` (and `"money"`) on any `[data-cfg]` element. `app.js` maps format names to functions in its `FORMATS` object; documented in CLAUDE.md.

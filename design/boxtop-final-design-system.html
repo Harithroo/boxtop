@@ -31,7 +31,7 @@ body{margin:0; background:var(--bg); color:var(--ink); font-family:var(--font-bo
 :focus-visible{outline:2px solid var(--focus-ring); outline-offset:var(--focus-offset);}
 .wrap{max-width:1080px; margin:0 auto; padding:0 24px;}
 header.hero{padding:56px 0 40px; border-bottom:1px solid var(--line);}
-.eyebrow{font-weight:700; font-size:var(--text-xs); letter-spacing:.06em; text-transform:uppercase; color:var(--accent); margin:0 0 12px;}
+.eyebrow{font-weight:700; font-size:var(--text-xs); letter-spacing:.06em; text-transform:uppercase; color:var(--primary-deep); margin:0 0 12px;}
 h1{font-family:var(--font-display); font-weight:800; font-size:clamp(1.9rem,4.2vw,2.8rem); line-height:1.1; margin:0 0 14px; max-width:20ch;}
 .lede{color:var(--ink-soft); max-width:62ch; font-size:var(--text-lg); margin:0;}
 nav.subnav{position:sticky; top:0; z-index:30; background:var(--bg); border-bottom:1px solid var(--line);}
@@ -235,7 +235,7 @@ footer.page p{max-width:64ch;}
             <tr><td>Ink-soft on Background</td><td>Muted text, captions</td><td>5.58:1</td><td class="pass">AA</td></tr>
             <tr><td>Ink-soft on Surface</td><td>Muted text on cards</td><td>6.28:1</td><td class="pass">AA</td></tr>
             <tr><td>White on Primary-deep</td><td>Primary button text</td><td>8.75:1</td><td class="pass">AAA</td></tr>
-            <tr><td>Primary-deep on Background</td><td>Secondary button, links</td><td>7.64:1</td><td class="pass">AAA</td></tr>
+            <tr><td>Primary-deep on Background</td><td>Secondary button, links, eyebrow labels</td><td>7.64:1</td><td class="pass">AAA</td></tr>
             <tr><td>Ink on Primary</td><td>Default badge</td><td>7.13:1</td><td class="pass">AAA</td></tr>
             <tr><td>White on Accent</td><td>Accent badge, price flag</td><td>5.06:1</td><td class="pass">AA</td></tr>
             <tr><td>Ink on Secondary</td><td>Ghost button</td><td>10.42:1</td><td class="pass">AAA</td></tr>
@@ -244,8 +244,10 @@ footer.page p{max-width:64ch;}
         </table>
       </div>
       <div class="correction">
-        <b>Two corrections, not eyeballed</b>
-        Ink-soft was #8A7A64 in the direction file — 3.63:1 on the cream background, failing AA. Darkened to #6B5D48 (5.58:1). Accent badges used dark ink text on the pink accent — 2.60:1, failing badly. Switched to white text (5.06:1). Every other pair above was checked at the same time; none needed changing.
+        <b>Three corrections, not eyeballed</b>
+        Ink-soft was #8A7A64 in the direction file — 3.63:1 on the cream background, failing AA. Darkened to #6B5D48 (5.58:1). Accent badges used dark ink text on the pink accent — 2.60:1, failing badly. Switched to white text (5.06:1). Caught later, while building the home page: the eyebrow label used accent-coloured text (magenta) directly on the cream background at 12.5px — under 4.5:1, failing AA for text that size. Switched to primary-deep (7.64:1).
+        <br><br>
+        <b style="font-size:var(--text-sm);">Rule going forward</b> — <code>--accent</code> is for backgrounds (badges, the price-flag chip) and large, bold display text only. It is never used as a small-text colour on the cream background; use <code>--primary-deep</code> for small accent-styled labels, links and eyebrows instead.
       </div>
     </div>
   </section>

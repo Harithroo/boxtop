@@ -15,19 +15,21 @@
 
   // 2. Fill [data-cfg] / [data-cfg-attr] from window.BOXTOP_CONFIG.
   //    data-cfg="support_hours"                    -> textContent
-  //    data-cfg="shipping_fee" data-cfg-format="money" -> textContent through money()
+  //    data-cfg="shipping_fee" data-cfg-format="money" -> textContent through money(); format="time" -> prettyTime()
   //    data-cfg-attr="href:whatsapp_url;title:support_hours" -> attributes
   function cfgValue(path) {
     var v = window.BOXTOP_CONFIG;
     path.split('.').forEach(function (k) { v = v == null ? v : v[k]; });
     return v;
   }
+  var FORMATS = { money: 'money', time: 'prettyTime' };
   function fillConfig() {
     if (!window.BOXTOP_CONFIG) return;
     document.querySelectorAll('[data-cfg]').forEach(function (el) {
       var v = cfgValue(el.dataset.cfg);
       if (v == null) return;
-      el.textContent = el.dataset.cfgFormat === 'money' && window.money ? window.money(v) : String(v);
+      var fmt = FORMATS[el.dataset.cfgFormat];
+      el.textContent = fmt && window[fmt] ? window[fmt](v) : String(v);
     });
     document.querySelectorAll('[data-cfg-attr]').forEach(function (el) {
       el.dataset.cfgAttr.split(';').forEach(function (pair) {
