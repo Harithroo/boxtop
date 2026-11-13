@@ -30,14 +30,27 @@ export const users = mysqlTable("users", {
 // ---------- Catalogue ----------
 export const boxStatus = ["DRAFT", "ACTIVE", "ARCHIVED"] as const;
 
+// The physical boxes a gift can go in (navy lid, cream, red ribbon). Colours drive the box drawn in the builder.
+export const boxStyles = mysqlTable("box_styles", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 80 }).notNull(), // "Navy lid box"
+  outer: varchar("outer_color", { length: 9 }).notNull(), // hex colour of the box and lid
+  inner: varchar("inner_color", { length: 9 }).notNull(), // hex colour of the lining
+  active: boolean("active").notNull().default(true),
+  sortOrder: int("sort_order").notNull().default(0),
+});
+
 export const boxes = mysqlTable("boxes", {
   id: int("id").autoincrement().primaryKey(),
   name: varchar("name", { length: 160 }).notNull(),
   slug: varchar("slug", { length: 180 }).notNull().unique(),
   code: varchar("code", { length: 20 }).unique(), // "P15" package short code
   summary: varchar("summary", { length: 255 }), // contents line on cards
+  tagline: varchar("tagline", { length: 60 }), // short handwritten caption on the home page photos, "For him"
   description: text("description"),
   price: int("price").notNull(),
+  priceOnRequest: boolean("price_on_request").notNull().default(false), // shows "Ask for price": WhatsApp only, never in the cart
+  styleId: int("style_id").references(() => boxStyles.id, { onDelete: "set null" }), // the box it comes in
   compareAtPrice: int("compare_at_price"),
   status: mysqlEnum("status", boxStatus).notNull().default("DRAFT"),
   badge: varchar("badge", { length: 40 }),
@@ -82,6 +95,7 @@ export const items = mysqlTable("items", {
   builderPrice: int("builder_price"),
   image: varchar("image", { length: 255 }),
   category: varchar("category", { length: 60 }),
+  blurb: varchar("blurb", { length: 120 }), // one-line detail on builder tiles, "Boxed, in its case"
   sortOrder: int("sort_order").notNull().default(0),
 });
 
@@ -122,6 +136,7 @@ export const boxContents = mysqlTable("box_contents", {
   boxId: int("box_id").notNull().references(() => boxes.id, { onDelete: "cascade" }),
   itemId: int("item_id").notNull().references(() => items.id, { onDelete: "cascade" }),
   quantity: int("quantity").notNull().default(1),
+  sortOrder: int("sort_order").notNull().default(0), // keeps "what's inside" in the order it was typed
 }, (t) => [primaryKey({ columns: [t.boxId, t.itemId] })]);
 
 export const collectionKind = ["OCCASION", "RECIPIENT", "CURATED"] as const;
@@ -131,10 +146,15 @@ export const collections = mysqlTable("collections", {
   kind: mysqlEnum("kind", collectionKind).notNull(),
   name: varchar("name", { length: 120 }).notNull(),
   slug: varchar("slug", { length: 140 }).notNull(),
+  shortName: varchar("short_name", { length: 60 }), // "Avurudu" for "Sinhala & Tamil New Year"
   intro: text("intro"),
   image: varchar("image", { length: 255 }),
   sortOrder: int("sort_order").notNull().default(0),
   showOnHome: boolean("show_on_home").notNull().default(false),
+  // Occasions only: when it falls each year. See src/lib/occasions.ts for the formats.
+  dateRule: varchar("date_rule", { length: 160 }), // "fixed:12-25" | "nth:5-0-2" | "list:2026-11-08,2027-10-28"
+  dateLabel: varchar("date_label", { length: 60 }), // wording to show instead of the computed date, "13–14 April"
+  featuredBoxId: int("featured_box_id").references(() => boxes.id, { onDelete: "set null" }), // the box we suggest for it
 }, (t) => [uniqueIndex("collections_kind_slug").on(t.kind, t.slug)]);
 
 export const boxCollections = mysqlTable("box_collections", {

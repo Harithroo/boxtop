@@ -7,9 +7,13 @@ export const SPECS = {
       { name: "kind", label: "Type", type: "select", options: ["OCCASION", "RECIPIENT", "CURATED"], required: true, width: "8rem" },
       { name: "name", label: "Name", type: "text", required: true },
       { name: "slug", label: "Web address", type: "text", placeholder: "from name" },
-      { name: "intro", label: "Intro text", type: "textarea" },
+      { name: "shortName", label: "Short name", type: "text", placeholder: "Avurudu" },
+      { name: "intro", label: "Intro text (for an occasion: the gift idea shown on the home page)", type: "textarea" },
       { name: "sortOrder", label: "Order", type: "number", width: "5rem" },
-      { name: "showOnHome", label: "Home", type: "bool" },
+      { name: "dateRule", label: "When it falls (occasions)", type: "text", placeholder: "fixed:12-25" },
+      { name: "dateLabel", label: "Date wording", type: "text", placeholder: "13–14 April" },
+      { name: "featuredBoxId", label: "Suggested box ID", type: "number", placeholder: "–" },
+      { name: "showOnHome", label: "Shelf on the home page", type: "bool" },
     ],
   },
   addOns: {
@@ -84,7 +88,8 @@ export const SPECS = {
     title: "Items", fields: [
       { name: "name", label: "Item", type: "text", required: true },
       { name: "size", label: "Size", type: "text", placeholder: "100g" },
-      { name: "category", label: "Category", type: "text", placeholder: "Tea, Sweets, Keepsakes" },
+      { name: "blurb", label: "One-line detail (builder tile)", type: "text", placeholder: "Boxed, in its case" },
+      { name: "category", label: "Group in the builder", type: "text", placeholder: "Keepsakes, Pamper, Treats" },
       { name: "builderPrice", label: "Builder price", type: "number" },
       { name: "cost", label: "Cost", type: "number" },
       { name: "stock", label: "Stock", type: "number", placeholder: "–" },
@@ -92,6 +97,15 @@ export const SPECS = {
       { name: "sortOrder", label: "Order", type: "number", width: "5rem" },
       { name: "builderEnabled", label: "In the builder", type: "bool" },
       { name: "image", label: "Photo", type: "image" },
+    ],
+  },
+  boxStyles: {
+    title: "Boxes a gift can come in", fields: [
+      { name: "name", label: "Name", type: "text", required: true, placeholder: "Navy lid box" },
+      { name: "outer", label: "Box colour (hex)", type: "text", required: true, placeholder: "#22388f" },
+      { name: "inner", label: "Lining colour (hex)", type: "text", required: true, placeholder: "#c99f72" },
+      { name: "sortOrder", label: "Order", type: "number", width: "5rem" },
+      { name: "active", label: "On", type: "bool" },
     ],
   },
   makers: {

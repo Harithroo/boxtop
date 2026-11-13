@@ -5,7 +5,7 @@ import type { Metadata } from "next";
 import { getBoxBySlug, getAddOns } from "@/lib/catalog";
 import { getZones } from "@/lib/delivery";
 import { getSettings } from "@/lib/settings";
-import { rs } from "@/lib/format";
+import { priceText, rs } from "@/lib/format";
 import { GiftArt } from "@/components/GiftArt";
 import { and, asc, desc, eq } from "drizzle-orm";
 import { db, schema } from "@/db";
@@ -39,18 +39,19 @@ export default async function BoxPage({ params }: P) {
     "@context": "https://schema.org", "@type": "Product", name: box.name, description: box.summary ?? undefined, sku: box.code ?? String(box.id),
     image: box.images.map((i) => site + i.url),
     ...(reviews.length ? { aggregateRating: { "@type": "AggregateRating", ratingValue: avg.toFixed(1), reviewCount: reviews.length } } : {}),
-    offers: { "@type": "Offer", priceCurrency: "LKR", price: box.price, availability: soldOut ? "https://schema.org/OutOfStock" : "https://schema.org/InStock", url: `${site}/box/${box.slug}` },
+    ...(box.priceOnRequest ? {} : { offers: { "@type": "Offer", priceCurrency: "LKR", price: box.price, availability: soldOut ? "https://schema.org/OutOfStock" : "https://schema.org/InStock", url: `${site}/box/${box.slug}` } }),
   };
   const makers = [...new Map(box.contents.map((c) => c.item.maker).filter(Boolean).map((m) => [m!.id, m!])).values()];
 
   return (
     <div className="container-bt py-6">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <nav className="hint mb-4"><Link href="/shop" className="hover:text-brand">All boxes</Link> / {box.name}</nav>
+      <nav className="hint mb-6"><Link href="/shop" className="hover:text-brand">All boxes</Link> / {box.name}</nav>
       <div className="grid gap-8 md:grid-cols-2">
         <div className="min-w-0">
-          <div className="relative aspect-square overflow-hidden rounded-lg bg-surface-alt">
-            {box.images[0] ? <Image src={box.images[0].url} alt={box.images[0].alt ?? box.name} fill priority sizes="(min-width:768px) 50vw, 100vw" className="object-cover" unoptimized /> : <GiftArt seed={box.id} className="h-full w-full" />}
+          <div className="print md:sticky md:top-28 md:-rotate-1">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            {box.images[0] ? <img src={box.images[0].url} alt={box.images[0].alt ?? box.name} className="w-full rounded-[2px]" /> : <GiftArt seed={box.id} className="aspect-square w-full rounded-[2px]" />}
           </div>
           {box.images.length > 1 && (
             <div className="mt-3 grid grid-cols-4 gap-2">
@@ -67,13 +68,13 @@ export default async function BoxPage({ params }: P) {
           {box.code && <p className="eyebrow">Package {box.code.replace(/^P/, "")}</p>}
           <h1 className="h1">{box.name}</h1>
           <div className="mt-2 flex items-baseline gap-3">
-            <span className="price text-2xl">{rs(box.price)}</span>
-            {box.compareAtPrice && box.compareAtPrice > box.price && <s className="text-ink-muted">{rs(box.compareAtPrice)}</s>}
+            <span className="price text-2xl">{priceText(box)}</span>
+            {!box.priceOnRequest && box.compareAtPrice && box.compareAtPrice > box.price && <s className="text-ink-muted">{rs(box.compareAtPrice)}</s>}
             {box.badge && <span className="badge">{box.badge}</span>}
           </div>
           {reviews.length > 0 && <a href="#reviews" className="mt-2 flex items-center gap-2 text-sm"><Stars value={avg} /> <span className="text-ink-muted">{avg.toFixed(1)} · {reviews.length} review{reviews.length > 1 && "s"}</span></a>}
           {box.summary && <p className="mt-3 text-ink-muted">{box.summary}</p>}
-          {tiers.length > 0 && (
+          {tiers.length > 0 && !box.priceOnRequest && (
             <div className="mt-4 rounded-md bg-brand-soft p-3 text-sm">
               <p className="font-bold">Buying several? Bulk prices apply automatically</p>
               <ul className="mt-1 flex flex-wrap gap-x-4">{tiers.map((t) => <li key={t.id}>{t.minQty}+ boxes: <b>{rs(t.unitPrice)}</b> each</li>)}</ul>
@@ -83,12 +84,13 @@ export default async function BoxPage({ params }: P) {
 
           <div className="card mt-6 p-4 sm:p-5">
             <BuyPanel
-              box={{ id: box.id, name: box.name, code: box.code, price: box.price, leadDays: box.leadDays, sameDay: box.sameDay, soldOut }}
+              box={{ id: box.id, name: box.name, code: box.code, price: box.price, priceOnRequest: box.priceOnRequest, leadDays: box.leadDays, sameDay: box.sameDay, soldOut }}
               zones={zones.map((z) => ({ id: z.id, name: z.name, cities: z.cities, fee: z.fee }))}
               addOns={addOns.map((a) => ({ id: a.id, name: a.name, price: a.price }))}
               whatsapp={s.store.whatsapp}
             />
           </div>
+          <p className="mt-4 text-sm text-ink-muted">Like it, but not quite? <Link href={`/?tweak=${box.slug}#build`} className="tlink">Tweak this box in the builder</Link> and send us your version.</p>
 
           {box.contents.length > 0 && (
             <section className="mt-8">
@@ -136,7 +138,7 @@ export default async function BoxPage({ params }: P) {
           </section>
 
           <div className="mt-8 rounded-lg bg-accent-soft p-4 text-sm">
-            Want something different? <Link href="/custom" className="font-bold text-accent-text underline">Tell us who it&apos;s for</Link> and we&apos;ll build a custom box.
+            Want something different? <Link href="/custom" className="tlink">Tell us who it&apos;s for</Link> and we&apos;ll build a custom box.
           </div>
         </div>
       </div>

@@ -32,7 +32,8 @@ export async function loadBoxFull(where: SQL) {
     .from(schema.boxContents)
     .innerJoin(schema.items, eq(schema.items.id, schema.boxContents.itemId))
     .leftJoin(schema.makers, eq(schema.makers.id, schema.items.makerId))
-    .where(eq(schema.boxContents.boxId, box.id));
+    .where(eq(schema.boxContents.boxId, box.id))
+    .orderBy(asc(schema.boxContents.sortOrder), asc(schema.boxContents.itemId));
   const colRows = await db
     .select({ bc: schema.boxCollections, collection: schema.collections })
     .from(schema.boxCollections)

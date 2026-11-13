@@ -61,7 +61,7 @@ export default async function Dashboard() {
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4 xl:grid-cols-7">
         {tiles.map(([l, n, h]) => (
           <Link key={l} href={h} className="card p-4 hover:shadow-[var(--shadow-raised)]">
-            <p className="hint">{l}</p><p className={`font-[family-name:var(--font-display)] text-3xl font-semibold ${n ? "text-brand" : ""}`}>{n}</p>
+            <p className="hint">{l}</p><p className={`font-display text-3xl font-bold tracking-tight ${n ? "text-foil" : "text-ink-muted"}`}>{n}</p>
           </Link>
         ))}
       </div>

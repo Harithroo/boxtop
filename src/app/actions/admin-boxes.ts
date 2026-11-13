@@ -16,6 +16,8 @@ const B = z.object({
   slug: z.string().trim().optional(),
   code: z.string().trim().toUpperCase().max(20).optional(),
   summary: z.string().trim().max(255).optional(),
+  tagline: z.string().trim().max(60).optional(),
+  styleId: optInt,
   description: z.string().optional(),
   price: z.coerce.number().int().min(0, "Price is required"),
   compareAtPrice: optInt,
@@ -52,6 +54,7 @@ export async function saveBox(_: BoxState, fd: FormData): Promise<BoxState> {
   const id = Number(fd.get("id")) || 0;
   const values = {
     name: f.name, slug: slugify(f.slug || f.name), code: f.code || null, summary: f.summary || null, description: f.description || null,
+    tagline: f.tagline || null, styleId: f.styleId || null, priceOnRequest: fd.get("priceOnRequest") === "on",
     price: f.price, compareAtPrice: f.compareAtPrice, status: f.status, badge: f.badge || null, leadDays: f.leadDays, stock: f.stock,
     sortOrder: f.sortOrder, seoTitle: f.seoTitle || null, seoDescription: f.seoDescription || null,
     tags: f.tags ? f.tags.toLowerCase().split(",").map((x) => x.trim()).filter(Boolean).join(",") : null,
@@ -83,11 +86,12 @@ export async function saveBox(_: BoxState, fd: FormData): Promise<BoxState> {
   // contents
   if (typeof f.contents === "string") {
     await db.delete(schema.boxContents).where(eq(schema.boxContents.boxId, boxId));
-    for (const c of parseContents(f.contents)) {
+    for (const [n, c] of parseContents(f.contents).entries()) {
       const [ex] = await db.select().from(schema.items).where(eq(schema.items.name, c.name));
       const itemId = ex ? ex.id : (await db.insert(schema.items).values({ name: c.name, size: c.size }).$returningId())[0].id;
       if (ex && c.size && ex.size !== c.size) await db.update(schema.items).set({ size: c.size }).where(eq(schema.items.id, ex.id));
-      await db.insert(schema.boxContents).values({ boxId, itemId, quantity: c.qty }).onDuplicateKeyUpdate({ set: { quantity: c.qty } });
+      // sortOrder keeps the lines in the order they were typed
+      await db.insert(schema.boxContents).values({ boxId, itemId, quantity: c.qty, sortOrder: n }).onDuplicateKeyUpdate({ set: { quantity: c.qty } });
     }
   }
 

@@ -27,10 +27,10 @@ export default async function Finder({ searchParams }: { searchParams: Promise<{
       {chosen.length > 0 && <div className="mt-3 flex flex-wrap gap-2">{chosen.map((c) => <span key={c.id} className="chip chip-on">{c.label}</span>)}<Link href="/gift-finder" className="chip">Start again</Link></div>}
       <div className="mt-6"><BoxGrid boxes={exact.length ? exact : close} sameDayOpen /></div>
       {!exact.length && close.length > 0 && <p className="hint mt-3">These are the closest matches.</p>}
-      <div className="mt-10 rounded-lg bg-brand-deep p-6 text-on-brand">
+      <div className="mt-10 ribbon-frame p-6 sm:p-8">
         <h2 className="h2">Still not quite right?</h2>
         <p className="mt-1 opacity-90">Build your own box, or tell us about them and we&apos;ll make one.</p>
-        <div className="mt-4 flex flex-wrap gap-3"><Link href="/build" className="btn bg-white text-brand">Build your own</Link><Link href="/custom" className="btn-accent">Custom order</Link></div>
+        <div className="mt-4 flex flex-wrap gap-3"><Link href="/build" className="btn-primary">Build your own</Link><Link href="/custom" className="btn-outline">Custom order</Link></div>
       </div>
     </div>
   );

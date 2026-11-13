@@ -10,7 +10,7 @@ export function SlipUpload({ number }: { number: string }) {
       <input type="hidden" name="number" value={number} />
       <label className="label" htmlFor="slip">Upload the payment slip</label>
       <input id="slip" name="slip" type="file" accept="image/*" required className="input py-2" />
-      {s.error && <p role="alert" className="text-sm text-accent-text">{s.error}</p>}
+      {s.error && <p role="alert" className="text-sm text-danger">{s.error}</p>}
       <button className="btn-primary" disabled={pending}>{pending ? "Uploading…" : "Send slip"}</button>
     </form>
   );

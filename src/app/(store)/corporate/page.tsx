@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { QuoteRequestForm } from "@/components/CorporateForms";
 export const metadata = { title: "Corporate gifting", description: "Gift boxes for staff, clients and events: budget tiers, logo sleeves and delivery to many addresses across Sri Lanka." };
-const TIERS = [["Essentials", "Under Rs. 5,000", "Tea, treats and a card with your logo."], ["Signature", "Rs. 5,000–10,000", "Curated boxes from Sri Lankan makers."], ["Premium", "Rs. 10,000+", "Hampers for key clients and leadership."]];
+const TIERS = [["Essentials", "Under Rs 5,000", "Tea, treats and a card with your logo."], ["Signature", "Rs 5,000–10,000", "Curated boxes from Sri Lankan makers."], ["Premium", "Rs 10,000+", "Hampers for key clients and leadership."]];
 export default function Corporate() {
   return (
     <div className="container-bt py-8">

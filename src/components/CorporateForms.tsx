@@ -14,13 +14,13 @@ export function QuoteRequestForm() {
         <div><label className="label">Mobile</label><input name="phone" className="input" inputMode="tel" required /></div>
         <div><label className="label">Email</label><input name="email" type="email" className="input" /></div>
         <div><label className="label">How many boxes?</label><input name="quantity" type="number" min={1} className="input" required /></div>
-        <div><label className="label">Budget per box</label><select name="budget" className="input"><option value="">Choose</option><option>Under Rs. 5,000</option><option>Rs. 5,000–10,000</option><option>Rs. 10,000–20,000</option><option>Rs. 20,000+</option></select></div>
+        <div><label className="label">Budget per box</label><select name="budget" className="input"><option value="">Choose</option><option>Under Rs 5,000</option><option>Rs 5,000–10,000</option><option>Rs 10,000–20,000</option><option>Rs 20,000+</option></select></div>
         <div><label className="label">Needed by</label><input name="neededBy" type="date" className="input" /></div>
         <div><label className="label">Branding</label><select name="branding" className="input"><option value="">None</option><option>Logo on the card</option><option>Logo sleeve on the box</option><option>Logo card and sleeve</option></select></div>
       </div>
       <div><label className="label">What do you have in mind?</label><textarea name="request" rows={4} className="input" placeholder="Occasion, what to include, one office or many addresses…" required /></div>
       <div><label className="label">Logo or reference (optional)</label><input name="photo" type="file" accept="image/*" className="input py-2" /></div>
-      {s.error && <p role="alert" className="text-sm text-accent-text">{s.error}</p>}
+      {s.error && <p role="alert" className="text-sm text-danger">{s.error}</p>}
       <button className="btn-primary" disabled={pending}>{pending ? "Sending…" : "Request a quote"}</button>
     </form>
   );
@@ -40,7 +40,7 @@ export function AcceptQuoteForm({ token, slots, minDate }: { token: string; slot
       <div><label className="label">Time slot</label><select name="slotId" className="input"><option value="">Any time</option>{slots.map((sl) => <option key={sl.id} value={sl.id}>{sl.label}</option>)}</select></div>
       <div><label className="label">Directions (optional)</label><input name="notes" className="input" /></div>
       <div className="sm:col-span-2"><label className="label">Card message (optional)</label><input name="giftMessage" className="input" /></div>
-      {s.error && <p role="alert" className="text-sm text-accent-text sm:col-span-2">{s.error}</p>}
+      {s.error && <p role="alert" className="text-sm text-danger sm:col-span-2">{s.error}</p>}
       <div className="sm:col-span-2"><button className="btn-primary" disabled={pending}>{pending ? "Placing order…" : "Accept quote"}</button><p className="hint mt-2">You&apos;ll pay by bank transfer on the next page.</p></div>
     </form>
   );
@@ -55,9 +55,9 @@ export function BulkOrderForm({ boxes, slots, minDate }: { boxes: { id: number; 
       <section className="card space-y-3 p-5">
         <h2 className="h2">1. The box</h2>
         <select name="boxId" className="input" value={boxId} onChange={(e) => setBoxId(Number(e.target.value))}>
-          {boxes.map((b) => <option key={b.id} value={b.id}>{b.name} · Rs. {b.price.toLocaleString("en-LK")}</option>)}
+          {boxes.map((b) => <option key={b.id} value={b.id}>{b.name} · Rs {b.price.toLocaleString("en-US")}</option>)}
         </select>
-        {box && box.tiers.length > 0 && <p className="hint">Bulk prices: {box.tiers.map((t) => `${t.minQty}+ at Rs. ${t.unitPrice.toLocaleString("en-LK")}`).join(" · ")}</p>}
+        {box && box.tiers.length > 0 && <p className="hint">Bulk prices: {box.tiers.map((t) => `${t.minQty}+ at Rs ${t.unitPrice.toLocaleString("en-US")}`).join(" · ")}</p>}
         <div className="grid gap-3 sm:grid-cols-3">
           <div><label className="label">Boxes per address</label><input name="perAddress" type="number" min={1} defaultValue={1} className="input" /></div>
           <div><label className="label">Delivery date</label><input name="date" type="date" min={minDate} defaultValue={minDate} className="input" required /></div>
@@ -79,7 +79,7 @@ export function BulkOrderForm({ boxes, slots, minDate }: { boxes: { id: number; 
         <input name="company" className="input" placeholder="Company (optional)" aria-label="Company" />
       </section>
       {s.error && (
-        <div role="alert" className="rounded-md bg-accent-soft p-4 text-sm text-accent-text">
+        <div role="alert" className="rounded-md bg-danger/10 p-4 text-sm text-danger">
           <p className="font-bold">{s.error}</p>
           {s.errors && <ul className="mt-1 list-inside list-disc">{s.errors.map((e) => <li key={e}>{e}</li>)}</ul>}
         </div>
@@ -98,7 +98,7 @@ export function BulkSlipForm({ refCode }: { refCode: string }) {
       <input type="hidden" name="ref" value={refCode} />
       <label className="label" htmlFor="bslip">Upload the payment slip</label>
       <input id="bslip" name="slip" type="file" accept="image/*" required className="input py-2" />
-      {s.error && <p role="alert" className="text-sm text-accent-text">{s.error}</p>}
+      {s.error && <p role="alert" className="text-sm text-danger">{s.error}</p>}
       <button className="btn-primary" disabled={pending}>Send slip</button>
     </form>
   );

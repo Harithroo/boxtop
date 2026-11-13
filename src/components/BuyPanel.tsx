@@ -8,7 +8,7 @@ type Zone = { id: number; name: string; cities: string; fee: number };
 type AddOn = { id: number; name: string; price: number };
 
 export function BuyPanel({ box, zones, addOns, whatsapp }: {
-  box: { id: number; name: string; code: string | null; price: number; leadDays: number; sameDay: boolean; soldOut: boolean };
+  box: { id: number; name: string; code: string | null; price: number; priceOnRequest?: boolean; leadDays: number; sameDay: boolean; soldOut: boolean };
   zones: Zone[]; addOns: AddOn[]; whatsapp: string;
 }) {
   const [qty, setQty] = useState(1);
@@ -19,11 +19,23 @@ export function BuyPanel({ box, zones, addOns, whatsapp }: {
 
   const waText = [
     `Hi Boxtop, I'd like to order:`,
-    `${qty} × ${box.name}${box.code ? ` (${box.code})` : ""}, Rs. ${(box.price * qty).toLocaleString("en-LK")}`,
-    ...extras.map((a) => `+ ${a.name}, Rs. ${a.price.toLocaleString("en-LK")}`),
+    `${qty} × ${box.name}${box.code ? ` (${box.code})` : ""}, Rs ${(box.price * qty).toLocaleString("en-US")}`,
+    ...extras.map((a) => `+ ${a.name}, Rs ${a.price.toLocaleString("en-US")}`),
     d.city ? `Delivery to ${d.city}${d.date ? ` on ${d.date}` : ""}${d.slot ? `, ${d.slot}` : ""}` : "",
   ].filter(Boolean).join("\n");
-  const wa = whatsapp ? `https://wa.me/${whatsapp.replace(/\D/g, "").replace(/^0/, "94")}?text=${encodeURIComponent(waText)}` : "";
+  const waTo = (text: string) => (whatsapp ? `https://wa.me/${whatsapp.replace(/\D/g, "").replace(/^0/, "94")}?text=${encodeURIComponent(text)}` : "");
+  const wa = waTo(waText);
+
+  // A box sold on request has no price to put in a cart: it is ordered by message.
+  if (box.priceOnRequest) {
+    const ask = waTo(`Hi Boxtop, could I get the price for ${box.name}${box.code ? ` (${box.code})` : ""}? I'd like it delivered to …`);
+    return (
+      <div className="space-y-3">
+        <p className="text-sm text-ink-muted">This box is priced when you order, because what goes in it changes with the season. Message us and we&apos;ll reply with today&apos;s price and the earliest delivery day.</p>
+        <a href={ask || "/contact"} target="_blank" rel="noopener" className="btn btn-wa w-full"><MessageCircle size={18} strokeWidth={1.75} /> Ask for the price on WhatsApp</a>
+      </div>
+    );
+  }
 
   return (
     <form action={addToCart} className="space-y-5">
@@ -36,9 +48,9 @@ export function BuyPanel({ box, zones, addOns, whatsapp }: {
           <div className="grid gap-2 sm:grid-cols-2">
             {addOns.map((a) => (
               <label key={a.id} className={`flex min-h-11 cursor-pointer items-center gap-3 rounded-md border px-3 py-2 text-sm ${picked.includes(a.id) ? "border-2 border-brand bg-brand-soft" : "border-line bg-surface"}`}>
-                <input type="checkbox" name="addon" value={a.id} className="h-4 w-4 accent-[#3C2894]"
+                <input type="checkbox" name="addon" value={a.id} className="h-4 w-4 accent-brand"
                   onChange={(e) => setPicked((p) => (e.target.checked ? [...p, a.id] : p.filter((x) => x !== a.id)))} />
-                <span className="flex-1">{a.name}</span><span className="font-bold">Rs. {a.price.toLocaleString("en-LK")}</span>
+                <span className="flex-1">{a.name}</span><span className="font-bold">Rs {a.price.toLocaleString("en-US")}</span>
               </label>
             ))}
           </div>
@@ -52,13 +64,13 @@ export function BuyPanel({ box, zones, addOns, whatsapp }: {
           <input id="qty" name="qty" value={qty} readOnly className="w-10 bg-transparent text-center font-bold" />
           <button type="button" className="h-11 w-11 text-lg" onClick={() => setQty((q) => Math.min(20, q + 1))} aria-label="More">+</button>
         </div>
-        <span className="price ml-auto">Rs. {total.toLocaleString("en-LK")}</span>
+        <span className="price ml-auto">Rs {total.toLocaleString("en-US")}</span>
       </div>
 
       <div className="grid gap-2 sm:grid-cols-2">
         <button className="btn-primary" disabled={box.soldOut}>{box.soldOut ? "Sold out" : "Add to cart"}</button>
         {wa && (
-          <a href={wa} target="_blank" rel="noopener" className="btn border border-[#1E7A4C] bg-surface text-[#1E7A4C] hover:bg-[#1E7A4C] hover:text-white">
+          <a href={wa} target="_blank" rel="noopener" className="btn btn-wa">
             <MessageCircle size={18} strokeWidth={1.75} /> Order on WhatsApp
           </a>
         )}

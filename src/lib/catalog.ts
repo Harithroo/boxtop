@@ -4,10 +4,10 @@ import { db, schema } from "@/db";
 import { loadBoxes, loadBoxFull } from "@/db/loaders";
 
 export const BUDGETS = [
-  { id: "u5", label: "Under Rs. 5,000", min: 0, max: 5000 },
-  { id: "5-10", label: "Rs. 5,000–10,000", min: 5000, max: 10000 },
-  { id: "10-20", label: "Rs. 10,000–20,000", min: 10000, max: 20000 },
-  { id: "20p", label: "Rs. 20,000+", min: 20000, max: Infinity },
+  { id: "u5", label: "Under Rs 5,000", min: 0, max: 5000 },
+  { id: "5-10", label: "Rs 5,000–10,000", min: 5000, max: 10000 },
+  { id: "10-20", label: "Rs 10,000–20,000", min: 10000, max: 20000 },
+  { id: "20p", label: "Rs 20,000+", min: 20000, max: Infinity },
 ];
 
 export const SORTS = { popular: "Popular", "price-asc": "Price, low to high", "price-desc": "Price, high to low", new: "Newest" } as const;
@@ -17,7 +17,8 @@ export async function listBoxes(opts: { collectionId?: number; q?: string; budge
   if (opts.featured) where.push(eq(schema.boxes.featured, true));
   const b = BUDGETS.find((x) => x.id === opts.budget);
   if (b) {
-    where.push(gte(schema.boxes.price, b.min));
+    // a box sold on request has no number to compare, so a budget filter leaves it out
+    where.push(eq(schema.boxes.priceOnRequest, false), gte(schema.boxes.price, b.min));
     if (b.max !== Infinity) where.push(lt(schema.boxes.price, b.max));
   }
   if (opts.q) {
@@ -33,9 +34,10 @@ export async function listBoxes(opts: { collectionId?: number; q?: string; budge
     if (!ids.length) return [];
     where.push(inArray(schema.boxes.id, ids));
   }
+  // price sorts keep "ask for price" boxes at the end either way
   const order =
-    opts.sort === "price-asc" ? [asc(schema.boxes.price)] :
-    opts.sort === "price-desc" ? [desc(schema.boxes.price)] :
+    opts.sort === "price-asc" ? [asc(schema.boxes.priceOnRequest), asc(schema.boxes.price)] :
+    opts.sort === "price-desc" ? [asc(schema.boxes.priceOnRequest), desc(schema.boxes.price)] :
     opts.sort === "new" ? [desc(schema.boxes.createdAt)] :
     [desc(schema.boxes.featured), asc(schema.boxes.sortOrder), desc(schema.boxes.id)];
 

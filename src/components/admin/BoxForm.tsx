@@ -4,12 +4,13 @@ import { saveBox } from "@/app/actions/admin-boxes";
 
 type Box = {
   id: number; name: string; slug: string; code: string | null; summary: string | null; description: string | null; price: number; compareAtPrice: number | null;
+  tagline?: string | null; priceOnRequest?: boolean; styleId?: number | null;
   status: string; badge: string | null; tags?: string | null; featured: boolean; sameDay: boolean; leadDays: number; stock: number | null; sortOrder: number; seoTitle: string | null; seoDescription: string | null;
 };
 type Col = { id: number; name: string; kind: string };
 
-export function BoxForm({ box, collections, selected, images, contents, tiers = "" }: {
-  box?: Box; collections: Col[]; selected: number[]; images: { id: number; url: string }[]; contents: string; tiers?: string;
+export function BoxForm({ box, collections, selected, images, contents, tiers = "", styles = [] }: {
+  box?: Box; styles?: { id: number; name: string }[]; collections: Col[]; selected: number[]; images: { id: number; url: string }[]; contents: string; tiers?: string;
 }) {
   const [s, action, pending] = useActionState(saveBox, {});
   const groups = ["OCCASION", "RECIPIENT", "CURATED"];
@@ -24,6 +25,7 @@ export function BoxForm({ box, collections, selected, images, contents, tiers = 
             <div><label className="label" htmlFor="slug">Web address</label><input id="slug" name="slug" defaultValue={box?.slug} className="input" placeholder="made from the name" /></div>
           </div>
           <div><label className="label" htmlFor="summary">Contents line (shown on cards)</label><input id="summary" name="summary" defaultValue={box?.summary ?? ""} className="input" maxLength={255} placeholder="A ladies' watch, Ferrero Rocher, KitKat and a teddy" /></div>
+          <div><label className="label" htmlFor="tagline">Short caption (home page photo)</label><input id="tagline" name="tagline" defaultValue={box?.tagline ?? ""} className="input" maxLength={60} placeholder="For him" /><p className="hint mt-1">Handwritten under the photo when this box is featured. Leave empty to use the name.</p></div>
           <div><label className="label" htmlFor="contents">What&apos;s inside, one per line</label><textarea id="contents" name="contents" defaultValue={contents} rows={5} className="input font-mono text-sm" placeholder={"Ladies' watch\n2 x KitKat (4 finger)\nTeddy bear (20cm)"} /></div>
           <div><label className="label" htmlFor="description">Description</label><textarea id="description" name="description" defaultValue={box?.description ?? ""} rows={5} className="input" /></div>
         </section>
@@ -53,15 +55,17 @@ export function BoxForm({ box, collections, selected, images, contents, tiers = 
         <section className="card space-y-3 p-5">
           <div><label className="label" htmlFor="status">Status</label><select id="status" name="status" defaultValue={box?.status ?? "ACTIVE"} className="input"><option value="ACTIVE">Live</option><option value="DRAFT">Draft (hidden)</option><option value="ARCHIVED">Archived</option></select></div>
           <div className="grid grid-cols-2 gap-3">
-            <div><label className="label" htmlFor="price">Price (Rs.)</label><input id="price" name="price" type="number" min={0} defaultValue={box?.price} className="input" required /></div>
-            <div><label className="label" htmlFor="compareAtPrice">Was (Rs.)</label><input id="compareAtPrice" name="compareAtPrice" type="number" min={0} defaultValue={box?.compareAtPrice ?? ""} className="input" /></div>
+            <div><label className="label" htmlFor="price">Price (Rs)</label><input id="price" name="price" type="number" min={0} defaultValue={box?.price} className="input" required /></div>
+            <div><label className="label" htmlFor="compareAtPrice">Was (Rs)</label><input id="compareAtPrice" name="compareAtPrice" type="number" min={0} defaultValue={box?.compareAtPrice ?? ""} className="input" /></div>
             <div><label className="label" htmlFor="stock">Stock</label><input id="stock" name="stock" type="number" min={0} defaultValue={box?.stock ?? ""} className="input" placeholder="not tracked" /></div>
             <div><label className="label" htmlFor="leadDays">Lead days</label><input id="leadDays" name="leadDays" type="number" min={0} defaultValue={box?.leadDays ?? 0} className="input" /></div>
           </div>
+          <label className="flex items-start gap-2 text-sm"><input type="checkbox" name="priceOnRequest" defaultChecked={box?.priceOnRequest} className="mt-1 h-4 w-4" /> <span>Ask for price<span className="hint block">Shows &ldquo;Ask for price&rdquo; and is ordered on WhatsApp only, never through the cart.</span></span></label>
+          <div><label className="label" htmlFor="styleId">Comes in</label><select id="styleId" name="styleId" defaultValue={box?.styleId ?? ""} className="input"><option value="">Not set</option>{styles.map((x) => <option key={x.id} value={x.id}>{x.name}</option>)}</select></div>
           <div><label className="label" htmlFor="tiers">Bulk prices</label><textarea id="tiers" name="tiers" defaultValue={tiers} rows={3} className="input font-mono text-sm" placeholder={"10: 4200\n50: 3900"} /><p className="hint mt-1">One per line: minimum quantity, then price each.</p></div>
           <div><label className="label" htmlFor="badge">Badge</label><input id="badge" name="badge" defaultValue={box?.badge ?? ""} className="input" placeholder="Best seller" /></div>
           <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="sameDay" defaultChecked={box?.sameDay ?? true} className="h-4 w-4" /> Same-day delivery allowed</label>
-          <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="featured" defaultChecked={box?.featured} className="h-4 w-4" /> Show in best sellers</label>
+          <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="featured" defaultChecked={box?.featured} className="h-4 w-4" /> Featured <span className="hint">(home page photos and the Shop menu)</span></label>
           <div><label className="label" htmlFor="sortOrder">Sort order</label><input id="sortOrder" name="sortOrder" type="number" defaultValue={box?.sortOrder ?? 0} className="input" /></div>
         </section>
         <section className="card space-y-3 p-5">
@@ -78,8 +82,8 @@ export function BoxForm({ box, collections, selected, images, contents, tiers = 
             </fieldset>
           ))}
         </section>
-        {s.error && <p role="alert" className="rounded-md bg-accent-soft p-3 text-sm text-accent-text">{s.error}</p>}
-        {s.ok && <p className="rounded-md bg-brand-soft p-3 text-sm">Saved.</p>}
+        {s.error && <p role="alert" className="rounded-md bg-danger/10 p-3 text-sm text-danger">{s.error}</p>}
+        {s.ok && <p className="rounded-md bg-success/15 p-3 text-sm text-success">Saved.</p>}
         <button className="btn-primary w-full" disabled={pending}>{pending ? "Saving…" : "Save box"}</button>
       </aside>
     </form>

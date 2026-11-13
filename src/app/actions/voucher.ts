@@ -13,7 +13,7 @@ import { isLkMobile, lkPhone } from "@/lib/format";
 export type VState = { error?: string; ok?: boolean };
 
 const V = z.object({
-  amount: z.coerce.number().int().min(1000, "Vouchers start at Rs. 1,000").max(200000),
+  amount: z.coerce.number().int().min(1000, "Vouchers start at Rs 1,000").max(200000),
   buyerName: z.string().trim().min(2, "Enter your name"),
   buyerPhone: z.string().trim().refine(isLkMobile, "Enter your mobile number"),
   buyerEmail: z.string().trim().email("Enter your email").or(z.literal("")),

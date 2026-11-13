@@ -12,7 +12,7 @@ export async function applyCoupon(code: string, subtotal: number) {
   if (row.startsAt && row.startsAt > now) return { error: "That code isn't active yet." };
   if (row.endsAt && row.endsAt < now) return { error: "That code has expired." };
   if (row.usageLimit !== null && row.used >= row.usageLimit) return { error: "That code has been used up." };
-  if (subtotal < row.minSpend) return { error: `Spend Rs. ${row.minSpend.toLocaleString("en-LK")} to use this code.` };
+  if (subtotal < row.minSpend) return { error: `Spend Rs ${row.minSpend.toLocaleString("en-US")} to use this code.` };
   const discount = row.type === "PERCENT" ? Math.round((subtotal * row.value) / 100) : row.type === "FIXED" ? Math.min(row.value, subtotal) : 0;
   return { discount, freeDelivery: row.type === "FREE_DELIVERY", code: row.code };
 }

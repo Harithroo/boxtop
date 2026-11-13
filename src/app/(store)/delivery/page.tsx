@@ -14,7 +14,7 @@ export default async function Delivery() {
   return (
     <div className="container-bt max-w-3xl py-8">
       <h1 className="h1">Delivery</h1>
-      <p className="mt-2 text-ink-muted">Every box is packed in Piliyandala. Pick your date and time slot at checkout.</p>
+      <p className="mt-2 text-ink-muted">Every box is packed by hand in Piliyandala, Colombo, and delivered within Sri Lanka. Pick your date and time slot at checkout.</p>
       <h2 className="h2 mt-8 mb-3">Areas and fees</h2>
       <div className="overflow-x-auto rounded-lg bg-surface">
         <table className="w-full text-left text-sm">

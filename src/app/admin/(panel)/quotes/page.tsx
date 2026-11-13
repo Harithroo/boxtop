@@ -22,7 +22,7 @@ export default async function Quotes() {
                 <td className="p-3">{q.company ?? "–"}<span className="hint block">{q.contactName}</span></td>
                 <td className="p-3">{q.quantity ?? "–"}</td>
                 <td className="p-3">{q.neededBy ? prettyDate(q.neededBy) : "–"}</td>
-                <td className="p-3"><span className={`rounded-full px-2.5 py-0.5 text-xs font-bold ${q.status === "REQUESTED" ? "bg-accent-soft text-accent-text" : q.status === "ACCEPTED" ? "bg-[#E3F2EA] text-success" : "bg-brand-soft text-brand"}`}>{LABEL[q.status]}</span></td>
+                <td className="p-3"><span className={`rounded-full px-2.5 py-0.5 text-xs font-bold ${q.status === "REQUESTED" ? "bg-accent-soft text-accent-text" : q.status === "ACCEPTED" ? "bg-success/15 text-success" : "bg-brand-soft text-brand"}`}>{LABEL[q.status]}</span></td>
               </tr>
             ))}
             {!rows.length && <tr><td colSpan={5} className="p-6 text-center text-ink-muted">No quote requests yet.</td></tr>}

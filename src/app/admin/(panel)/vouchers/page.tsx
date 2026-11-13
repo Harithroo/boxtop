@@ -25,7 +25,7 @@ export default async function Vouchers() {
                   <div className="flex flex-wrap items-center gap-2">
                     {v.slip && <a href={v.slip} target="_blank" className="text-brand">Slip</a>}
                     {v.status === "PENDING" && <form action={voucherAction}><input type="hidden" name="id" value={v.id} /><button name="op" value="activate" className="btn-primary btn-sm">Paid: activate</button></form>}
-                    {(v.status === "PENDING" || v.status === "ACTIVE") && <form action={voucherAction}><input type="hidden" name="id" value={v.id} /><button name="op" value="cancel" className="text-xs text-accent-text">Cancel</button></form>}
+                    {(v.status === "PENDING" || v.status === "ACTIVE") && <form action={voucherAction}><input type="hidden" name="id" value={v.id} /><button name="op" value="cancel" className="text-xs text-danger">Cancel</button></form>}
                   </div>
                 </td>
               </tr>
@@ -37,7 +37,7 @@ export default async function Vouchers() {
       <details className="card p-4">
         <summary className="cursor-pointer font-bold">Create a voucher (sold in chat, or a gift from Boxtop)</summary>
         <form action={createVoucher} className="mt-3 grid gap-2 sm:grid-cols-3">
-          <input name="amount" type="number" min={100} className="input" placeholder="Amount (Rs.)" required aria-label="Amount" />
+          <input name="amount" type="number" min={100} className="input" placeholder="Amount (Rs)" required aria-label="Amount" />
           <input name="buyerName" className="input" placeholder="Bought by" aria-label="Bought by" />
           <input name="buyerPhone" className="input" placeholder="Their mobile" aria-label="Buyer mobile" />
           <input name="buyerEmail" type="email" className="input" placeholder="Their email" aria-label="Buyer email" />

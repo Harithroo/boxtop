@@ -36,6 +36,13 @@ export type Settings = {
     bank: { enabled: boolean; accounts: BankAccount[]; instructions: string };
   };
   delivery: { sameDayEnabled: boolean; maxDaysAhead: number };
+  /** Words and switches for the home page that aren't part of the catalogue. */
+  home: {
+    abroad: boolean; // the "Send a box home" section and every link to it
+    proof: string; // the fact under the hero buttons, "100% recommend · 7 reviews on Facebook"
+    areas: string[]; // where we deliver, shown as chips
+    quotes: { text: string; by: string }[]; // customer words; the first one heads the delivery story
+  };
   notifications: {
     ownerEmail: string; ownerPhone: string;
     events: Record<NotifyEvent, { owner: Channel[]; customer: Channel[] }>;
@@ -51,15 +58,25 @@ const noChannels = { owner: [] as Channel[], customer: [] as Channel[] };
 
 export const DEFAULT_SETTINGS: Settings = {
   store: {
-    name: "Boxtop", phone: "", whatsapp: "", email: "hello@box-top.lk", address: "Piliyandala, Sri Lanka",
-    hours: "Every day, 8am to 8pm", announcement: "Order by 7am for same-day delivery in Colombo",
-    instagram: "https://www.instagram.com/box.top_/", facebook: "", tiktok: "https://www.tiktok.com/@boxtop_",
+    name: "Boxtop", phone: "", whatsapp: "074 351 9426", email: "hello@box-top.lk", address: "Piliyandala, Colombo",
+    hours: "Every day, 8am to 8pm", announcement: "Delivery around Colombo & the Western Province",
+    instagram: "https://www.instagram.com/box.top_/", facebook: "https://www.facebook.com/profile.php?id=100094529382476", tiktok: "https://www.tiktok.com/@boxtop_",
   },
   payments: {
     cod: { enabled: true, maxOrder: 25000 },
     bank: { enabled: true, accounts: [], instructions: "Transfer the total to any one of these accounts and upload the slip. We confirm your order once it clears." },
   },
   delivery: { sameDayEnabled: true, maxDaysAhead: 30 },
+  home: {
+    abroad: true,
+    proof: "100% recommend · 7 reviews on Facebook",
+    areas: ["Colombo", "Gampaha", "Kalutara", "Kadawatha"],
+    quotes: [
+      { text: "…from the beginning and until it was delivered to the recipient's doorstep.", by: "Chanaka Gamage · Facebook review" },
+      { text: "Box Top is truly outstanding!", by: "Kavindu Lanarolle, on a custom order · Facebook" },
+      { text: "Nothing but the best service", by: "Chanaka Gamage · Facebook" },
+    ],
+  },
   notifications: {
     ownerEmail: "", ownerPhone: "",
     events: {

@@ -46,10 +46,10 @@ export default async function OrderDetail({ params }: { params: Promise<{ id: st
           <form action={changeStatus}><input type="hidden" name="id" value={o.id} /><input type="hidden" name="status" value={next} /><button className="btn-primary">Mark {STATUS_LABEL[next].toLowerCase()}</button></form>
         )}
         {waMsg && (
-          <a href={waLink(o.customer.phone, waMsg)} target="_blank" rel="noopener" className="btn border border-[#1E7A4C] bg-surface text-[#1E7A4C]"><MessageCircle size={18} /> Send update on WhatsApp</a>
+          <a href={waLink(o.customer.phone, waMsg)} target="_blank" rel="noopener" className="btn btn-wa"><MessageCircle size={18} /> Send update on WhatsApp</a>
         )}
         {!["CANCELLED", "REFUNDED", "DELIVERED"].includes(o.status) && (
-          <form action={changeStatus}><input type="hidden" name="id" value={o.id} /><input type="hidden" name="status" value="CANCELLED" /><button className="btn-outline text-accent-text">Cancel order</button></form>
+          <form action={changeStatus}><input type="hidden" name="id" value={o.id} /><input type="hidden" name="status" value="CANCELLED" /><button className="btn-outline text-danger">Cancel order</button></form>
         )}
         {o.status === "CANCELLED" && pay?.status === "PAID" && (
           <form action={changeStatus}><input type="hidden" name="id" value={o.id} /><input type="hidden" name="status" value="REFUNDED" /><button className="btn-outline">Mark refunded</button></form>
@@ -106,7 +106,7 @@ export default async function OrderDetail({ params }: { params: Promise<{ id: st
           <section className="card p-5 text-sm">
             <h2 className="h2 mb-2">Customer</h2>
             <p><b>{o.customer.name}</b><br /><a href={`tel:+${o.customer.phone}`} className="text-brand">+{o.customer.phone}</a>{o.customer.email && <><br />{o.customer.email}</>}</p>
-            <a href={waLink(o.customer.phone, `Hi ${o.customer.name}, this is Boxtop about your order ${o.number}.`)} target="_blank" rel="noopener" className="mt-2 inline-block font-bold text-[#1E7A4C]">WhatsApp customer</a>
+            <a href={waLink(o.customer.phone, `Hi ${o.customer.name}, this is Boxtop about your order ${o.number}.`)} target="_blank" rel="noopener" className="mt-2 inline-block font-bold text-success">WhatsApp customer</a>
           </section>
           {pay && (
             <section className="card p-5 text-sm">

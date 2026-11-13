@@ -50,7 +50,7 @@ export default async function QuoteDetail({ params }: { params: Promise<{ id: st
             <section className="card space-y-2 p-4 text-sm">
               <h2 className="font-bold">Customer link</h2>
               <p className="break-all text-brand">{link}</p>
-              <a href={waLink(q.phone, `Hi ${q.contactName}, here is your Boxtop quote ${q.number}: ${link}`)} target="_blank" rel="noopener" className="inline-flex items-center gap-1 font-bold text-[#1E7A4C]"><MessageCircle size={16} /> Send on WhatsApp</a>
+              <a href={waLink(q.phone, `Hi ${q.contactName}, here is your Boxtop quote ${q.number}: ${link}`)} target="_blank" rel="noopener" className="inline-flex items-center gap-1 font-bold text-success"><MessageCircle size={16} /> Send on WhatsApp</a>
             </section>
           )}
           {!["ACCEPTED"].includes(q.status) && (

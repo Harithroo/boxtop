@@ -1,4 +1,5 @@
 "use client";
+/* eslint-disable @next/next/no-img-element */
 import { useActionState, useState } from "react";
 import { login } from "@/app/actions/auth";
 
@@ -8,9 +9,9 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   return (
-    <div className="grid min-h-screen place-items-center bg-page px-4">
+    <div className="admin grid min-h-screen place-items-center px-4" style={{ background: "radial-gradient(70% 60% at 50% 40%, rgba(63,40,148,.45), transparent 70%), var(--night)" }}>
       <form action={action} className="card w-full max-w-sm space-y-4 p-6">
-        <div className="text-center">{/* eslint-disable-next-line @next/next/no-img-element */}<img src="/brand/logo-192.png" alt="Boxtop" className="mx-auto h-24 w-24 rounded-lg" /><p className="hint mt-2">Back office</p></div>
+        <div className="text-center"><img src="/brand/logo.jpg" alt="Boxtop" className="mx-auto h-20 w-20 rounded-2xl" /><p className="hint mt-2">Back office</p></div>
         <div className={s.needCode ? "hidden" : ""}>
           <label className="label" htmlFor="email">Email</label>
           <input id="email" name="email" type="email" className="input" required autoComplete="username" value={email} onChange={(e) => setEmail(e.target.value)} />
@@ -23,7 +24,7 @@ export default function Login() {
             <input id="code" name="code" inputMode="numeric" autoComplete="one-time-code" className="input text-center text-xl tracking-[0.3em]" autoFocus />
           </div>
         )}
-        {s.error && <p role="alert" className="text-sm text-accent-text">{s.error}</p>}
+        {s.error && <p role="alert" className="text-sm text-danger">{s.error}</p>}
         <button className="btn-primary w-full" disabled={pending}>{pending ? "Signing in…" : "Sign in"}</button>
       </form>
     </div>

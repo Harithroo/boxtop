@@ -21,7 +21,7 @@ export function ReviewForm({ token, boxId, title, defaultName }: { token: string
         <div><label className="label">Name to show</label><input name="name" defaultValue={defaultName} className="input" required /></div>
         <div><label className="label">Photo (optional)</label><input type="file" name="photo" accept="image/*" className="input py-2" /></div>
       </div>
-      {s.error && <p role="alert" className="text-sm text-accent-text">{s.error}</p>}
+      {s.error && <p role="alert" className="text-sm text-danger">{s.error}</p>}
       <button className="btn-primary" disabled={pending}>Send review</button>
     </form>
   );

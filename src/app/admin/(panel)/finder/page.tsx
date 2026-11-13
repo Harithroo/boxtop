@@ -37,7 +37,7 @@ export default async function Finder() {
                   <input name="sortOrder" type="number" defaultValue={a.sortOrder} className="input min-h-10 w-16 py-1 text-sm" aria-label="Order" />
                   <button className="btn-outline btn-sm">Save</button>
                 </form>
-                <form action={deleteFinderAnswer}><input type="hidden" name="id" value={a.id} /><button className="text-xs text-accent-text">Delete</button></form>
+                <form action={deleteFinderAnswer}><input type="hidden" name="id" value={a.id} /><button className="text-xs text-danger">Delete</button></form>
               </li>
             ))}
           </ul>
@@ -47,7 +47,7 @@ export default async function Finder() {
             <input name="tags" className="input min-h-10 flex-1 py-1 text-sm" placeholder="tags" aria-label="Tags" />
             <button className="btn-primary btn-sm">Add answer</button>
           </form>
-          <form action={deleteFinderQuestion} className="mt-2"><input type="hidden" name="id" value={q.id} /><button className="text-xs text-accent-text">Delete question</button></form>
+          <form action={deleteFinderQuestion} className="mt-2"><input type="hidden" name="id" value={q.id} /><button className="text-xs text-danger">Delete question</button></form>
         </section>
       ))}
       <form action={saveFinderQuestion} className="card flex flex-wrap gap-2 p-4">
