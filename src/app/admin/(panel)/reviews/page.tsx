@@ -19,7 +19,7 @@ export default async function Reviews() {
             <span className="text-accent">{"★".repeat(r.rating)}<span className="text-line">{"★".repeat(5 - r.rating)}</span></span>
             <b>{r.name}</b><span>on {box ?? "a build-your-own box"}</span>
             <Link href={`/admin/orders/${orderId}`} className="text-brand">{number}</Link>
-            <span className={`ml-auto rounded-full px-2 py-0.5 text-xs font-bold ${r.approved ? "bg-[#E3F2EA] text-success" : "bg-accent-soft text-accent-text"}`}>{r.approved ? "Showing" : "Waiting"}</span>
+            <span className={`ml-auto rounded-full px-2 py-0.5 text-xs font-bold ${r.approved ? "bg-success/15 text-success" : "bg-accent-soft text-accent-text"}`}>{r.approved ? "Showing" : "Waiting"}</span>
           </div>
           {r.body && <p className="mt-2 text-sm">{r.body}</p>}
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -29,7 +29,7 @@ export default async function Reviews() {
             <input name="reply" defaultValue={r.reply ?? ""} className="input min-h-10 flex-1 py-1 text-sm" placeholder="Public reply (optional)" aria-label="Reply" />
             <button name="op" value="approve" className="btn-primary btn-sm">{r.approved ? "Save reply" : "Approve"}</button>
             {r.approved && <button name="op" value="hide" className="btn-outline btn-sm">Hide</button>}
-            <button name="op" value="delete" className="btn-sm btn text-accent-text">Delete</button>
+            <button name="op" value="delete" className="btn-sm btn text-danger">Delete</button>
           </form>
         </article>
       ))}

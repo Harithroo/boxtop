@@ -65,7 +65,7 @@ export async function placeOrder(_: CheckoutState, fd: FormData): Promise<Checko
   if (payable > 0 && !f.payment) return { error: "Choose how you'll pay", fields: raw };
   if (payable > 0 && f.payment === "COD") {
     if (!s.payments.cod.enabled || !zone.codAllowed) return { error: "Cash on delivery isn't available for this area. Please choose bank transfer.", fields: raw };
-    if (s.payments.cod.maxOrder && payable > s.payments.cod.maxOrder) return { error: `Cash on delivery is for orders up to Rs. ${s.payments.cod.maxOrder.toLocaleString("en-LK")}. Please choose bank transfer.`, fields: raw };
+    if (s.payments.cod.maxOrder && payable > s.payments.cod.maxOrder) return { error: `Cash on delivery is for orders up to Rs ${s.payments.cod.maxOrder.toLocaleString("en-US")}. Please choose bank transfer.`, fields: raw };
   }
   if (payable > 0 && f.payment === "BANK_TRANSFER" && !s.payments.bank.enabled) return { error: "Bank transfer isn't available right now.", fields: raw };
 

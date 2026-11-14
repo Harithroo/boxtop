@@ -12,7 +12,7 @@ export function SForm({ action, children, label = "Save", className = "" }: {
       {children}
       <div className="flex flex-wrap items-center gap-3">
         <button className="btn-primary btn-sm" disabled={pending}>{pending ? "Saving…" : label}</button>
-        {s.error && <span role="alert" className="text-sm text-accent-text">{s.error}</span>}
+        {s.error && <span role="alert" className="text-sm text-danger">{s.error}</span>}
         {s.ok && !s.error && <span className="text-sm text-success">{s.info ?? "Saved"}</span>}
       </div>
     </form>

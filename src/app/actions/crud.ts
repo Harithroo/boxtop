@@ -5,12 +5,13 @@ import { db, schema } from "@/db";
 import { requireAdmin } from "@/lib/auth";
 import { SPECS, type Entity, type Field } from "@/lib/crud-spec";
 import { slugify } from "@/lib/format";
+import { isValidRule } from "@/lib/occasions";
 import { saveImage } from "@/lib/uploads";
 
 const TABLES = {
   collections: schema.collections, addOns: schema.addOns, coupons: schema.coupons, deliveryZones: schema.deliveryZones,
   deliverySlots: schema.deliverySlots, blackoutDates: schema.blackoutDates, pages: schema.pages, faqs: schema.faqs,
-  builderSizes: schema.builderSizes, items: schema.items, makers: schema.makers,
+  builderSizes: schema.builderSizes, items: schema.items, makers: schema.makers, boxStyles: schema.boxStyles,
 } as const;
 
 function coerce(f: Field, raw: FormDataEntryValue | null) {
@@ -44,6 +45,8 @@ export async function saveRow(_: CrudState, fd: FormData): Promise<CrudState> {
     values[f.name] = val;
   }
   if (entity === "collections" || entity === "makers") values.slug = slugify(String(values.slug || values.name));
+  if (entity === "collections" && values.dateRule && !isValidRule(String(values.dateRule))) return { error: "When it falls: use fixed:12-25, nth:5-0-2 (month-weekday-which, Sunday is 0) or list:2026-11-08,2027-10-28." };
+  if (entity === "boxStyles" && ![values.outer, values.inner].every((c) => /^#[0-9a-f]{6}$/i.test(String(c)))) return { error: "Colours are six-digit hex codes, like #22388f." };
   if (entity === "builderSizes" && values.allowedItems) values.allowedItems = String(values.allowedItems).split(/[\s,]+/).filter((x) => /^\d+$/.test(x)).join(",") || null;
   if (entity === "coupons") values.code = String(values.code).toUpperCase().replace(/\s/g, "");
   if (entity === "coupons" && values.value == null) values.value = 0;

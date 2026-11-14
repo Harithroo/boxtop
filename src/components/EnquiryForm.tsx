@@ -31,7 +31,7 @@ export function EnquiryForm({ kind }: { kind: "CUSTOM" | "CORPORATE" | "CONTACT"
           <div>
             <label className="label" htmlFor="e-budget">Budget {kind === "CORPORATE" && "per box"}</label>
             <select id="e-budget" name="budget" className="input">
-              <option value="">Choose</option><option>Under Rs. 5,000</option><option>Rs. 5,000–10,000</option><option>Rs. 10,000–20,000</option><option>Rs. 20,000+</option>
+              <option value="">Choose</option><option>Under Rs 5,000</option><option>Rs 5,000–10,000</option><option>Rs 10,000–20,000</option><option>Rs 20,000+</option>
             </select>
           </div>
           <div><label className="label" htmlFor="e-date">Needed by</label><input id="e-date" name="date" type="date" className="input" /></div>
@@ -43,7 +43,7 @@ export function EnquiryForm({ kind }: { kind: "CUSTOM" | "CORPORATE" | "CONTACT"
         <textarea id="e-msg" name="message" rows={4} className="input" required />
       </div>
       {kind !== "CONTACT" && <div><label className="label" htmlFor="e-photo">Reference photo <span className="font-normal text-ink-muted">(optional)</span></label><input id="e-photo" name="photo" type="file" accept="image/*" className="input py-2" /></div>}
-      {s.error && <p role="alert" className="text-sm text-accent-text">{s.error}</p>}
+      {s.error && <p role="alert" className="text-sm text-danger">{s.error}</p>}
       <button className="btn-primary" disabled={pending}>{pending ? "Sending…" : "Send"}</button>
     </form>
   );

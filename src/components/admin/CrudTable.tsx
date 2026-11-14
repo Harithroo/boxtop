@@ -43,7 +43,7 @@ function RowForm({ entity, row, onDone }: { entity: Entity; row?: Row; onDone?: 
       ))}
       <div className="flex items-center gap-2 sm:col-span-2 lg:col-span-4">
         <button className="btn-primary btn-sm" disabled={pending}>{row ? "Save" : "Add"}</button>
-        {s.error && <span className="text-sm text-accent-text">{s.error}</span>}
+        {s.error && <span className="text-sm text-danger">{s.error}</span>}
         {s.ok && !onDone && <span className="text-sm text-success">Saved</span>}
       </div>
     </form>
@@ -67,7 +67,7 @@ export function CrudTable({ entity, rows }: { entity: Entity; rows: Row[] }) {
               <button className="flex-1 text-left" onClick={() => setOpen(open === r.id ? null : r.id)}>{String(r._label ?? r.id)}</button>
               <form action={deleteRow} onSubmit={(e) => { if (!window.confirm("Delete this?")) e.preventDefault(); }}>
                 <input type="hidden" name="_entity" value={entity} /><input type="hidden" name="_id" value={r.id} />
-                <button className="text-xs text-accent-text">Delete</button>
+                <button className="text-xs text-danger">Delete</button>
               </form>
             </div>
             {open === r.id && <div className="bg-page"><RowForm entity={entity} row={r} /></div>}

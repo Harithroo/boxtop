@@ -27,7 +27,7 @@ export function ManualOrderForm({ boxes, zones, slots, today }: { boxes: Box[]; 
           <div key={r.key} className="flex gap-2">
             <select name="boxId" className="input" value={r.boxId} onChange={(e) => setRows(rows.map((x, j) => (j === i ? { ...x, boxId: e.target.value } : x)))}>
               <option value="">Choose a box</option>
-              {boxes.map((b) => <option key={b.id} value={b.id}>{b.code ? `${b.code} · ` : ""}{b.name} · Rs. {b.price.toLocaleString("en-LK")}</option>)}
+              {boxes.map((b) => <option key={b.id} value={b.id}>{b.code ? `${b.code} · ` : ""}{b.name} · Rs {b.price.toLocaleString("en-US")}</option>)}
             </select>
             <input name="boxQty" type="number" min={1} value={r.qty} onChange={(e) => setRows(rows.map((x, j) => (j === i ? { ...x, qty: Number(e.target.value) } : x)))} className="input w-20" aria-label="Quantity" />
           </div>
@@ -63,9 +63,9 @@ export function ManualOrderForm({ boxes, zones, slots, today }: { boxes: Box[]; 
       </section>
       <div className="flex items-center gap-4">
         <button className="btn-primary" disabled={pending}>{pending ? "Saving…" : "Create order"}</button>
-        <span className="hint">Boxes Rs. {subtotal.toLocaleString("en-LK")} + delivery</span>
+        <span className="hint">Boxes Rs {subtotal.toLocaleString("en-US")} + delivery</span>
       </div>
-      {s.error && <p role="alert" className="text-sm text-accent-text">{s.error}</p>}
+      {s.error && <p role="alert" className="text-sm text-danger">{s.error}</p>}
     </form>
   );
 }

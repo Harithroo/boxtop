@@ -26,7 +26,7 @@ export default async function Enquiries() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             {e.photo && <a href={e.photo} target="_blank"><img src={e.photo} alt="Reference" className="mt-2 h-28 rounded-md object-cover" /></a>}
             <div className="mt-3 flex flex-wrap items-center gap-2">
-              <a href={waLink(e.phone, `Hi ${e.name}, this is Boxtop about your ${e.kind === "CORPORATE" ? "corporate gifting" : "custom box"} request.`)} target="_blank" rel="noopener" className="btn-sm btn bg-[#1E7A4C] text-white">WhatsApp +{e.phone}</a>
+              <a href={waLink(e.phone, `Hi ${e.name}, this is Boxtop about your ${e.kind === "CORPORATE" ? "corporate gifting" : "custom box"} request.`)} target="_blank" rel="noopener" className="btn btn-wa btn-sm">WhatsApp +{e.phone}</a>
               {e.email && <a href={`mailto:${e.email}`} className="btn-outline btn-sm">Email</a>}
               <form action={setEnquiryStatus} className="ml-auto flex gap-2">
                 <input type="hidden" name="id" value={e.id} />

@@ -5,7 +5,7 @@ import { addBuild } from "@/app/actions/cart";
 type Size = { id: number; name: string; description: string | null; capacity: number; basePrice: number; image: string | null; allowed: number[] | null };
 type Item = { id: number; name: string; size: string | null; price: number; image: string | null; category: string | null; stock: number | null; maker: string | null };
 
-const rs = (n: number) => `Rs. ${n.toLocaleString("en-LK")}`;
+const rs = (n: number) => `Rs ${n.toLocaleString("en-US")}`;
 
 export function Builder({ sizes, items }: { sizes: Size[]; items: Item[] }) {
   const [sizeId, setSizeId] = useState<number | null>(sizes.length === 1 ? sizes[0].id : null);

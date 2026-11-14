@@ -25,7 +25,7 @@ export default async function Reminders() {
           <li key={r.id} className="flex items-center gap-3 p-4 text-sm">
             <span className="w-14 text-center"><b className="block text-lg">{r.day}</b>{MONTHS[r.month - 1]}</span>
             <span className="flex-1"><b>{r.name}</b> · {r.occasion}<span className="hint block">{r.daysBefore} days before, by {r.channel === "SMS" ? "SMS" : "email"}</span></span>
-            <form action={deleteReminder}><input type="hidden" name="id" value={r.id} /><button className="text-xs text-accent-text">Delete</button></form>
+            <form action={deleteReminder}><input type="hidden" name="id" value={r.id} /><button className="text-xs text-danger">Delete</button></form>
           </li>
         ))}
         {!rows.length && <li className="p-4 text-sm text-ink-muted">No reminders yet.</li>}

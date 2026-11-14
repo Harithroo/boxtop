@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import { notFound } from "next/navigation";
 import { eq } from "drizzle-orm";
 import { schema } from "@/db";
@@ -14,10 +15,10 @@ export default async function PackingSlip({ params }: { params: Promise<{ id: st
   if (!o) notFound();
   const cod = o.payments[0]?.method === "COD" && o.payments[0]?.status !== "PAID";
   return (
-    <div className="mx-auto max-w-[148mm] bg-white p-6 text-ink print:p-0">
+    <div className="paper mx-auto max-w-[148mm] p-6 print:p-0">
       <script dangerouslySetInnerHTML={{ __html: "window.addEventListener('load',()=>setTimeout(()=>window.print(),300))" }} />
       <div className="flex items-start justify-between border-b-2 border-ink pb-3">
-        <div className="flex items-center gap-2">{/* eslint-disable-next-line @next/next/no-img-element */}<img src="/brand/logo-192.png" alt="" className="h-14 w-14 rounded" /><div><p className="wordmark">BOXTOP</p><p className="text-xs">taste for gift</p></div></div>
+        <div className="flex items-center gap-2"><img src="/brand/logo.jpg" alt="" className="h-14 w-14 rounded" /><div><p className="wordmark">BOXTOP</p><p className="text-xs">taste for gift</p></div></div>
         <div className="text-right"><p className="text-xl font-bold">{o.number}</p>{o.delivery && <p>{prettyDate(o.delivery.date)} · {o.delivery.slot?.label}</p>}</div>
       </div>
       <div className="mt-4">
@@ -25,7 +26,7 @@ export default async function PackingSlip({ params }: { params: Promise<{ id: st
         <p className="text-lg font-bold">{o.recipient.name} · +{o.recipient.phone}</p>
         <p>{o.recipient.address}, {o.recipient.city}</p>
         {o.recipient.notes && <p className="italic">{o.recipient.notes}</p>}
-        <p className="mt-1 font-bold">{o.surprise && "KEEP IT A SURPRISE · "}{o.callToArrange && "CALL TO ARRANGE · "}{cod && `COLLECT CASH Rs. ${o.payments[0].amount.toLocaleString("en-LK")}`}</p>
+        <p className="mt-1 font-bold">{o.surprise && "KEEP IT A SURPRISE · "}{o.callToArrange && "CALL TO ARRANGE · "}{cod && `COLLECT CASH Rs ${o.payments[0].amount.toLocaleString("en-US")}`}</p>
       </div>
       <div className="mt-4">
         <p className="text-xs font-bold uppercase">Pack</p>
@@ -35,7 +36,7 @@ export default async function PackingSlip({ params }: { params: Promise<{ id: st
       {o.giftMessage && (
         <div className="mt-6 border-t border-dashed border-ink pt-6 text-center">
           <p className="text-xs font-bold uppercase">Card message</p>
-          <p className="mt-2 whitespace-pre-line font-[family-name:var(--font-display)] text-2xl">{o.giftMessage}</p>
+          <p className="mt-2 whitespace-pre-line font-hand text-4xl leading-tight">{o.giftMessage}</p>
         </div>
       )}
     </div>

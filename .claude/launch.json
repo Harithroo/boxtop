@@ -1,0 +1,6 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    { "name": "boxtop-dev", "runtimeExecutable": "node", "runtimeArgs": ["C:/Users/ASUS/AppData/Local/Temp/claude/7a59ed57c3892531/5ff16ddf-1e0a-4e84-90bd-98938c1eb4be/scratchpad/tools/dev.mjs"], "port": 3210 }
+  ]
+}

@@ -36,7 +36,7 @@ export function QuoteEditor({ quoteId, boxes, initial, deliveryFee, discount, no
             <input name="lineName" value={l.name} onChange={(e) => set(i, { name: e.target.value })} className="input" placeholder={l.boxId ? "Same as box name" : "Item name"} aria-label="Line name" disabled={locked} />
             <input name="lineQty" type="number" min={1} value={l.qty} onChange={(e) => set(i, { qty: Number(e.target.value) })} className="input" aria-label="Quantity" disabled={locked} />
             <input name="linePrice" type="number" min={0} value={l.price} onChange={(e) => set(i, { price: Number(e.target.value) })} className="input" aria-label="Unit price" disabled={locked} />
-            {!locked && <button type="button" className="text-xs text-accent-text" onClick={() => setLines(lines.filter((_, j) => j !== i))}>Remove</button>}
+            {!locked && <button type="button" className="text-xs text-danger" onClick={() => setLines(lines.filter((_, j) => j !== i))}>Remove</button>}
           </div>
         ))}
       </div>
@@ -47,12 +47,12 @@ export function QuoteEditor({ quoteId, boxes, initial, deliveryFee, discount, no
         <div><label className="label">Valid until</label><input name="expiresAt" type="date" defaultValue={expiresAt} className="input" disabled={locked} /></div>
       </div>
       <div><label className="label">Notes for the customer</label><textarea name="notes" defaultValue={notes} rows={3} className="input" placeholder="What's included, branding, delivery arrangements, payment terms…" disabled={locked} /></div>
-      <p className="text-sm">Lines Rs. {subtotal.toLocaleString("en-LK")} − discount Rs. {disc.toLocaleString("en-LK")} + delivery Rs. {fee.toLocaleString("en-LK")} = <b className="price">Rs. {(subtotal - disc + fee).toLocaleString("en-LK")}</b></p>
+      <p className="text-sm">Lines Rs {subtotal.toLocaleString("en-US")} − discount Rs {disc.toLocaleString("en-US")} + delivery Rs {fee.toLocaleString("en-US")} = <b className="price">Rs {(subtotal - disc + fee).toLocaleString("en-US")}</b></p>
       {!locked && (
         <div className="flex flex-wrap items-center gap-2">
           <button className="btn-outline" disabled={pending}>Save draft</button>
           <button name="send" value="1" className="btn-primary" disabled={pending}>Save and send to customer</button>
-          {s.error && <span role="alert" className="text-sm text-accent-text">{s.error}</span>}
+          {s.error && <span role="alert" className="text-sm text-danger">{s.error}</span>}
           {s.ok && !s.error && <span className="text-sm text-success">Saved</span>}
         </div>
       )}

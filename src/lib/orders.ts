@@ -91,7 +91,7 @@ export async function createOrder(input: NewOrderInput) {
         .set({ balance: sql`${schema.vouchers.balance} - ${voucherAmount}`, status: sql`if(${schema.vouchers.balance} - ${voucherAmount} <= 0, 'USED', 'ACTIVE')` })
         .where(and(eq(schema.vouchers.code, input.voucher!.code), eq(schema.vouchers.status, "ACTIVE"), gte(schema.vouchers.balance, voucherAmount)));
       if (!r.affectedRows) throw new Error("VOUCHER_UNAVAILABLE");
-      await tx.insert(schema.orderEvents).values({ orderId: id, type: "payment", message: `Gift voucher ${input.voucher!.code} used: Rs. ${voucherAmount}` });
+      await tx.insert(schema.orderEvents).values({ orderId: id, type: "payment", message: `Gift voucher ${input.voucher!.code} used: Rs ${voucherAmount}` });
     }
     await tx.insert(schema.payments).values(payable > 0
       ? { orderId: id, method: input.payment.method, amount: payable, status: input.payment.status ?? "PENDING" }

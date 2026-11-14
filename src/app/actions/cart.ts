@@ -1,6 +1,8 @@
 "use server";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { and, eq } from "drizzle-orm";
+import { db, schema } from "@/db";
 import { readCart, writeCart } from "@/lib/cart";
 
 const int = (v: FormDataEntryValue | null) => (v ? parseInt(String(v), 10) || 0 : 0);
@@ -8,6 +10,11 @@ const int = (v: FormDataEntryValue | null) => (v ? parseInt(String(v), 10) || 0 
 export async function addToCart(fd: FormData) {
   const boxId = int(fd.get("boxId"));
   const q = Math.max(1, Math.min(20, int(fd.get("qty")) || 1));
+  // only live boxes with a fixed price can be bought online; the rest are ordered on WhatsApp
+  const [box] = await db.select({ slug: schema.boxes.slug, priceOnRequest: schema.boxes.priceOnRequest }).from(schema.boxes)
+    .where(and(eq(schema.boxes.id, boxId), eq(schema.boxes.status, "ACTIVE")));
+  if (!box) redirect("/shop");
+  if (box.priceOnRequest) redirect(`/box/${box.slug}`);
   const c = await readCart();
   const line = c.lines.find((l) => l.b === boxId);
   if (line) line.q = Math.min(20, line.q + q);

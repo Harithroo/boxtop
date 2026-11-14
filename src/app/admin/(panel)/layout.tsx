@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
 import { LayoutDashboard, ShoppingBag, Truck, Package, Inbox, Settings, Tag, FileText, LogOut, Blocks, Sparkles, Star, Briefcase, Gift } from "lucide-react";
 import { requireAdmin } from "@/lib/auth";
@@ -24,19 +25,19 @@ const NAV = [
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const s = await requireAdmin();
   return (
-    <div className="min-h-screen bg-page md:flex">
-      <aside className="sticky top-0 hidden h-screen w-56 shrink-0 flex-col overflow-y-auto bg-brand-deep text-on-brand md:flex">
-        <div className="flex items-center gap-3 p-5">{/* eslint-disable-next-line @next/next/no-img-element */}<img src="/brand/logo-192.png" alt="" className="h-10 w-10 rounded-md" /><div><p className="wordmark text-lg">BOXTOP</p><p className="text-xs opacity-75">Back office · {s.name}</p></div></div>
+    <div className="admin min-h-screen bg-page md:flex">
+      <aside className="sticky top-0 hidden h-screen w-56 shrink-0 flex-col overflow-y-auto border-r border-line bg-surface md:flex">
+        <div className="flex items-center gap-3 p-5"><img src="/brand/logo.jpg" alt="" className="h-10 w-10 rounded-[9px]" /><div><p className="wordmark">BOXTOP</p><p className="mt-1 text-xs text-ink-muted">Back office · {s.name}</p></div></div>
         <nav className="flex-1 space-y-1 px-2 text-sm">
           {NAV.map(([href, label, Icon]) => (
-            <Link key={href} href={href} className="flex items-center gap-3 rounded-md px-3 py-2 hover:bg-white/10"><Icon size={18} strokeWidth={1.75} />{label}</Link>
+            <Link key={href} href={href} className="flex items-center gap-3 rounded-md px-3 py-2 hover:bg-white/[0.06] hover:text-foil"><Icon size={18} strokeWidth={1.75} />{label}</Link>
           ))}
         </nav>
-        <form action={logout} className="p-3"><button className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm hover:bg-white/10"><LogOut size={18} />Sign out</button></form>
+        <form action={logout} className="p-3"><button className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm hover:bg-white/[0.06] hover:text-foil"><LogOut size={18} />Sign out</button></form>
       </aside>
       <div className="min-w-0 flex-1 pb-20 md:pb-0">
         <header className="border-b border-line bg-surface md:hidden">
-          <div className="flex items-center justify-between px-4 py-3"><span className="flex items-center gap-2">{/* eslint-disable-next-line @next/next/no-img-element */}<img src="/brand/logo-64.png" alt="" className="h-8 w-8 rounded" /><span className="wordmark text-brand">BOXTOP</span></span><form action={logout}><button className="text-sm font-bold text-brand">Sign out</button></form></div>
+          <div className="flex items-center justify-between px-4 py-3"><span className="flex items-center gap-2"><img src="/brand/logo.jpg" alt="" className="h-8 w-8 rounded-[8px]" /><span className="wordmark">BOXTOP</span></span><form action={logout}><button className="text-sm font-bold text-brand">Sign out</button></form></div>
           <nav className="flex gap-2 overflow-x-auto px-4 pb-2 text-sm">
             {NAV.filter(([h]) => !["/admin", "/admin/orders", "/admin/deliveries", "/admin/boxes", "/admin/settings"].includes(h)).map(([href, label]) => <Link key={href} href={href} className="chip shrink-0">{label}</Link>)}
           </nav>

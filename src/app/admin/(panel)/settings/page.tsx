@@ -5,7 +5,7 @@ import { db, schema } from "@/db";
 import { requireAdmin } from "@/lib/auth";
 import { getSettings } from "@/lib/settings";
 import { totpUri } from "@/lib/totp";
-import { saveStore, savePayments, changePassword, startTotp, confirmTotp, disableTotp } from "@/app/actions/admin-settings";
+import { saveStore, saveHome, savePayments, changePassword, startTotp, confirmTotp, disableTotp } from "@/app/actions/admin-settings";
 import { SForm, ActionButton } from "@/components/admin/SForm";
 import { BankAccountsEditor } from "@/components/admin/BankAccountsEditor";
 
@@ -40,7 +40,7 @@ export default async function Settings() {
             <F label="Address" name="address" v={s.store.address} />
             <F label="Opening hours" name="hours" v={s.store.hours} />
           </div>
-          <F label="Announcement bar" name="announcement" v={s.store.announcement} hint="Leave empty to hide." />
+          <div><label className="label" htmlFor="announcement">Announcement bar</label><textarea id="announcement" name="announcement" defaultValue={s.store.announcement} rows={2} className="input" /><p className="hint mt-1">One line each. They scroll across the top of the site, after the next occasion and before the WhatsApp and payment lines, which are added for you.</p></div>
           <div className="grid gap-3 sm:grid-cols-3">
             <F label="Facebook link" name="facebook" v={s.store.facebook} />
             <F label="Instagram link" name="instagram" v={s.store.instagram} />
@@ -54,11 +54,22 @@ export default async function Settings() {
       </section>
 
       <section className="card p-5">
+        <h2 className="h2 mb-1">Home page</h2>
+        <p className="hint mb-3">Boxes, items and occasions are edited under Boxes and Builder. These are the other words on the home page.</p>
+        <SForm action={saveHome}>
+          <label className="flex items-start gap-2 text-sm"><input type="checkbox" name="abroad" defaultChecked={s.home.abroad} className="mt-1 h-4 w-4" /> <span>Show &ldquo;Send a box home&rdquo;<span className="hint block">The section for people ordering from abroad, and every link to it. We deliver within Sri Lanka only; switch it off if you stop taking orders paid from overseas.</span></span></label>
+          <F label="Proof line under the main buttons" name="proof" v={s.home.proof} hint="The first word is shown in bold. Keep it true: it also appears beside the Facebook link." />
+          <F label="Where we deliver (comma separated)" name="areas" v={s.home.areas.join(", ")} hint="Shown as chips. The first three are named in the delivery story." />
+          <div><label className="label" htmlFor="quotes">Customer quotes</label><textarea id="quotes" name="quotes" defaultValue={s.home.quotes.map((q) => `${q.text} | ${q.by}`).join("\n")} rows={4} className="input" /><p className="hint mt-1">Up to three, one per line: the words, then |, then who said it. The first heads the delivery story; the next two are the paper notes. Only use words a customer really wrote, with their permission.</p></div>
+        </SForm>
+      </section>
+
+      <section className="card p-5">
         <h2 className="h2 mb-3">Payments</h2>
         <SForm action={savePayments}>
           <div className="grid gap-3 sm:grid-cols-2">
             <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="cod" defaultChecked={s.payments.cod.enabled} className="h-4 w-4" /> Cash on delivery</label>
-            <F label="COD up to (Rs., 0 = no limit)" name="codMax" v={s.payments.cod.maxOrder} type="number" hint="Which areas allow COD is set per delivery zone." />
+            <F label="COD up to (Rs, 0 = no limit)" name="codMax" v={s.payments.cod.maxOrder} type="number" hint="Which areas allow COD is set per delivery zone." />
           </div>
           <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="bank" defaultChecked={s.payments.bank.enabled} className="h-4 w-4" /> Bank transfer</label>
           <BankAccountsEditor initial={s.payments.bank.accounts} />

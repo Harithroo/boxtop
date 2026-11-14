@@ -1,9 +1,9 @@
-// Placeholder art until real photos are uploaded (Ribbon: GiftArt tones 1–4).
+// Placeholder art for a box that has no photo yet: a gift box in the site's colours.
 const TONES = [
-  ["#EFEBF8", "#3C2894", "#C40D86"],
-  ["#FCE4F2", "#C40D86", "#3C2894"],
-  ["#E6E0F7", "#281A6B", "#C40D86"],
-  ["#F7F6FB", "#3C2894", "#A80A72"],
+  ["#261a40", "#3f2894", "#ff3d8b"],
+  ["#2a1436", "#ff3d8b", "#f2c46d"],
+  ["#1d1231", "#5b3a87", "#ff3d8b"],
+  ["#241a36", "#22388f", "#f2c46d"],
 ];
 
 export function GiftArt({ seed = 0, className = "" }: { seed?: number; className?: string }) {

@@ -24,7 +24,7 @@ export function BankAccountsEditor({ initial }: { initial: BankAccount[] }) {
           <div className="mt-2 flex gap-3 text-xs">
             {i > 0 && <button type="button" className="text-brand" onClick={() => move(i, -1)}>Move up</button>}
             {i < rows.length - 1 && <button type="button" className="text-brand" onClick={() => move(i, 1)}>Move down</button>}
-            {rows.length > 1 && <button type="button" className="text-accent-text" onClick={() => setRows(rows.filter((_, j) => j !== i))}>Remove</button>}
+            {rows.length > 1 && <button type="button" className="text-danger" onClick={() => setRows(rows.filter((_, j) => j !== i))}>Remove</button>}
           </div>
         </fieldset>
       ))}

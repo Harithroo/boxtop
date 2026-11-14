@@ -15,7 +15,7 @@ export function ReminderForm({ hasEmail }: { hasEmail: boolean }) {
       </div>
       <div className="flex items-center gap-3 sm:col-span-2">
         <button className="btn-primary" disabled={pending}>Save reminder</button>
-        {s.error && <span role="alert" className="text-sm text-accent-text">{s.error}</span>}
+        {s.error && <span role="alert" className="text-sm text-danger">{s.error}</span>}
         {s.ok && <span className="text-sm text-success">Saved. We&apos;ll remind you every year.</span>}
       </div>
     </form>

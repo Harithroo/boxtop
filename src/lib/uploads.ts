@@ -3,8 +3,9 @@ import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import crypto from "node:crypto";
 import sharp from "sharp";
+import { UPLOAD_DIR } from "./upload-dir";
 
-export const UPLOAD_DIR = path.resolve(/* turbopackIgnore: true */ process.env.UPLOAD_DIR ?? "./uploads");
+export { UPLOAD_DIR };
 const MAX_BYTES = 8 * 1024 * 1024;
 const OK_TYPES = ["image/jpeg", "image/png", "image/webp", "image/heic", "image/heif", "image/avif"];
 

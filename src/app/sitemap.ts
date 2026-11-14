@@ -13,7 +13,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticPaths = ["", "/shop", "/build", "/gift-finder", "/vouchers", "/custom", "/corporate", "/corporate/bulk", "/delivery", "/faq", "/about", "/makers", "/contact"];
   return [
     ...staticPaths.map((p) => ({ url: `${site}${p}` })),
-    ...cols.filter((c) => c.kind !== "CURATED").map((c) => ({ url: `${site}/${c.kind === "OCCASION" ? "occasion" : "for"}/${c.slug}` })),
+    ...cols.map((c) => ({ url: `${site}/${c.kind === "OCCASION" ? "occasion" : c.kind === "RECIPIENT" ? "for" : "collection"}/${c.slug}` })),
     ...boxes.map((b) => ({ url: `${site}/box/${b.slug}`, lastModified: b.updatedAt })),
   ];
 }

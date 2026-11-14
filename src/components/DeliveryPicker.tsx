@@ -53,7 +53,7 @@ export function DeliveryPicker({
           <option value="">Choose the city</option>
           {cities.map((c) => <option key={c.city} value={c.city}>{c.city}</option>)}
         </select>
-        {zone && <p className="hint mt-1">{zone.name}: delivery Rs. {zone.fee.toLocaleString("en-LK")}</p>}
+        {zone && <p className="hint mt-1">{zone.name}: delivery Rs {zone.fee.toLocaleString("en-US")}</p>}
       </div>
       <input type="hidden" name="zoneId" value={zone?.id ?? ""} />
       <input type="hidden" name="city" value={city} />

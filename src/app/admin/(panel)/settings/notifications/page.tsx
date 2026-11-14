@@ -92,9 +92,9 @@ export default async function Notifications() {
         <ul className="divide-y divide-line text-sm">
           {log.map((j) => (
             <li key={j.id} className="flex flex-wrap gap-2 py-2">
-              <span className={`font-bold ${j.status === "FAILED" ? "text-accent-text" : j.status === "SENT" ? "text-success" : ""}`}>{j.status.toLowerCase()}</span>
+              <span className={`font-bold ${j.status === "FAILED" ? "text-danger" : j.status === "SENT" ? "text-success" : ""}`}>{j.status.toLowerCase()}</span>
               <span>{j.channel.toLowerCase()} → {j.to}</span><span className="hint">{j.subject}</span>
-              {j.error && <span className="hint w-full text-accent-text">{j.error} (tries: {j.attempts})</span>}
+              {j.error && <span className="hint w-full text-danger">{j.error} (tries: {j.attempts})</span>}
             </li>
           ))}
           {!log.length && <li className="hint">Nothing sent yet.</li>}

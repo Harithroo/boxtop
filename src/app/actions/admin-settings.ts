@@ -18,8 +18,19 @@ export async function saveStore(_: SState, fd: FormData): Promise<SState> {
   await requireAdmin();
   const s = await getSettings();
   await saveSetting("store", { ...s.store, name: str(fd, "name") || "Boxtop", phone: str(fd, "phone"), whatsapp: str(fd, "whatsapp"), email: str(fd, "email"),
-    address: str(fd, "address"), hours: str(fd, "hours"), announcement: str(fd, "announcement"), facebook: str(fd, "facebook"), instagram: str(fd, "instagram"), tiktok: str(fd, "tiktok") });
+    address: str(fd, "address"), hours: str(fd, "hours"), announcement: String(fd.get("announcement") ?? "").split(/\r?\n/).map((l) => l.trim()).filter(Boolean).join("\n"), facebook: str(fd, "facebook"), instagram: str(fd, "instagram"), tiktok: str(fd, "tiktok") });
   await saveSetting("delivery", { sameDayEnabled: on(fd, "sameDayEnabled"), maxDaysAhead: Math.max(1, num(fd, "maxDaysAhead") || 30) });
+  revalidatePath("/", "layout");
+  return { ok: Date.now() };
+}
+
+/** The words and switches of the home page that aren't catalogue: the abroad section, the proof line, areas and quotes. */
+export async function saveHome(_: SState, fd: FormData): Promise<SState> {
+  await requireAdmin();
+  const lines = (k: string) => String(fd.get(k) ?? "").split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+  // one quote per line: the words, then " | ", then who said it
+  const quotes = lines("quotes").map((l) => { const [text, by = ""] = l.split("|").map((x) => x.trim()); return { text: text.replace(/^["“”']+|["“”']+$/g, ""), by }; }).filter((q) => q.text).slice(0, 3);
+  await saveSetting("home", { abroad: on(fd, "abroad"), proof: str(fd, "proof"), areas: str(fd, "areas").split(",").map((a) => a.trim()).filter(Boolean), quotes });
   revalidatePath("/", "layout");
   return { ok: Date.now() };
 }

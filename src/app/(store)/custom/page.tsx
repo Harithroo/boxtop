@@ -9,7 +9,7 @@ export default function Custom() {
         <p className="mt-3 text-ink-muted">Share the occasion, your budget and what they love. We&apos;ll reply on WhatsApp with ideas and a price, and send a photo of the packed box before it goes out.</p>
         <ol className="mt-6 space-y-3 text-sm">
           {["Send the details here", "We suggest a box and a price on WhatsApp", "You approve, pay, and we deliver on your date"].map((t, i) => (
-            <li key={i} className="flex gap-3"><span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-accent font-bold text-white">{i + 1}</span>{t}</li>
+            <li key={i} className="flex gap-3"><span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-brand font-bold text-on-brand">{i + 1}</span>{t}</li>
           ))}
         </ol>
       </div>

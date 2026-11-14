@@ -44,8 +44,9 @@ export async function loadCart() {
   const c = await readCart();
   const boxIds = c.lines.map((l) => l.b);
   const addIds = c.addons.map((a) => a.a);
+  // boxes sold on request have no fixed price, so they can never sit in a cart
   const boxRows = boxIds.length
-    ? await loadBoxes(and(inArray(schema.boxes.id, boxIds), eq(schema.boxes.status, "ACTIVE")), [])
+    ? await loadBoxes(and(inArray(schema.boxes.id, boxIds), eq(schema.boxes.status, "ACTIVE"), eq(schema.boxes.priceOnRequest, false)), [])
     : [];
   const addRows = addIds.length ? await db.select().from(schema.addOns).where(and(inArray(schema.addOns.id, addIds), eq(schema.addOns.active, true))) : [];
 
@@ -81,7 +82,8 @@ export async function priceBuilds(raw: NonNullable<CartCookie["builds"]>) {
     const size = sizes.find((x) => x.id === b.s && x.active);
     if (!size) continue;
     const allowed = size.allowedItems ? size.allowedItems.split(",").map(Number) : null;
-    const chosen = b.i.map(([id, qty]) => ({ item: items.find((x) => x.id === id), qty })).filter((x) => x.item && x.item.builderEnabled && x.qty > 0 && (!allowed || allowed.includes(x.item.id)));
+    // an item needs a builder price to be bought this way; unpriced ones are quoted on WhatsApp instead
+    const chosen = b.i.map(([id, qty]) => ({ item: items.find((x) => x.id === id), qty })).filter((x) => x.item && x.item.builderEnabled && x.item.builderPrice != null && x.qty > 0 && (!allowed || allowed.includes(x.item.id)));
     const count = chosen.reduce((n, x) => n + x.qty, 0);
     if (!count || count > size.capacity) continue;
     const contents = chosen.map((x) => ({ id: x.item!.id, name: x.item!.name, qty: x.qty, price: x.item!.builderPrice ?? 0 }));
