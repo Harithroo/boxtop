@@ -99,13 +99,21 @@ jobs:
         env:
           DEPLOY_URL: ${{ secrets.DEPLOY_URL }}
           DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
+          DEPLOY_ORIGIN_IP: ${{ secrets.DEPLOY_ORIGIN_IP }}
         if: ${{ env.DEPLOY_URL != '' && env.DEPLOY_TOKEN != '' }}
         run: |
+          # Cloudflare challenges GitHub's datacenter IPs ("Just a moment…", 403). Connect straight
+          # to the cPanel server instead, keeping the hostname so TLS and the vhost still match.
+          HOST=$(printf '%s' "$DEPLOY_URL" | awk -F/ '{print $3}')
+          RESOLVE=()
+          if [ -n "${DEPLOY_ORIGIN_IP:-}" ]; then RESOLVE=(--resolve "$HOST:443:$DEPLOY_ORIGIN_IP"); echo "Bypassing Cloudflare via origin"; fi
+          echo "RESOLVE_ARGS=${RESOLVE[*]}" >> "$GITHUB_ENV"
           # Passenger restarts lazily on the first request after restart.txt; give it a few tries.
           for i in 1 2 3 4 5 6; do
-            code=$(curl -s -o resp.json -w '%{http_code}' --max-time 120 \
+            code=$(curl -s -o resp.json -w '%{http_code}' --max-time 120 "${RESOLVE[@]}" \
                    -X POST -H "X-Deploy-Token: $DEPLOY_TOKEN" "$DEPLOY_URL/api/deploy/migrate" || true)
-            echo "attempt $i: HTTP $code"; cat resp.json 2>/dev/null; echo
+            echo "attempt $i: HTTP $code"; head -c 400 resp.json 2>/dev/null; echo
+            grep -q "Just a moment" resp.json 2>/dev/null && { echo "Blocked by Cloudflare: set the DEPLOY_ORIGIN_IP secret"; exit 1; }
             [ "$code" = 200 ] && exit 0
             [ "$code" = 404 ] && { echo "404: DEPLOY_TOKEN mismatch or route missing"; exit 1; }
             [ "$code" = 500 ] && exit 1
@@ -118,5 +126,5 @@ jobs:
           DEPLOY_URL: ${{ secrets.DEPLOY_URL }}
         if: ${{ env.DEPLOY_URL != '' }}
         run: |
-          code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 60 "$DEPLOY_URL/")
+          code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 60 $RESOLVE_ARGS "$DEPLOY_URL/")
           echo "home page: HTTP $code"; [ "$code" = 200 ]
