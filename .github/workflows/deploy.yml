@@ -1,7 +1,7 @@
 # .github/workflows/deploy.yml
 # Builds the Boxtop Next.js app (standalone output), uploads it to /home/harithroo/boxtop
-# on PeekHosting over FTPS, restarts Passenger, migrates the DB, then smoke-tests the site.
-# Secrets: FTP_SERVER, FTP_USERNAME, FTP_PASSWORD, DEPLOY_URL, DEPLOY_TOKEN, DEPLOY_ORIGIN_IP.
+# on PeekHosting over FTPS; the server then migrates + restarts itself via cron (src/lib/self-update.ts).
+# Secrets: FTP_SERVER, FTP_USERNAME, FTP_PASSWORD (+ DEPLOY_URL, DEPLOY_ORIGIN_IP for the final check).
 # See docs/ENVIRONMENTS.md.
 name: Deploy to PeekHosting (test)
 
@@ -45,17 +45,17 @@ jobs:
       - name: Assemble deploy folder
         run: |
           set -euo pipefail
-          mkdir -p deploy/app deploy/tmp
+          mkdir -p deploy/app deploy/marker
           # standalone server + its trimmed node_modules
           cp -r .next/standalone/. deploy/app/
           # static assets and public files are not included in standalone
           mkdir -p deploy/app/.next
           cp -r .next/static deploy/app/.next/static
           [ -d public ] && cp -r public deploy/app/public || true
-          # SQL migrations, read at runtime by /api/deploy/migrate (not traced into standalone)
+          # SQL migrations, applied on the server by src/lib/self-update.ts (not traced into standalone)
           cp -r drizzle deploy/app/drizzle
-          # touching this file makes Passenger restart the app
-          date > deploy/tmp/restart.txt
+          # Uploaded LAST, in its own step: tells the running app that new code is fully on disk.
+          echo "$GITHUB_SHA" > deploy/marker/DEPLOYED_SHA
 
       # A fresh checkout gives every file a new mtime, so lftp would re-upload everything,
       # and --ignore-time would miss changed files of equal size (BUILD_ID, route chunks).
@@ -64,8 +64,6 @@ jobs:
       - name: Stamp mtimes from content
         run: |
           set -euo pipefail
-          # app/ only: tmp/restart.txt must keep a real "now" mtime, because LiteSpeed/Passenger
-          # restart the app only when restart.txt is newer than the running process.
           cd deploy/app
           find . -type f -print0 | xargs -0 md5sum | while read -r h f; do
             f="${f#\*}"   # md5sum's binary-mode marker
@@ -131,99 +129,45 @@ jobs:
           M='mirror --reverse --parallel=3 --no-perms --exclude-glob .git* ./deploy/app/ ./app/'
           ./ftp-run.sh upload "$M" "$M"
 
-      # Restart only now. LiteSpeed restarts the app when tmp/restart.txt is NEWER than the running
-      # process, and lftp copies the local mtime to the server. Touching it here (after the upload)
-      # makes it newer than any process that started mid-upload, e.g. from a visitor request.
-      # That matters: Next scans public/ once at boot, so such a process 404s images uploaded later.
-      - name: Restart app
+      # Only after every file is on disk: upload the marker. Within a minute the server's cron
+      # (/api/cron) sees DEPLOYED_SHA differ from the running build, applies migrations and exits;
+      # LiteSpeed then starts the new build on the next request. See src/lib/self-update.ts.
+      # (No --delete: mirroring one file into app/ leaves everything else alone.)
+      - name: Publish deploy marker
         env:
           FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
           FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
-        run: |
-          date > deploy/tmp/restart.txt
-          touch deploy/tmp/restart.txt
-          ./ftp-run.sh restart 'mirror --reverse --no-perms ./deploy/tmp/ ./tmp/'
+        run: ./ftp-run.sh marker 'mirror --reverse --no-perms ./deploy/marker/ ./app/'
 
-      # Works out how to reach the app for the steps below.
-      # DEPLOY_URL = site root, e.g. https://boxtop.harithroowijayawardhana.com
-      - name: Resolve deploy target
-        id: target
+      # Best-effort check from outside. GitHub's runner IPs are often bot-challenged (Cloudflare and
+      # the host's own firewall), so an unreadable answer is a warning, not a failure. A readable
+      # answer showing the wrong build after 5 minutes IS a failure.
+      - name: Verify the new build is live
         env:
           DEPLOY_URL: ${{ secrets.DEPLOY_URL }}
           DEPLOY_ORIGIN_IP: ${{ secrets.DEPLOY_ORIGIN_IP }}
-        if: ${{ env.DEPLOY_URL != '' }}
         run: |
-          set -euo pipefail
+          set +e -u   # GitHub starts bash with -e; we check results ourselves
+          if [ -z "${DEPLOY_URL:-}" ]; then echo "::warning::DEPLOY_URL not set; skipping verification."; exit 0; fi
           URL=$(printf '%s' "$DEPLOY_URL" | sed -E 's#/+$##')
-          case "$URL" in https://*) ;; *) echo "DEPLOY_URL must start with https:// (a redirect would turn POST into GET)"; exit 1;; esac
           HOST=$(printf '%s' "$URL" | awk -F/ '{print $3}')
-          # Cloudflare serves a managed challenge to runner IPs, which no token can answer.
-          # With DEPLOY_ORIGIN_IP, connect straight to the origin; SNI and Host stay correct.
-          if [ -n "${DEPLOY_ORIGIN_IP:-}" ]; then
-            echo "resolve=--resolve $HOST:443:$DEPLOY_ORIGIN_IP" >> "$GITHUB_OUTPUT"
-            echo "Bypassing Cloudflare via origin"
-          else
-            echo "resolve=" >> "$GITHUB_OUTPUT"
-            echo "::warning::DEPLOY_ORIGIN_IP is not set: calls go through Cloudflare, which challenges runner IPs (403 'Just a moment...')."
-          fi
-          echo "url=$URL" >> "$GITHUB_OUTPUT"
-
-      # No SSH on this host: ask the freshly uploaded app to migrate its own database.
-      # The route 404s unless X-Deploy-Token matches DEPLOY_TOKEN in cPanel.
-      - name: Run database migrations
-        env:
-          DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
-          URL: ${{ steps.target.outputs.url }}
-          RESOLVE: ${{ steps.target.outputs.resolve }}
-        if: ${{ steps.target.outputs.url != '' && env.DEPLOY_TOKEN != '' }}
-        run: |
-          set +e -uo pipefail   # GitHub starts bash with -e; we check exit codes ourselves
-          # Passenger starts the app lazily on the first request after restart.txt; retry while it boots.
-          for i in 1 2 3 4 5 6; do
-            # The body is not read, but the host's LiteSpeed firewall 403s a POST with no body/Content-Type.
-            # No --location on purpose: a redirect must fail loudly, not silently become a GET.
-            code=$(curl -s -o resp.txt -w '%{http_code}' --max-time 300 $RESOLVE \
-                   -X POST -H "X-Deploy-Token: $DEPLOY_TOKEN" \
-                   -H "Content-Type: application/json" -d '{}' \
-                   "$URL/api/deploy/migrate")
-            echo "attempt $i: HTTP $code"
-            if grep -q "Just a moment" resp.txt 2>/dev/null; then echo "Blocked by Cloudflare: set the DEPLOY_ORIGIN_IP secret."; exit 1; fi
-            case "$code" in
-              200) cat resp.txt; echo; exit 0 ;;
-              404) echo "404: DEPLOY_TOKEN differs from the cPanel env var (restart the app after changing it), or the route isn't deployed."; exit 1 ;;
-              403) echo "403 from the origin server firewall:"; sed 's/<[^>]*>/ /g' resp.txt | tr -s ' \n' | head -c 400; echo; exit 1 ;;
-              500) echo "Migration failed:"; cat resp.txt; echo; exit 1 ;;
-            esac
-            head -c 400 resp.txt 2>/dev/null; echo
-            sleep 10
-          done
-          echo "App did not come up after 6 attempts."; exit 1
-
-      - name: Smoke test
-        env:
-          URL: ${{ steps.target.outputs.url }}
-          RESOLVE: ${{ steps.target.outputs.resolve }}
-        if: ${{ steps.target.outputs.url != '' }}
-        run: |
-          set +e -uo pipefail   # GitHub starts bash with -e; we check exit codes ourselves
-          for i in 1 2 3 4 5; do
-            # 1) the running process is the build we just made (value inlined at build time)
-            live=$(curl -s --max-time 30 $RESOLVE "$URL/api/health" | sed -nE 's/.*"build":"([^"]*)".*/\1/p')
-            # 2) the home page renders (catches DB/schema errors)
-            code=$(curl -s -o home.html -w '%{http_code}' --max-time 60 $RESOLVE "$URL/")
-            echo "attempt $i: running build ${live:-?}, home page HTTP $code"
-            if grep -q "Just a moment" home.html 2>/dev/null; then echo "Blocked by Cloudflare: set DEPLOY_ORIGIN_IP."; exit 1; fi
-            if [ "$live" = "$GITHUB_SHA" ] && [ "$code" = 200 ]; then
-              echo "OK, $GITHUB_SHA is live"
-              # 3) every image the home page references is served
-              bad=0
-              for p in $(grep -oE '(src|href)="/[^"?]+\.(webp|png|jpe?g|svg)' home.html | sed -E 's/^(src|href)="//' | sort -u); do
-                c=$(curl -s -o /dev/null -w '%{http_code}' --max-time 30 $RESOLVE "$URL$p")
-                [ "$c" = 200 ] || { echo "  missing asset: $p ($c)"; bad=1; }
-              done
-              exit $bad
+          RESOLVE=(); [ -n "${DEPLOY_ORIGIN_IP:-}" ] && RESOLVE=(--resolve "$HOST:443:$DEPLOY_ORIGIN_IP")
+          seen=""
+          for i in $(seq 1 15); do   # 15 x 20s = 5 min: cron runs every minute, then a restart
+            sleep 20
+            body=$(curl -s --max-time 20 "${RESOLVE[@]}" "$URL/api/health")
+            live=$(printf '%s' "$body" | sed -nE 's/^\{"build":"([^"]*)"\}$/\1/p')
+            if [ -z "$live" ]; then echo "check $i: no readable answer (bot challenge or app starting)"; continue; fi
+            seen=$live; echo "check $i: running $live"
+            if [ "$live" = "$GITHUB_SHA" ]; then
+              code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 60 "${RESOLVE[@]}" "$URL/")
+              echo "home page: HTTP $code"
+              [ "$code" = 200 ] && { echo "OK: $GITHUB_SHA is live"; exit 0; }
+              echo "::error::New build is running but the home page returned $code."; exit 1
             fi
-            [ "$live" != "$GITHUB_SHA" ] && echo "  old process still serving (expected $GITHUB_SHA)"
-            sleep 10
           done
-          exit 1
+          if [ -n "$seen" ]; then
+            echo "::error::Still running $seen after 5 minutes, expected $GITHUB_SHA. Check the cron job (cPanel → Cron Jobs) and open /api/cron?key=CRON_SECRET to see the deploy status."
+            exit 1
+          fi
+          echo "::warning::Could not read /api/health from GitHub (bot protection). Check $URL/api/health yourself; it should show $GITHUB_SHA within ~2 minutes."

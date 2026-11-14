@@ -26,32 +26,37 @@ Each environment has its **own database and its own admin accounts**. Changing a
 
 `NEXT_PUBLIC_*` values are compiled into the bundle by `npm run build`. Setting them in cPanel does nothing; change them in the workflow and redeploy.
 
-GitHub repo secrets used by the deploy: `FTP_SERVER`, `FTP_USERNAME`, `FTP_PASSWORD`, plus `DEPLOY_URL` (e.g. `https://boxtop.harithroowijayawardhana.com`, no trailing slash), `DEPLOY_TOKEN`, and `DEPLOY_ORIGIN_IP` (the cPanel server's IP: cPanel home → General Information → Shared IP Address). The domain is behind Cloudflare, which blocks GitHub's runners with a bot challenge; with the origin IP set, the workflow connects straight to the server.
+GitHub repo secrets used by the deploy: `FTP_SERVER`, `FTP_USERNAME`, `FTP_PASSWORD` (required); `DEPLOY_URL` (site root, e.g. `https://boxtop.harithroowijayawardhana.com`) and `DEPLOY_ORIGIN_IP` (the cPanel server's IP, cPanel home → General Information → Shared IP Address) are only used for the final best-effort check.
 
 ### What a deploy does (`.github/workflows/deploy.yml`)
 
-1. Build with the test `NEXT_PUBLIC_*` values.
-2. Assemble `deploy/app` (standalone + static + public + `drizzle/`) and `deploy/tmp/restart.txt`.
+1. Build with the test `NEXT_PUBLIC_*` values and `NEXT_PUBLIC_BUILD_SHA` = the commit SHA (built into the bundle).
+2. Assemble `deploy/app` (standalone + static + public + `drizzle/`).
 3. Stamp every file's mtime from its content hash, so lftp uploads only files whose content changed.
 4. Upload `app/` over FTPS (3 connections, two passes so anything missed the first time is re-sent).
-5. Only then touch `tmp/restart.txt` and upload it in a separate connection, so it's newer than any process that started during the upload.
-6. POST `/api/deploy/migrate` (see below).
-7. Smoke test: `/api/health` must report this commit's SHA (proves Passenger restarted onto the new code) **and** the home page must return 200.
+5. Upload `app/DEPLOYED_SHA` **last**. It means "the new code is completely on disk".
+6. **The server applies it itself:** the every-minute cron calls `/api/cron`, which (`src/lib/self-update.ts`) sees `DEPLOYED_SHA` differ from its own built-in SHA, applies pending migrations, then exits. LiteSpeed starts the new build on the next request, and that fresh process scans `public/` with every file present.
+7. Best-effort check from GitHub: poll `/api/health` for up to 5 minutes. New SHA + home page 200 means ✅. Still the old SHA after 5 min means ❌ (check the cron). Unreadable (bot challenge) means ⚠️ warning only; check `/api/health` in a browser.
+
+Why it works this way: this host has no SSH, and **both Cloudflare and the host's own firewall bot-challenge GitHub's runner IPs**, unpredictably. So nothing in the deploy depends on GitHub reaching the site over HTTP. Migration and restart are triggered from the server's own cron.
 
 Deploys queue rather than cancel each other, and the job times out after 45 minutes.
 
+**First deploy after this change:** the app running at that moment predates the self-update code, so restart it once by hand (cPanel → Setup Node.js App → Restart). From then on it's automatic.
+
 Gotchas this host has shown:
-- Cloudflare gives runner IPs a "Just a moment…" 403. Fix: `DEPLOY_ORIGIN_IP`.
-- The origin's LiteSpeed firewall 403s a POST with no body. The workflow sends `{}` as JSON.
+- Cloudflare gives runner IPs a "Just a moment…" 403, and the origin firewall serves them an obfuscated-JS challenge page with **HTTP 200**. Never treat a 200 as success without checking the body.
+- The origin's LiteSpeed firewall 403s a POST with no body.
 - More than ~6 FTP connections can trigger `421 Too many connections`.
-- The server is LiteSpeed: it restarts the app only when `tmp/restart.txt` is **newer than the running process**. Never give that file an old mtime; the workflow touches it only after the upload finishes. Next also scans `public/` only at startup, so an app that (re)started mid-upload 404s images that arrived later. A restart fixes it. If `/api/health` shows an old SHA (or 404s), the app didn't restart. Fix it with cPanel → Setup Node.js App → Restart.
+- Next scans `public/` only at startup: a process that started mid-upload 404s images that arrived later. The self-restart fixes that.
 - In PowerShell, `curl` means `Invoke-WebRequest`; use `curl.exe` for the commands in this doc.
 
-### Automatic migrations
+### Checking / fixing a deploy by hand
 
-The host has no SSH, so after the FTP upload the workflow POSTs to `/api/deploy/migrate` with header `X-Deploy-Token`. The app applies any pending `drizzle/*.sql` files to its own database (the folder is copied into the deploy). The route 404s if the token is wrong or `DEPLOY_TOKEN` isn't set in cPanel. Then a smoke test checks the home page returns 200.
-
-Setup per environment: generate a long random token → put it in cPanel env vars as `DEPLOY_TOKEN` (restart the app) **and** in GitHub secrets as `DEPLOY_TOKEN`, along with `DEPLOY_URL`. Without both secrets the step is skipped.
+- `https://<site>/api/health` shows the running commit SHA.
+- `https://<site>/api/cron?key=CRON_SECRET` shows `"deploy": {"status": …}`: `current`, `updating` (migrating + restarting now), or `failed` with the migration error (it retries every minute and keeps the old build running until it succeeds).
+- If stuck: cPanel → Setup Node.js App → Restart.
+- `POST /api/deploy/migrate` with header `X-Deploy-Token` (= `DEPLOY_TOKEN` in cPanel) runs migrations manually. It's optional; the route is off when `DEPLOY_TOKEN` isn't set.
 
 Only ever add new migrations with `npm run db:generate`; never edit one that already ran on test/prod.
 
@@ -64,7 +69,7 @@ Only ever add new migrations with `npm run db:generate`; never edit one that alr
 
 ## Test (boxtop.harithroowijayawardhana.com)
 
-- Files: `/home/harithroo/boxtop/app` (`server.js`, `.next`, `node_modules`, `public`). `tmp/restart.txt` restarts the app.
+- Files: `/home/harithroo/boxtop/app` (`server.js`, `.next`, `node_modules`, `public`). The app restarts itself after a deploy (see above); cPanel → Restart does it by hand.
 - Push to `master` → Actions builds standalone output and uploads it over FTPS. Nothing else to do unless env vars changed.
 - Runtime variables: cPanel → Setup Node.js App → edit `boxtop` → Environment variables → save → Restart. Currently set there (values for secrets live only in cPanel):
 
@@ -78,7 +83,7 @@ Only ever add new migrations with `npm run db:generate`; never edit one that alr
   | `UPLOAD_DIR` | `/home/harithroo/uploads` |
   | `NEXT_PUBLIC_SITE_URL` | `https://boxtop.harithroowijayawardhana.com` (no effect here, see above; the real one is in `deploy.yml`) |
 - Migrations/seed: run from the cPanel terminal in the app folder, or from your PC with `DATABASE_URL` pointing at the host (needs Remote MySQL access for your IP).
-- Cron: cPanel → Cron Jobs, every minute: `curl -s "https://boxtop.harithroowijayawardhana.com/api/cron?key=CRON_SECRET" > /dev/null`
+- Cron (**required**: it sends notifications *and* applies deploys): cPanel → Cron Jobs, every minute: `curl -s "https://boxtop.harithroowijayawardhana.com/api/cron?key=CRON_SECRET" > /dev/null`
 
 ## Prod (box-top.lk) — checklist when setting up
 
