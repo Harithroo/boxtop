@@ -9,6 +9,11 @@ on:
   push:
     branches: [master]
   workflow_dispatch:
+    inputs:
+      full_upload:
+        description: "Also re-upload node_modules (normally only when its contents change)"
+        type: boolean
+        default: false
 
 # Queue, never cancel: killing a run mid-upload leaves the server with half old, half new files.
 concurrency:
@@ -63,18 +68,31 @@ jobs:
           # Uploaded LAST, in its own step: tells the running app that new code is fully on disk.
           echo "$GITHUB_SHA" > deploy/marker/DEPLOYED_SHA
 
-      # A fresh checkout gives every file a new mtime, so lftp would re-upload everything,
-      # and --ignore-time would miss changed files of equal size (BUILD_ID, route chunks).
-      # Instead stamp each file with an mtime derived from its content: lftp keeps remote
-      # mtimes in sync (MFMT), so unchanged files match and changed ones always differ.
-      - name: Stamp mtimes from content
+      # Every file gets "now" as its mtime, so it's newer than the server's copy and lftp's plain
+      # mirror re-uploads ALL of it (no time tricks: hash-derived mtimes made lftp skip ~half the
+      # changed files, mixing two builds on the server). node_modules is split off: it's 29 MB
+      # and changes only with dependencies, so it's uploaded only when its content hash changes.
+      - name: Fresh mtimes, node_modules hash
+        id: nm
         run: |
           set -euo pipefail
-          cd deploy/app
-          find . -type f -print0 | xargs -0 md5sum | while read -r h f; do
-            f="${f#\*}"   # md5sum's binary-mode marker
-            touch -d "@$(( 16#${h:0:7} + 1000000000 ))" "$f"
-          done
+          find deploy -exec touch {} +
+          mkdir -p deploy/nm
+          mv deploy/app/node_modules deploy/nm/node_modules
+          hash=$(cd deploy/nm && find node_modules -type f -print0 | LC_ALL=C sort -z | xargs -0 md5sum | md5sum | cut -c1-32)
+          echo "hash=$hash" >> "$GITHUB_OUTPUT"
+          echo "$hash" > nm-deployed.txt
+          echo "node_modules content hash: $hash"
+
+      # Has exactly this node_modules already been uploaded to this server? (Saved only after a
+      # successful upload, below.) To force it: Actions → Run workflow → tick "full_upload".
+      - name: Check deployed node_modules
+        id: nmcache
+        uses: actions/cache/restore@v4
+        with:
+          path: nm-deployed.txt
+          key: deployed-nm-test-${{ steps.nm.outputs.hash }}
+          lookup-only: true
 
       # lftp instead of FTP-Deploy-Action: that action's FTPS data connections fail on
       # some cPanel FTP servers ("tlsv1 alert decode error") during big uploads.
@@ -131,9 +149,22 @@ jobs:
           FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
         run: |
           # 3 parallel: cPanel's Pure-FTPd caps connections per user (421 Too many connections).
-          # The second identical pass re-sends anything the first missed (normally uploads nothing).
-          M='mirror --reverse --parallel=3 --no-perms --exclude-glob .git* ./deploy/app/ ./app/'
-          ./ftp-run.sh upload "$M" "$M"
+          # All files are newer than the server's, so this uploads the whole app (~945 files, ~11 MB).
+          ./ftp-run.sh upload 'mirror --reverse --parallel=3 --no-perms ./deploy/app/ ./app/'
+
+      - name: Upload node_modules via FTPS (only when it changed)
+        if: steps.nmcache.outputs.cache-hit != 'true' || inputs.full_upload
+        env:
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        run: ./ftp-run.sh node_modules 'mirror --reverse --parallel=3 --no-perms ./deploy/nm/node_modules/ ./app/node_modules/'
+
+      - name: Remember deployed node_modules
+        if: steps.nmcache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: nm-deployed.txt
+          key: deployed-nm-test-${{ steps.nm.outputs.hash }}
 
       # Only after every file is on disk: upload the marker. Within a minute the server's cron
       # (/api/cron) sees DEPLOYED_SHA differ from the running build, applies migrations and exits;

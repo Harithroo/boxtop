@@ -37,7 +37,8 @@ async function countApplied(conn: mysql.Connection): Promise<number> {
 }
 
 export type UpdateCheck =
-  | { status: "current" | "not-deployed-build" | "restarting"; running: string }
+  | { status: "not-deployed-build" | "restarting"; running: string }
+  | { status: "current"; running: string; applied: number }
   | { status: "updating"; running: string; deployed: string; applied: number }
   | { status: "failed"; running: string; deployed: string; error: string };
 
@@ -51,18 +52,26 @@ export async function applyPendingDeploy(): Promise<UpdateCheck> {
   try {
     deployed = (await readFile(path.join(/* turbopackIgnore: true */ process.cwd(), "DEPLOYED_SHA"), "utf8")).trim();
   } catch {
-    return { status: "current", running: RUNNING }; // no marker yet
+    deployed = ""; // no marker yet
   }
-  if (!SHA.test(deployed) || deployed === RUNNING) return { status: "current", running: RUNNING };
 
+  // Migrate on every tick, not only when a new build is waiting: after a manual restart the
+  // SHAs already match, and pending migrations must still be applied. With nothing pending
+  // this is one cheap query.
+  let applied = 0;
   try {
-    const { applied } = await runMigrations();
+    applied = (await runMigrations()).applied;
+  } catch (e) {
+    // Don't restart onto new code whose schema isn't there; retry next tick.
+    return { status: "failed", running: RUNNING, deployed, error: e instanceof Error ? e.message : String(e) };
+  }
+
+  if (!SHA.test(deployed) || deployed === RUNNING) return { status: "current", running: RUNNING, applied };
+
+  {
     restarting = true;
     // Let the response flush, then exit; the server starts the new build on the next request.
     setTimeout(() => process.exit(0), 1500);
     return { status: "updating", running: RUNNING, deployed, applied };
-  } catch (e) {
-    // Don't restart onto new code whose schema isn't there; retry next tick.
-    return { status: "failed", running: RUNNING, deployed, error: e instanceof Error ? e.message : String(e) };
   }
 }
