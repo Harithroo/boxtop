@@ -64,7 +64,9 @@ jobs:
       - name: Stamp mtimes from content
         run: |
           set -euo pipefail
-          cd deploy
+          # app/ only: tmp/restart.txt must keep a real "now" mtime, because LiteSpeed/Passenger
+          # restart the app only when restart.txt is newer than the running process.
+          cd deploy/app
           find . -type f -print0 | xargs -0 md5sum | while read -r h f; do
             f="${f#\*}"   # md5sum's binary-mode marker
             touch -d "@$(( 16#${h:0:7} + 1000000000 ))" "$f"
@@ -72,6 +74,9 @@ jobs:
 
       # lftp instead of FTP-Deploy-Action: that action's FTPS data connections fail on
       # some cPanel FTP servers ("tlsv1 alert decode error") during big uploads.
+      - name: Touch restart.txt
+        run: touch deploy/tmp/restart.txt   # fresh mtime, after any stamping
+
       - name: Install lftp
         run: sudo apt-get update -qq && sudo apt-get install -y -qq lftp
 
