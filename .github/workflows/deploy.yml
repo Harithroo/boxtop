@@ -48,10 +48,16 @@ jobs:
           mkdir -p deploy/app deploy/marker
           # standalone server + its trimmed node_modules
           cp -r .next/standalone/. deploy/app/
-          # static assets and public files are not included in standalone
-          mkdir -p deploy/app/.next
-          cp -r .next/static deploy/app/.next/static
-          [ -d public ] && cp -r public deploy/app/public || true
+          # Copy CONTENTS ("dir/."), never "cp -r dir dest": standalone already ships a partial
+          # public/ (only traced files), and "cp -r public deploy/app/public" then nested the full
+          # copy at public/public/, which nothing serves (that was the 19 missing images).
+          mkdir -p deploy/app/.next/static deploy/app/public
+          cp -r .next/static/. deploy/app/.next/static/
+          cp -r public/. deploy/app/public/
+          # Guard: every file in public/ must be at the same path in the deploy, and no nesting.
+          [ ! -e deploy/app/public/public ] && [ ! -e deploy/app/.next/static/static ] || { echo "::error::nested copy"; exit 1; }
+          missing=$(cd public && find . -type f | while read -r f; do [ -f "../deploy/app/public/$f" ] || echo "$f"; done)
+          [ -z "$missing" ] || { echo "::error::not in deploy: $missing"; exit 1; }
           # SQL migrations, applied on the server by src/lib/self-update.ts (not traced into standalone)
           cp -r drizzle deploy/app/drizzle
           # Uploaded LAST, in its own step: tells the running app that new code is fully on disk.
