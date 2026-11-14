@@ -76,13 +76,22 @@ jobs:
           user "$FTP_USERNAME" "$FTP_PASSWORD"
           pwd
           ls
-          mirror --reverse --parallel=6 --no-perms --exclude-glob .git* --exclude ^tmp/ ./deploy/ ./
+          mirror --reverse --parallel=3 --ignore-time --no-perms --exclude-glob .git* --exclude ^tmp/ ./deploy/ ./
           mirror --reverse --no-perms ./deploy/tmp/ ./tmp/
           bye
           EOF
           # -d prints the FTP conversation (the password is masked) so a failure shows its reason
-          lftp -d -f lftp.cmds 2>&1 | grep -v -i "^<--- 150\|^<--- 226\|^---> STOR\|^---> TYPE\|^---> PASV\|^<--- 227" | tail -n 200
-          test "${PIPESTATUS[0]}" -eq 0
+          # Full transcript goes to a file; the log shows only real problems plus a short tail.
+          set +e
+          lftp -d -f lftp.cmds > lftp.log 2>&1
+          rc=$?
+          set -e
+          echo "lftp exit code: $rc"
+          echo "== errors =="
+          grep -i -E "fatal|access failed|login failed|^<--- (4|5)[0-9][0-9]|error|denied|too many" lftp.log | grep -v -i "certificate verification" | tail -n 50 || true
+          echo "== last 40 lines =="
+          tail -n 40 lftp.log
+          exit $rc
 
       # No SSH on this host: ask the freshly uploaded app to migrate its own database.
       # Skipped until DEPLOY_URL and DEPLOY_TOKEN secrets exist (DEPLOY_TOKEN must match the cPanel env var).
@@ -95,7 +104,7 @@ jobs:
           # Passenger restarts lazily on the first request after restart.txt; give it a few tries.
           for i in 1 2 3 4 5 6; do
             code=$(curl -s -o resp.json -w '%{http_code}' --max-time 120 \
-                   -X POST -H "X-Deploy-Token: $DEPLOY_TOKEN" "$DEPLOY_URL/api/deploy/migrate" || echo 000)
+                   -X POST -H "X-Deploy-Token: $DEPLOY_TOKEN" "$DEPLOY_URL/api/deploy/migrate" || true)
             echo "attempt $i: HTTP $code"; cat resp.json 2>/dev/null; echo
             [ "$code" = 200 ] && exit 0
             [ "$code" = 404 ] && { echo "404: DEPLOY_TOKEN mismatch or route missing"; exit 1; }

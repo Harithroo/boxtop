@@ -3,6 +3,7 @@
 // Guarded by DEPLOY_TOKEN (cPanel env var + GitHub secret). Wrong/missing token → 404, like /api/cron.
 import { NextRequest, NextResponse } from "next/server";
 import path from "node:path";
+import { timingSafeEqual } from "node:crypto";
 import mysql from "mysql2/promise";
 import { drizzle } from "drizzle-orm/mysql2";
 import { migrate } from "drizzle-orm/mysql2/migrator";
@@ -12,8 +13,9 @@ export const dynamic = "force-dynamic";
 function authorised(req: NextRequest): boolean {
   const expected = process.env.DEPLOY_TOKEN ?? "";
   const given = req.headers.get("x-deploy-token") ?? "";
-  // TODO(human): return true only when `given` matches `expected`.
-  return false;
+  if (expected.length < 16) return false; // unset or too weak → route is off
+  const a = Buffer.from(given), b = Buffer.from(expected);
+  return a.length === b.length && timingSafeEqual(a, b);
 }
 
 export async function POST(req: NextRequest) {
