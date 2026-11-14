@@ -1,9 +1,9 @@
 # Boxtop — Handoff
 
-*Current state as of 2026-10-25, checked against the code at commit `dfad59c` (branch `master`, last pushed 2026-09-27). Only what exists in the code is listed here.*
+*Written 2026-10-25 against commit `dfad59c` on `master`. The styling, home page, data model and known-gaps sections were rewritten on 2026-11-14 for the revamp on branch `revamp`; the rest is unchanged.*
 
 ## What it is
-Gift-box store for Sri Lanka (local only, LKR only): customer storefront and owner back office in **one Next.js app**. Next.js 16.3.6 (App Router) + React 19 + TypeScript + Tailwind v4 + Drizzle ORM on MySQL/MariaDB. Styled with the **Ribbon** design system (the existing logo's violet `#3C2894` and magenta `#C40D86`, Kanit + Karla).
+Gift-box store for Sri Lanka (local only, LKR only): customer storefront and owner back office in **one Next.js app**. Next.js 16.3.6 (App Router) + React 19 + TypeScript + Tailwind v4 + Drizzle ORM on MySQL/MariaDB. Styled with the **night plum** design (dark plum page, ribbon pink `#ff3d8b`, foil gold `#f2c46d`; Unbounded, Figtree and Caveat), revamped in November 2026 on branch `revamp`.
 
 - Repo: `C:\Users\ASUS\Documents\my\boxtop`, remote `Harithroo/boxtop`. Branches `master` and `boxtop-frontend` — **`boxtop-frontend` is at the same commit as `master`**, there is no separate frontend work in flight.
 - Working tree is clean. 6 commits total; the app was built in one pass.
@@ -27,33 +27,55 @@ Scripts: `dev`, `build`, `start`, `lint`, `db:generate`, `db:migrate`, `db:seed`
 | `src/lib/` | 19 modules: cart, catalog, delivery, orders, settings, notify, vouchers, coupons, finder, format, auth, customer-auth, totp, uploads, csv, daily, crud-spec |
 | `src/db/` | `schema.ts` (36 tables), `loaders.ts`, `index.ts` |
 | `src/proxy.ts` | guards `/admin/*` with the `bt_admin` JWT cookie |
-| `drizzle/` | `0000_v1_full.sql`, `0001_contact_email.sql` |
+| `drizzle/` | `0000_v1_full.sql`, `0001_contact_email.sql`, `0002_revamp_home.sql` |
+| `src/styles/` | the prototype's stylesheets, ported: `site.css`, `footer.css`, `home.css` |
+| `public/home/`, `public/catalog/` | set-piece images, and the seeded box and item photos |
 
 **Server-first.** Only 21 files are `"use client"` — the interactive ones (`BuyPanel`, `DeliveryPicker`, `CheckoutForm`, `Builder`, `GiftFinder`, `SlipUpload`, the forms, and most of `components/admin/`). Everything else is a server component reading the DB directly. Keep it that way: no data-fetching library, no client state manager, no API layer to call.
 
-## Styling conventions (read before touching UI)
-All design tokens and shared classes live in **`src/app/globals.css`** — Tailwind v4 `@theme` block, no `tailwind.config`.
+## The revamp at a glance (branch `revamp`)
+The storefront was redesigned from two prototypes (a home page and a "torn poster" footer). What that changed:
 
-- Colours as token names: `bg-brand`, `text-accent-text`, `border-line`, `bg-surface`, `text-ink-muted`, `bg-page`, `bg-brand-soft`, `bg-accent-soft`, `success`, `danger`. **Don't hardcode hex values in components.**
-- Fonts: `--font-display` Kanit (headings, prices, wordmark), `--font-body` Karla. Loaded as a Google Fonts `<link>` in `src/app/layout.tsx`, not `next/font`.
-- Component classes already defined: `.container-bt`, `.eyebrow`, `.h1`, `.h2`, `.price`, `.wordmark`, `.btn-primary`, `.btn-accent`, `.btn-outline`, `.btn-sm`, `.card`, `.input`, `.label`, `.hint`, `.chip` / `.chip-on`, `.badge`, `.ribbon-frame` (the logo's frame motif). Use these rather than new one-off utility stacks.
-- Radii `--radius-sm/md/lg`, shadows `--shadow-card` / `--shadow-raised`.
-- Touch targets are deliberately `min-h-11` (44px) — about three in four sessions are on phones. Mobile-first; the header falls back to a scrolling chip row under `md`.
-- Money is always rendered with `rs()` from `src/lib/format.ts` (`Rs. 4,650`); **prices are whole rupees** everywhere, no cents.
-- Dates with `prettyDate()`, phone numbers with `lkPhone()` / `isLkMobile()`, WhatsApp links with `waLink()`.
-- Icons: `lucide-react`.
-- `next/image` is **not** used — `images: { unoptimized: true }` and plain `<img>`, because photos are resized to WebP once at upload time (shared hosting has no image optimiser).
+- **Home page** (`src/app/(store)/page.tsx` → `src/components/home/`): intro lid, hero collage, pinned unboxing, pinned box strip, quote builder, year dial, "send a box home" globe, pinned delivery story. Each section is one client component that owns and cleans up its own GSAP animation. `Home.tsx` only provides what they share (Lenis smooth scroll, the section dock).
+- **Store chrome** (`src/components/site/`): `SiteHeader` (ticker, pill nav, two mega menus, full-screen menu, plus search / account / cart), `SiteFooter` (the torn poster), `ToTop`. Fed by `src/app/(store)/layout.tsx`.
+- **Data for all of it** comes from `src/lib/home-data.ts` (`getSiteData()`, cached per request, shared by the layout and the page). Nothing on the home page is hardcoded catalogue: boxes, shelves, builder items, box styles, occasions and contact details are database rows.
+- **Ordering is cart + WhatsApp.** The home builder ends in a WhatsApp quote; box pages, cart and checkout are unchanged underneath. A box flagged "ask for price" is WhatsApp-only and can never enter the cart.
+- **Animation libraries:** `gsap` (+ ScrollTrigger), `@gsap/react`, `lenis`. Loaded only by the home page and `/build`.
+
+### How the home page is wired
+- A box hangs on one **shelf**: a collection with "Shelf on the home page" ticked. If a box is in several, an occasion or curated shelf wins over "for her / for him". Only boxes with a photo are hung.
+- **Featured** boxes (the tick in the box editor) fill the hero photos, the Shop menu and the menu pictures. The handwritten caption is the box's "Short caption".
+- **Occasions** on the dial are occasion collections with a date rule (`src/lib/occasions.ts`): `fixed:12-25`, `nth:5-0-2` (2nd Sunday of May), or `list:2026-11-08,2027-10-28` for dates that follow the moon. Lists run out: add next year's date before it does, or the occasion drops off the dial.
+- **"Tweak this box"** loads a box's contents into the builder. Who it's for and the occasion come from its collections; the box drawing comes from its box style. From another page, `/?tweak=<slug>#build` does the same.
+- The header and the home sections can't pass props to each other (one is in the layout, the other in the page), so they talk through `src/lib/home-bus.ts`.
+- State classes the stylesheets key on (`intro-on`, `menu-open`, `cl-pin`, `yr-pin`, `dock-on`) live on the `#site` wrapper, not on `<html>`, so React never rewrites them.
+- **Set pieces stay in code**: the café-box photo and its nine cut-outs (`public/home/`, positions in `stickers.ts`), the drawn delivery scenes (`scenes.ts`), the globe (`globe.ts`, `land.ts`). Changing the unboxing photo means cutting new stickers.
+- `src/lib/budget-match.ts` decides which boxes are suggested beside the builder's budget slider. It is deliberately a one-function file.
+
+## Styling conventions (read before touching UI)
+Tokens and shared classes live in **`src/app/globals.css`** (Tailwind v4 `@theme`, no `tailwind.config`). The prototype's own stylesheets were ported nearly verbatim into **`src/styles/`**: `site.css` (header, menus, dock, back-to-top), `footer.css`, `home.css`.
+
+- Colours as token names. The design's names: `night`, `plum`, `violet`, `ribbon`, `foil`, `cream`, `dim`, `kraft`, `paper`. The older names still work and point at the same palette: `bg-brand` (ribbon), `text-accent` (foil), `bg-surface`, `border-line`, `text-ink`, `text-ink-muted`, `bg-page`, `success`, `danger`. **Don't hardcode hex values in components.**
+- Fonts: `font-display` Unbounded (headings, prices), `font-body` Figtree, `font-hand` Caveat (handwritten accents). Loaded with `next/font/google` in `src/app/layout.tsx`, so they are self-hosted at build time (the build needs internet once).
+- Component classes: `.container-bt`, `.eyebrow`, `.h1`, `.h2`, `.price`, `.btn-primary` (pink), `.btn-outline` (ghost), `.btn-accent` (gold), `.btn-wa` (WhatsApp green), `.btn-sm`, `.card`, `.input`, `.label`, `.hint`, `.chip` / `.chip-on`, `.badge`, `.tlink` (link in copy), `.pcard` + `.ptag` (a box as a paper print with a kraft price tag), `.print` (a taped photo), `.ribbon-frame` (violet call-out).
+- **Cascade:** Tailwind's utilities sit in a CSS layer; the ported files in `src/styles` are unlayered, so they always win over utilities. Don't mix utility classes onto elements those files style. Class names `ring`, `card`, `price` were renamed in the port (`dring` / `tt-ring`, `hcard`, `tnum`) because Tailwind or the app already used them.
+- The back office wraps itself in `.admin` (same palette, smaller type, no hover lift). The packing slip wraps itself in `.paper`, which flips the tokens back to dark-on-white for printing.
+- Touch targets stay 44px. About three in four sessions are on phones: the pinned box strip becomes a native swipe, Lenis is off on touch screens, and `prefers-reduced-motion` gets no intro, no pinning and every step laid out in full.
+- Money is always `rs()` from `src/lib/format.ts` (**`Rs 4,650`**, no dot); `priceText(box)` when a box may be "Ask for price". Prices are whole rupees.
+- Dates with `prettyDate()`, phones with `lkPhone()` / `prettyPhone()`, WhatsApp links with `waLink()`.
+- Icons: `lucide-react`, plus a few hand-drawn ones in `src/components/site/icons.tsx`.
+- Images are plain `<img>`: photos are resized to WebP once at upload time (shared hosting has no image optimiser).
 
 ## Storefront routes
-`/` · `/shop` (budget filter + sort) · `/box/[slug]` · `/occasion/[slug]` · `/for/[slug]` · `/search` (package numbers work: "15" → P15) · `/build` (build-your-own) · `/gift-finder` · `/cart` · `/checkout` (one page, guest) · `/order/[number]` · `/track` · `/account` + `/account/reminders` · `/vouchers` + `/vouchers/[token]` · `/corporate` + `/corporate/bulk` + `/quote/[token]` · `/bulk/[ref]` · `/custom` · `/review/[token]` · `/makers` · `/delivery` · `/faq` · `/contact` · `/about` · `/terms` · `/privacy` · `/refunds` · `/delivery-policy` · `not-found` · `sitemap` · `robots` · `manifest` (PWA).
+`/` · `/shop` (budget filter + sort) · `/box/[slug]` · `/occasion/[slug]` · `/for/[slug]` · `/collection/[slug]` (curated shelves) · `/search` (package numbers work: "15" → P15) · `/build` (build-your-own) · `/gift-finder` · `/cart` · `/checkout` (one page, guest) · `/order/[number]` · `/track` · `/account` + `/account/reminders` · `/vouchers` + `/vouchers/[token]` · `/corporate` + `/corporate/bulk` + `/quote/[token]` · `/bulk/[ref]` · `/custom` · `/review/[token]` · `/makers` · `/delivery` · `/faq` · `/contact` · `/about` · `/terms` · `/privacy` · `/refunds` · `/delivery-policy` · `not-found` · `sitemap` · `robots` · `manifest` (PWA).
 
-Store chrome is `src/app/(store)/layout.tsx`: announcement bar (from settings), sticky header with search / account / cart badge, floating WhatsApp button, footer.
+Store chrome is `src/app/(store)/layout.tsx` with the components in `src/components/site/` (see "The revamp at a glance").
 
 ## Back office (`/admin`, owner only)
 Dashboard · orders (list, `[id]`, `new` manual order) · deliveries board · boxes (`[id]`, `add-ons`, `collections`) · builder · finder · quotes (`[id]`) · vouchers · reviews · enquiries · marketing (coupons) · content (pages + FAQ) · settings (store, payments, `settings/delivery`, `settings/notifications`) · `print/[id]` packing slip. Admin tables are driven by `src/lib/crud-spec.ts` + `components/admin/CrudTable.tsx` — add a spec entry rather than a new page where you can.
 
 ## Data and behaviour worth knowing
-- 36 tables; order statuses `PENDING → CONFIRMED → PACKED → DISPATCHED → DELIVERED` (+ `CANCELLED`, `REFUNDED`), labels in `STATUS_LABEL`, next step in `NEXT_STATUS`.
+- 37 tables (the revamp added `box_styles`, and columns on `boxes`, `collections`, `items` and `box_contents`: migration `drizzle/0002_revamp_home.sql`); order statuses `PENDING → CONFIRMED → PACKED → DISPATCHED → DELIVERED` (+ `CANCELLED`, `REFUNDED`), labels in `STATUS_LABEL`, next step in `NEXT_STATUS`.
 - Payments: **cash on delivery and bank transfer with slip upload only** — no gateway, by decision (the business isn't registered). Several bank accounts supported.
 - Cart lives in a signed-free JSON cookie `bt_cart` (`src/lib/cart.ts`), 14 days — box lines, add-ons, build-your-own builds, and the chosen zone/date/slot.
 - Delivery: zones → dates → slots with capacity, lead days, blackout dates, same-day cut-off; times computed in Asia/Colombo (`colomboNow()`). The picker calls `GET /api/delivery?zoneId=&lead=&sameDay=`.
@@ -70,7 +92,11 @@ Test site: `boxtop.harithroowijayawardhana.com`, app root `/home/harithroo/boxto
 `sharp` needs a Linux binary: building on Windows requires `npm install --os=linux --cpu=x64 sharp` first, or build in Actions.
 
 ## Known gaps in the current code
-- **Uploaded files are never served.** `saveImage()` writes to `UPLOAD_DIR` and returns `/uploads/<folder>/<file>.webp`, but nothing in the app serves that path — no route, no static mapping, and `public/uploads` doesn't exist. Every box photo, bank slip, delivery photo and review photo will 404 until a handler or a host-level mapping is added. Fix this before any catalogue work.
+- **Deploying the revamp needs the database migrated first.** The code reads columns that only exist after `npm run db:migrate` (`0002_revamp_home.sql`), then `npm run db:seed` for the home catalogue. Pushing to `master` deploys the code only; without the migration the test site will error.
+- Uploaded files are now served by `src/app/uploads/[...path]/route.ts` from `UPLOAD_DIR`. Box, item, maker, review and delivery photos are public and cached for good; bank slips and enquiry photos answer only to a signed-in owner.
+- The seeded catalogue is placeholder: names, photos and prices come from Boxtop's 2023–24 posts. Check every price, and the two "ask for price" boxes, before launch.
+- Things on the home page the owner should confirm (all editable in Settings → Home page unless noted): which WhatsApp number takes orders, the "100% recommend · 7 reviews" line, the three customer quotes (names included), the delivery areas. The remittance figure in "Send a box home" and the census figure in the order section are written into the components.
+- Reduced motion and the no-JavaScript fallback were built from the prototype's rules but not exercised in a browser.
 - No tests of any kind, and no CI check beyond the deploy build.
 - No real product photos or copy — everything on the site is seed data (`npm run db:seed`).
 - No payment gateway (by decision), no automatic WhatsApp (phase 2).

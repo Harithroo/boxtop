@@ -617,3 +617,17 @@ a.pol:hover .cap h3{text-decoration:underline;text-decoration-color:#c9145f;text
 .facts dd a,.fact p a{text-decoration:underline;text-underline-offset:3px}
 .facts dd a:hover,.fact p a:hover{color:var(--foil)}
 .occ-ph{background:linear-gradient(150deg,#3f2894,#1d1231)}
+/* On a short phone the scroll cue would sit on top of the hero buttons, so it steps aside. */
+@media (max-width:899px) and (max-height:780px){.scroll-cue{display:none}}
+/* The globe panel never grows past its column, whatever its one-line hint wants. */
+.ab-globe{grid-template-columns:minmax(0,1fr)}
+@media (max-width:899px){.gl-hint{white-space:normal;text-align:center}}
+/* the smallest phones: the boarding pass gives up a little padding and type size */
+@media (max-width:380px){
+  .pass-main{padding:18px 16px 16px}
+  .pass-stub{padding:16px 16px 18px}
+  .pass-end b{font-size:1.7rem}
+  .pass-fly{min-width:52px}
+  .pass-route{gap:6px}
+  .pass-fly small{white-space:normal;text-align:center;line-height:1.25}
+}

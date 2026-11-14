@@ -157,7 +157,7 @@ a.mf,a.mo-occ{text-decoration:none}
 .hd-dd.is-cur:hover{background:var(--cream)}
 /* the extra icons need room: links leave the bar a little earlier than in the prototype */
 @media (max-width:1439px){.hd-links .hd-opt{display:none}}
-@media (max-width:1279px){.hd-ic-opt{display:none}}
+@media (max-width:1359px){.hd-ic-opt{display:none}}
 @media (max-width:1099px){.hd-links{display:none}.mega{display:none!important}}
 @media (max-width:460px){.hd-act{gap:8px}}
 @media (max-width:350px){.hd .logo{font-size:0;gap:0}}
@@ -168,3 +168,5 @@ a.mf,a.mo-occ{text-decoration:none}
 .colophon nav a:hover{color:var(--foil)}
 /* on the home page the section dock floats over the bottom edge */
 .site:has(.home-page) .colophon{padding-bottom:88px}
+/* breathing room between a page's content and the poster */
+.site-main:not(:has(> .home-page)){padding-bottom:clamp(56px,8vw,110px)}
