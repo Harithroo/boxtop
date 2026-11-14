@@ -111,7 +111,10 @@ jobs:
           # Passenger restarts lazily on the first request after restart.txt; give it a few tries.
           for i in 1 2 3 4 5 6; do
             code=$(curl -s -o resp.json -w '%{http_code}' --max-time 120 "${RESOLVE[@]}" \
-                   -X POST -H "X-Deploy-Token: $DEPLOY_TOKEN" "$DEPLOY_URL/api/deploy/migrate" || true)
+                   -X POST -H "X-Deploy-Token: $DEPLOY_TOKEN" \
+                   -H "Content-Type: application/json" -d '{}' \
+                   "$DEPLOY_URL/api/deploy/migrate" || true)
+            # (the host's LiteSpeed firewall 403s a bodiless POST, hence the empty JSON body)
             echo "attempt $i: HTTP $code"; head -c 400 resp.json 2>/dev/null; echo
             grep -q "Just a moment" resp.json 2>/dev/null && { echo "Blocked by Cloudflare: set the DEPLOY_ORIGIN_IP secret"; exit 1; }
             [ "$code" = 200 ] && exit 0
