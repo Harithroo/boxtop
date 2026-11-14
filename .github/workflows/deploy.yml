@@ -74,9 +74,6 @@ jobs:
 
       # lftp instead of FTP-Deploy-Action: that action's FTPS data connections fail on
       # some cPanel FTP servers ("tlsv1 alert decode error") during big uploads.
-      - name: Touch restart.txt
-        run: touch deploy/tmp/restart.txt   # fresh mtime, after any stamping
-
       - name: Install lftp
         run: sudo apt-get update -qq && sudo apt-get install -y -qq lftp
 
@@ -113,8 +110,17 @@ jobs:
           mirror --reverse --parallel=3 --no-perms --exclude-glob .git* --exclude-glob .in.* --exclude ^tmp/ ./deploy/ ./
           # Verify: a dry run must find nothing left to upload.
           mirror --reverse --dry-run --no-perms --exclude-glob .git* --exclude-glob .in.* --exclude ^tmp/ ./deploy/ ./ > remaining.txt
-          # restart.txt last, so Passenger restarts only once everything is in place
-          mirror --reverse --no-perms ./deploy/tmp/ ./tmp/
+          # restart.txt last, so the app restarts only once everything is in place. Its mtime must be
+          # "now" on the server: LiteSpeed restarts only if it's newer than the running process, and a
+          # process can start mid-upload (visitor request / crash). That process scans public/ once at
+          # boot, so files uploaded after it started 404 (seen: 19 images). So: don't copy the runner's
+          # mtime (MFMT/UTIME off), let the server stamp it on write.
+          set ftp:use-mfmt off
+          set ftp:use-utime off
+          set ftp:use-site-utime off
+          set ftp:use-site-utime2 off
+          rm -f tmp/restart.txt
+          put -O tmp ./deploy/tmp/restart.txt
           bye
           EOF
           # Full transcript goes to a file (-d; the password is masked); the log shows problems + a tail.

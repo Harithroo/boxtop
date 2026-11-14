@@ -43,7 +43,7 @@ Gotchas this host has shown:
 - Cloudflare gives runner IPs a "Just a moment…" 403. Fix: `DEPLOY_ORIGIN_IP`.
 - The origin's LiteSpeed firewall 403s a POST with no body. The workflow sends `{}` as JSON.
 - More than ~6 FTP connections can trigger `421 Too many connections`.
-- The server is LiteSpeed: it restarts the app only when `tmp/restart.txt` is **newer than the running process**. Never give that file an old mtime. If `/api/health` shows an old SHA (or 404s), the app didn't restart. Fix it with cPanel → Setup Node.js App → Restart.
+- The server is LiteSpeed: it restarts the app only when `tmp/restart.txt` is **newer than the running process**. Never give that file an old mtime; the workflow uploads it last with the server's own clock. Next also scans `public/` only at startup, so an app that (re)started mid-upload 404s images that arrived later. A restart fixes it. If `/api/health` shows an old SHA (or 404s), the app didn't restart. Fix it with cPanel → Setup Node.js App → Restart.
 - In PowerShell, `curl` means `Invoke-WebRequest`; use `curl.exe` for the commands in this doc.
 
 ### Automatic migrations
