@@ -26,7 +26,7 @@ Each environment has its **own database and its own admin accounts**. Changing a
 
 `NEXT_PUBLIC_*` values are compiled into the bundle by `npm run build`. Setting them in cPanel does nothing; change them in the workflow and redeploy.
 
-GitHub repo secrets used by the deploy: `FTP_SERVER`, `FTP_USERNAME`, `FTP_PASSWORD`, plus `DEPLOY_URL` (e.g. `https://boxtop.harithroowijayawardhana.com`, no trailing slash) and `DEPLOY_TOKEN`.
+GitHub repo secrets used by the deploy: `FTP_SERVER`, `FTP_USERNAME`, `FTP_PASSWORD`, plus `DEPLOY_URL` (e.g. `https://boxtop.harithroowijayawardhana.com`, no trailing slash), `DEPLOY_TOKEN`, and `DEPLOY_ORIGIN_IP` (the cPanel server's IP: cPanel home → General Information → Shared IP Address). The domain is behind Cloudflare, which blocks GitHub's runners with a bot challenge; with the origin IP set, the workflow connects straight to the server.
 
 ### Automatic migrations
 
