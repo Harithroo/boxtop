@@ -32,10 +32,10 @@ GitHub repo secrets used by the deploy: `FTP_SERVER`, `FTP_USERNAME`, `FTP_PASSW
 
 1. Build with the test `NEXT_PUBLIC_*` values and `NEXT_PUBLIC_BUILD_SHA` = the commit SHA (built into the bundle).
 2. Assemble `deploy/app` (standalone + static + public + `drizzle/`).
-3. Stamp every file's mtime from its content hash, so lftp uploads only files whose content changed.
-4. Upload `app/` over FTPS (3 connections, two passes so anything missed the first time is re-sent).
+3. Give every file a fresh mtime and upload **all** of `app/` except `node_modules` (~945 files, ~11 MB). Never use content-derived mtimes or `--ignore-time`: lftp then skips changed files, and the server ends up running chunks from two builds (`module factory is not available`).
+4. Upload `node_modules` (29 MB) only when its content hash has changed since the last successful upload (tracked in the GitHub Actions cache). To force it: Actions → Run workflow → tick `full_upload`.
 5. Upload `app/DEPLOYED_SHA` **last**. It means "the new code is completely on disk".
-6. **The server applies it itself:** the every-minute cron calls `/api/cron`, which (`src/lib/self-update.ts`) sees `DEPLOYED_SHA` differ from its own built-in SHA, applies pending migrations, then exits. LiteSpeed starts the new build on the next request, and that fresh process scans `public/` with every file present.
+6. **The server applies it itself:** the every-minute cron calls `/api/cron`, which (`src/lib/self-update.ts`) applies any pending migrations on every tick (one cheap query when there are none). If `DEPLOYED_SHA` differs from the app's own built-in SHA, it then exits. LiteSpeed starts the new build on the next request, and that fresh process scans `public/` with every file present.
 7. Best-effort check from GitHub: poll `/api/health` for up to 5 minutes. New SHA + home page 200 means ✅. Still the old SHA after 5 min means ❌ (check the cron). Unreadable (bot challenge) means ⚠️ warning only; check `/api/health` in a browser.
 
 Why it works this way: this host has no SSH, and **both Cloudflare and the host's own firewall bot-challenge GitHub's runner IPs**, unpredictably. So nothing in the deploy depends on GitHub reaching the site over HTTP. Migration and restart are triggered from the server's own cron.
@@ -72,6 +72,7 @@ Only ever add new migrations with `npm run db:generate`; never edit one that alr
 
 - Files: `/home/harithroo/boxtop/app` (`server.js`, `.next`, `node_modules`, `public`). The app restarts itself after a deploy (see above); cPanel → Restart does it by hand.
 - Push to `master` → Actions builds standalone output and uploads it over FTPS. Nothing else to do unless env vars changed.
+- cPanel Node.js app: Application root `boxtop`, startup file `app/server.js`. **Application mode must be Production** (it sets `NODE_ENV`).
 - Runtime variables: cPanel → Setup Node.js App → edit `boxtop` → Environment variables → save → Restart. Currently set there (values for secrets live only in cPanel):
 
   | Name | Test value |
