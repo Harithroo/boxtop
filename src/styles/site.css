@@ -161,12 +161,5 @@ a.mf,a.mo-occ{text-decoration:none}
 @media (max-width:1099px){.hd-links{display:none}.mega{display:none!important}}
 @media (max-width:460px){.hd-act{gap:8px}}
 @media (max-width:350px){.hd .logo{font-size:0;gap:0}}
-/* the strip under the poster */
-.colophon{display:flex;flex-wrap:wrap;gap:16px 28px;justify-content:space-between;align-items:center;padding:28px var(--gut);border-top:1px solid var(--line);font-size:.86rem;color:var(--dim)}
-.colophon nav{display:flex;flex-wrap:wrap;gap:8px 20px}
-.colophon nav a{color:var(--dim);text-decoration:none}
-.colophon nav a:hover{color:var(--foil)}
-/* on the home page the section dock floats over the bottom edge */
-.site:has(.home-page) .colophon{padding-bottom:88px}
 /* breathing room between a page's content and the poster */
 .site-main:not(:has(> .home-page)){padding-bottom:clamp(56px,8vw,110px)}

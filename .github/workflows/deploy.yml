@@ -42,6 +42,8 @@ jobs:
           mkdir -p deploy/app/.next
           cp -r .next/static deploy/app/.next/static
           [ -d public ] && cp -r public deploy/app/public || true
+          # SQL migrations, read at runtime by /api/deploy/migrate (not traced into standalone)
+          cp -r drizzle deploy/app/drizzle
           # touching this file makes Passenger restart the app
           date > deploy/tmp/restart.txt
 
@@ -81,3 +83,31 @@ jobs:
           # -d prints the FTP conversation (the password is masked) so a failure shows its reason
           lftp -d -f lftp.cmds 2>&1 | grep -v -i "^<--- 150\|^<--- 226\|^---> STOR\|^---> TYPE\|^---> PASV\|^<--- 227" | tail -n 200
           test "${PIPESTATUS[0]}" -eq 0
+
+      # No SSH on this host: ask the freshly uploaded app to migrate its own database.
+      # Skipped until DEPLOY_URL and DEPLOY_TOKEN secrets exist (DEPLOY_TOKEN must match the cPanel env var).
+      - name: Run database migrations
+        env:
+          DEPLOY_URL: ${{ secrets.DEPLOY_URL }}
+          DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
+        if: ${{ env.DEPLOY_URL != '' && env.DEPLOY_TOKEN != '' }}
+        run: |
+          # Passenger restarts lazily on the first request after restart.txt; give it a few tries.
+          for i in 1 2 3 4 5 6; do
+            code=$(curl -s -o resp.json -w '%{http_code}' --max-time 120 \
+                   -X POST -H "X-Deploy-Token: $DEPLOY_TOKEN" "$DEPLOY_URL/api/deploy/migrate" || echo 000)
+            echo "attempt $i: HTTP $code"; cat resp.json 2>/dev/null; echo
+            [ "$code" = 200 ] && exit 0
+            [ "$code" = 404 ] && { echo "404: DEPLOY_TOKEN mismatch or route missing"; exit 1; }
+            [ "$code" = 500 ] && exit 1
+            sleep 10
+          done
+          exit 1
+
+      - name: Smoke test
+        env:
+          DEPLOY_URL: ${{ secrets.DEPLOY_URL }}
+        if: ${{ env.DEPLOY_URL != '' }}
+        run: |
+          code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 60 "$DEPLOY_URL/")
+          echo "home page: HTTP $code"; [ "$code" = 200 ]

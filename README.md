@@ -2,6 +2,8 @@
 
 Gift-box store for Sri Lanka: storefront and owner back office in one Next.js app (App Router, TypeScript, Tailwind, Drizzle ORM, MySQL or MariaDB). Styled with the **night plum** design: a dark, animated storefront (Unbounded, Figtree and Caveat) with the back office in the same palette.
 
+Environments (dev / test / prod), where each one's variables live, and how to recover lost access: [docs/ENVIRONMENTS.md](docs/ENVIRONMENTS.md).
+
 ## Run it on your computer
 
 0. Quick way: in an admin PowerShell in this folder run `powershell -ExecutionPolicy Bypass -File .\scripts\setup-db.ps1`. It installs MariaDB if needed, creates the database and writes `.env`. Or by hand:

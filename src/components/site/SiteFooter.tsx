@@ -7,10 +7,12 @@ import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { glideTo, reducedMotion, scrollToEl } from "./scroll";
 
 export type FooterData = {
-  wa: string; waDisplay: string; instagram: string; igHandle: string; facebook: string;
-  fromPrice: string | null; nextName: string | null; abroad: boolean; address: string; year: string;
+  wa: string; waDisplay: string; instagram: string; facebook: string;
+  fromPrice: string | null; nextName: string | null; abroad: boolean; year: string;
   shop: { name: string; href: string }[];
 };
+/** The links a shop must show, printed along the bottom of the paper. */
+const LEGAL: [string, string][] = [["Terms", "/terms"], ["Privacy", "/privacy"], ["Refunds", "/refunds"], ["Delivery policy", "/delivery-policy"], ["About", "/about"], ["Contact", "/contact"]];
 
 const SHEET = "#ff3d8b", PAPER = "#f6efe6", NS = "http://www.w3.org/2000/svg";
 const RIDGE_N = 84, START = 1.06, FLAPS = 6;
@@ -376,9 +378,13 @@ export function SiteFooter({ data }: { data: FooterData }) {
         </Link>
       )}
       <div className="tpf-z tpf-foot tpf-ink">
-        <span className="tpf-p" style={i(3)}>© {data.year} BOXTOP</span>
-        <span className="tpf-credit tpf-p" style={i(4)}>packed by hand in {data.address}</span>
-        {data.instagram && <a className="tpf-handle tpf-p" style={i(5)} href={data.instagram} target="_blank" rel="noopener">{data.igHandle}</a>}
+        <p className="tpf-copy tpf-p" style={i(3)}>
+          <span>© {data.year} BOXTOP. All rights reserved.</span>
+          <span className="tpf-dev">Designed &amp; developed by Shenal and Harithroo</span>
+        </p>
+        <nav className="tpf-legal tpf-p" style={i(4)} aria-label="Legal and company">
+          {LEGAL.map(([label, href]) => <Link key={href} href={href}>{label}</Link>)}
+        </nav>
       </div>
     </footer>
   );

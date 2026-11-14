@@ -5,7 +5,7 @@ import { priceText, rs } from "@/lib/format";
 import { getSiteData } from "@/lib/home-data";
 import { SiteFooter, type FooterData } from "@/components/site/SiteFooter";
 import { SiteHeader, type NavData } from "@/components/site/SiteHeader";
-import { Colophon, ToTop } from "@/components/site/ToTop";
+import { ToTop } from "@/components/site/ToTop";
 
 export default async function StoreLayout({ children }: { children: React.ReactNode }) {
   const [site, count] = await Promise.all([getSiteData(), cartCount()]);
@@ -17,9 +17,9 @@ export default async function StoreLayout({ children }: { children: React.ReactN
     menuPics: site.menuPics,
   };
   const footer: FooterData = {
-    wa: site.wa, waDisplay: site.waDisplay, instagram: site.instagram, igHandle: site.igHandle, facebook: site.facebook,
+    wa: site.wa, waDisplay: site.waDisplay, instagram: site.instagram, facebook: site.facebook,
     fromPrice: site.minPrice === null ? null : rs(site.minPrice), nextName: site.occasions[0]?.short ?? null, abroad: site.abroad,
-    address: site.address, year: site.today.slice(0, 4),
+    year: site.today.slice(0, 4),
     // occasions have their own column, so the shop column takes the other shelves
     shop: site.chapters.filter((c) => !c.href.startsWith("/occasion/")).slice(0, 3).map((c) => ({ name: c.name, href: c.href })),
   };
@@ -30,7 +30,6 @@ export default async function StoreLayout({ children }: { children: React.ReactN
       <SiteHeader nav={nav} />
       <main className="site-main">{children}</main>
       <SiteFooter data={footer} />
-      <Colophon />
       <ToTop />
     </div>
   );

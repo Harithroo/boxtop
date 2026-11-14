@@ -60,7 +60,9 @@ function Dock({ secs }: { secs: string[] }) {
       }
       // the dock steps aside while a full-screen pinned scene needs the bottom edge
       const pinned = covered(document.getElementById("collection")) || covered(document.getElementById("journey"));
-      const show = window.scrollY > window.innerHeight * 0.7 && !pinned && !site?.classList.contains("menu-open");
+      // ...and at the end of the page, where the poster's last line sits
+      const atEnd = document.documentElement.scrollHeight - window.innerHeight - window.scrollY < 140;
+      const show = window.scrollY > window.innerHeight * 0.7 && !pinned && !atEnd && !site?.classList.contains("menu-open");
       el.classList.toggle("show", show); site?.classList.toggle("dock-on", show);
     };
     const onResize = () => movePill(on);
