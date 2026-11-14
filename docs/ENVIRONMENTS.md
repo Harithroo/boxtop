@@ -48,7 +48,8 @@ Gotchas this host has shown:
 - Cloudflare gives runner IPs a "Just a moment…" 403, and the origin firewall serves them an obfuscated-JS challenge page with **HTTP 200**. Never treat a 200 as success without checking the body.
 - The origin's LiteSpeed firewall 403s a POST with no body.
 - More than ~6 FTP connections can trigger `421 Too many connections`.
-- Next scans `public/` only at startup: a process that started mid-upload 404s images that arrived later. The self-restart fixes that.
+- Next 16 standalone output already contains a **partial** `public/` (only traced files). Copy with `cp -r public/. dest/public/`; `cp -r public dest/public` nests the full copy at `public/public/` and the untraced images 404. The assemble step now fails if any public file is missing from the deploy.
+- Next scans `public/` only at startup, so files added while it runs need a restart. The self-restart covers that.
 - In PowerShell, `curl` means `Invoke-WebRequest`; use `curl.exe` for the commands in this doc.
 
 ### Checking / fixing a deploy by hand
