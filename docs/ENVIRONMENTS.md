@@ -28,6 +28,23 @@ Each environment has its **own database and its own admin accounts**. Changing a
 
 GitHub repo secrets used by the deploy: `FTP_SERVER`, `FTP_USERNAME`, `FTP_PASSWORD`, plus `DEPLOY_URL` (e.g. `https://boxtop.harithroowijayawardhana.com`, no trailing slash), `DEPLOY_TOKEN`, and `DEPLOY_ORIGIN_IP` (the cPanel server's IP: cPanel home → General Information → Shared IP Address). The domain is behind Cloudflare, which blocks GitHub's runners with a bot challenge; with the origin IP set, the workflow connects straight to the server.
 
+### What a deploy does (`.github/workflows/deploy.yml`)
+
+1. Build with the test `NEXT_PUBLIC_*` values.
+2. Assemble `deploy/app` (standalone + static + public + `drizzle/`) and `deploy/tmp/restart.txt`.
+3. Stamp every file's mtime from its content hash, so lftp uploads only files whose content changed.
+4. Upload over FTPS (3 connections), `restart.txt` last.
+5. POST `/api/deploy/migrate` (see below).
+6. Smoke test: home page must return 200 **and** contain the new build id.
+
+Deploys queue rather than cancel each other, and the job times out after 45 minutes.
+
+Gotchas this host has shown:
+- Cloudflare gives runner IPs a "Just a moment…" 403. Fix: `DEPLOY_ORIGIN_IP`.
+- The origin's LiteSpeed firewall 403s a POST with no body. The workflow sends `{}` as JSON.
+- More than ~6 FTP connections can trigger `421 Too many connections`.
+- In PowerShell, `curl` means `Invoke-WebRequest`; use `curl.exe` for the commands in this doc.
+
 ### Automatic migrations
 
 The host has no SSH, so after the FTP upload the workflow POSTs to `/api/deploy/migrate` with header `X-Deploy-Token`. The app applies any pending `drizzle/*.sql` files to its own database (the folder is copied into the deploy). The route 404s if the token is wrong or `DEPLOY_TOKEN` isn't set in cPanel. Then a smoke test checks the home page returns 200.
