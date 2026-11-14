@@ -77,65 +77,72 @@ jobs:
       - name: Install lftp
         run: sudo apt-get update -qq && sudo apt-get install -y -qq lftp
 
-      - name: Upload via FTPS (lftp)
+      # Shared lftp runner: writes the connection header, appends the given commands, runs it and
+      # prints errors + a tail. Only commands proven on this host are used (see docs/ENVIRONMENTS.md).
+      - name: Prepare lftp runner
         env:
           FTP_SERVER: ${{ secrets.FTP_SERVER }}
+        run: |
+          # accept "host", "ftp://host", "ftps://host" or "host:21" in the secret
+          HOST=$(printf '%s' "$FTP_SERVER" | sed -E 's#^[a-z]+://##; s#/.*$##; s#:[0-9]+$##')
+          cat > ftp-run.sh <<'SH'
+          #!/usr/bin/env bash
+          # usage: ftp-run.sh <name> <lftp commands...>   (FTP_HOST/FTP_USERNAME/FTP_PASSWORD from env)
+          set +e -u
+          name=$1; shift
+          trap 'rm -f "$name.cmds"' EXIT   # the command file holds the password
+          {
+            echo 'set cmd:fail-exit true'
+            echo 'set ftp:ssl-allow true'
+            echo 'set ftp:ssl-force true'
+            echo 'set ftp:ssl-protect-data true'
+            echo 'set ftp:ssl-protect-list true'
+            echo 'set ssl:verify-certificate no'
+            echo 'set ssl:check-hostname no'
+            echo 'set ftp:passive-mode true'
+            echo 'set net:max-retries 5'
+            echo 'set net:reconnect-interval-base 5'
+            echo 'set net:timeout 30'
+            echo "open -p 21 $FTP_HOST"
+            echo "user \"$FTP_USERNAME\" \"$FTP_PASSWORD\""
+            printf '%s\n' "$@"
+            echo 'bye'
+          } > "$name.cmds"
+          # -d: full FTP transcript (password masked) into a file; show only problems + a tail
+          lftp -d -f "$name.cmds" > "$name.log" 2>&1
+          rc=$?
+          echo "[$name] lftp exit code: $rc, files uploaded: $(grep -c '^---> STOR' "$name.log")"
+          echo "[$name] == errors =="
+          grep -i -E "fatal|access failed|login failed|^<--- (4|5)[0-9][0-9]|error|denied|too many" "$name.log" | grep -v -i "certificate verification" | tail -n 50
+          echo "[$name] == last 30 lines =="
+          tail -n 30 "$name.log"
+          exit $rc
+          SH
+          chmod +x ftp-run.sh
+          echo "FTP_HOST=$HOST" >> "$GITHUB_ENV"
+
+      - name: Upload app via FTPS
+        env:
           FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
           FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
         run: |
-          set -uo pipefail
-          # accept "host", "ftp://host", "ftps://host" or "host:21" in the secret
-          HOST=$(printf '%s' "$FTP_SERVER" | sed -E 's#^[a-z]+://##; s#/.*$##; s#:[0-9]+$##')
-          cat > lftp.cmds <<EOF
-          set cmd:fail-exit true
-          set ftp:ssl-allow true
-          set ftp:ssl-force true
-          set ftp:ssl-protect-data true
-          set ftp:ssl-protect-list true
-          set ssl:verify-certificate no
-          set ssl:check-hostname no
-          set ftp:passive-mode true
-          set net:max-retries 5
-          set net:reconnect-interval-base 5
-          set net:timeout 30
-          open -p 21 $HOST
-          user "$FTP_USERNAME" "$FTP_PASSWORD"
-          # Upload as a temp name and rename into place. lftp's default is DELE then STOR, so a
-          # failed transfer left the file missing on the server (seen: logo.jpg, dilmah.webp).
-          set xfer:use-temp-file true
-          set xfer:temp-file-name .in.*
-          # 3 parallel: cPanel's Pure-FTPd caps connections per user (421 Too many connections)
-          mirror --reverse --parallel=3 --no-perms --exclude-glob .git* --exclude-glob .in.* --exclude ^tmp/ ./deploy/ ./
-          # Second pass picks up anything that failed in the first (normally uploads nothing).
-          mirror --reverse --parallel=3 --no-perms --exclude-glob .git* --exclude-glob .in.* --exclude ^tmp/ ./deploy/ ./
-          # Verify: a dry run must find nothing left to upload.
-          mirror --reverse --dry-run --no-perms --exclude-glob .git* --exclude-glob .in.* --exclude ^tmp/ ./deploy/ ./ > remaining.txt
-          # restart.txt last, so the app restarts only once everything is in place. Its mtime must be
-          # "now" on the server: LiteSpeed restarts only if it's newer than the running process, and a
-          # process can start mid-upload (visitor request / crash). That process scans public/ once at
-          # boot, so files uploaded after it started 404 (seen: 19 images). So: don't copy the runner's
-          # mtime (MFMT/UTIME off), let the server stamp it on write.
-          set ftp:use-mfmt off
-          set ftp:use-utime off
-          set ftp:use-site-utime off
-          set ftp:use-site-utime2 off
-          rm -f tmp/restart.txt
-          put -O tmp ./deploy/tmp/restart.txt
-          bye
-          EOF
-          # Full transcript goes to a file (-d; the password is masked); the log shows problems + a tail.
-          lftp -d -f lftp.cmds > lftp.log 2>&1
-          rc=$?
-          echo "lftp exit code: $rc"
-          echo "uploaded files: $(grep -c '^---> STOR' lftp.log || true)"
-          echo "== errors =="
-          grep -i -E "fatal|access failed|login failed|^<--- (4|5)[0-9][0-9]|error|denied|too many" lftp.log | grep -v -i "certificate verification" | tail -n 50 || true
-          echo "== last 40 lines =="
-          tail -n 40 lftp.log
-          [ "$rc" = 0 ] || exit $rc
-          # dry-run lists "put ..." for anything still differing; ignore deletes (we never delete remote files)
-          if grep -E '^(put|mkdir)' remaining.txt; then echo "::error::Files still missing/different on the server after 2 passes (above)."; exit 1; fi
-          echo "verified: server matches the build"
+          # 3 parallel: cPanel's Pure-FTPd caps connections per user (421 Too many connections).
+          # The second identical pass re-sends anything the first missed (normally uploads nothing).
+          M='mirror --reverse --parallel=3 --no-perms --exclude-glob .git* ./deploy/app/ ./app/'
+          ./ftp-run.sh upload "$M" "$M"
+
+      # Restart only now. LiteSpeed restarts the app when tmp/restart.txt is NEWER than the running
+      # process, and lftp copies the local mtime to the server. Touching it here (after the upload)
+      # makes it newer than any process that started mid-upload, e.g. from a visitor request.
+      # That matters: Next scans public/ once at boot, so such a process 404s images uploaded later.
+      - name: Restart app
+        env:
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        run: |
+          date > deploy/tmp/restart.txt
+          touch deploy/tmp/restart.txt
+          ./ftp-run.sh restart 'mirror --reverse --no-perms ./deploy/tmp/ ./tmp/'
 
       # Works out how to reach the app for the steps below.
       # DEPLOY_URL = site root, e.g. https://boxtop.harithroowijayawardhana.com
@@ -170,7 +177,7 @@ jobs:
           RESOLVE: ${{ steps.target.outputs.resolve }}
         if: ${{ steps.target.outputs.url != '' && env.DEPLOY_TOKEN != '' }}
         run: |
-          set -uo pipefail
+          set +e -uo pipefail   # GitHub starts bash with -e; we check exit codes ourselves
           # Passenger starts the app lazily on the first request after restart.txt; retry while it boots.
           for i in 1 2 3 4 5 6; do
             # The body is not read, but the host's LiteSpeed firewall 403s a POST with no body/Content-Type.
@@ -198,7 +205,7 @@ jobs:
           RESOLVE: ${{ steps.target.outputs.resolve }}
         if: ${{ steps.target.outputs.url != '' }}
         run: |
-          set -uo pipefail
+          set +e -uo pipefail   # GitHub starts bash with -e; we check exit codes ourselves
           for i in 1 2 3 4 5; do
             # 1) the running process is the build we just made (value inlined at build time)
             live=$(curl -s --max-time 30 $RESOLVE "$URL/api/health" | sed -nE 's/.*"build":"([^"]*)".*/\1/p')
