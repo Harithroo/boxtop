@@ -39,6 +39,8 @@ jobs:
           NEXT_PUBLIC_SITE_URL: https://boxtop.harithroowijayawardhana.com
           # test site: keep it out of search engines (leave this out for box-top.lk)
           NEXT_PUBLIC_NOINDEX: "1"
+          # reported by /api/health; the smoke test checks it to prove the new build is running
+          NEXT_PUBLIC_BUILD_SHA: ${{ github.sha }}
 
       - name: Assemble deploy folder
         run: |
@@ -176,14 +178,14 @@ jobs:
         run: |
           set -uo pipefail
           for i in 1 2 3 4 5; do
+            # 1) the running process is the build we just made (value inlined at build time)
+            live=$(curl -s --max-time 30 $RESOLVE "$URL/api/health" | sed -nE 's/.*"build":"([^"]*)".*/\1/p')
+            # 2) the home page renders (catches DB/schema errors)
             code=$(curl -s -o home.html -w '%{http_code}' --max-time 60 $RESOLVE "$URL/")
-            echo "attempt $i: home page HTTP $code"
-            if [ "$code" = 200 ] && ! grep -q "Just a moment" home.html; then
-              # The page must come from the build we just uploaded (Next embeds the build id).
-              BUILD_ID=$(cat .next/BUILD_ID)
-              if grep -q "$BUILD_ID" home.html; then echo "OK, build $BUILD_ID is live"; exit 0; fi
-              echo "200 but not build $BUILD_ID yet (old process still serving?)"
-            fi
+            echo "attempt $i: running build ${live:-?}, home page HTTP $code"
+            if grep -q "Just a moment" home.html 2>/dev/null; then echo "Blocked by Cloudflare: set DEPLOY_ORIGIN_IP."; exit 1; fi
+            if [ "$live" = "$GITHUB_SHA" ] && [ "$code" = 200 ]; then echo "OK, $GITHUB_SHA is live"; exit 0; fi
+            [ "$live" != "$GITHUB_SHA" ] && echo "  old process still serving (expected $GITHUB_SHA)"
             sleep 10
           done
           exit 1

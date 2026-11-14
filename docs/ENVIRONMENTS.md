@@ -35,7 +35,7 @@ GitHub repo secrets used by the deploy: `FTP_SERVER`, `FTP_USERNAME`, `FTP_PASSW
 3. Stamp every file's mtime from its content hash, so lftp uploads only files whose content changed.
 4. Upload over FTPS (3 connections), `restart.txt` last.
 5. POST `/api/deploy/migrate` (see below).
-6. Smoke test: home page must return 200 **and** contain the new build id.
+6. Smoke test: `/api/health` must report this commit's SHA (proves Passenger restarted onto the new code) **and** the home page must return 200.
 
 Deploys queue rather than cancel each other, and the job times out after 45 minutes.
 
