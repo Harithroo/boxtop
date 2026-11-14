@@ -103,8 +103,16 @@ jobs:
           set net:timeout 30
           open -p 21 $HOST
           user "$FTP_USERNAME" "$FTP_PASSWORD"
+          # Upload as a temp name and rename into place. lftp's default is DELE then STOR, so a
+          # failed transfer left the file missing on the server (seen: logo.jpg, dilmah.webp).
+          set xfer:use-temp-file true
+          set xfer:temp-file-name .in.*
           # 3 parallel: cPanel's Pure-FTPd caps connections per user (421 Too many connections)
-          mirror --reverse --parallel=3 --no-perms --exclude-glob .git* --exclude ^tmp/ ./deploy/ ./
+          mirror --reverse --parallel=3 --no-perms --exclude-glob .git* --exclude-glob .in.* --exclude ^tmp/ ./deploy/ ./
+          # Second pass picks up anything that failed in the first (normally uploads nothing).
+          mirror --reverse --parallel=3 --no-perms --exclude-glob .git* --exclude-glob .in.* --exclude ^tmp/ ./deploy/ ./
+          # Verify: a dry run must find nothing left to upload.
+          mirror --reverse --dry-run --no-perms --exclude-glob .git* --exclude-glob .in.* --exclude ^tmp/ ./deploy/ ./ > remaining.txt
           # restart.txt last, so Passenger restarts only once everything is in place
           mirror --reverse --no-perms ./deploy/tmp/ ./tmp/
           bye
@@ -118,7 +126,10 @@ jobs:
           grep -i -E "fatal|access failed|login failed|^<--- (4|5)[0-9][0-9]|error|denied|too many" lftp.log | grep -v -i "certificate verification" | tail -n 50 || true
           echo "== last 40 lines =="
           tail -n 40 lftp.log
-          exit $rc
+          [ "$rc" = 0 ] || exit $rc
+          # dry-run lists "put ..." for anything still differing; ignore deletes (we never delete remote files)
+          if grep -E '^(put|mkdir)' remaining.txt; then echo "::error::Files still missing/different on the server after 2 passes (above)."; exit 1; fi
+          echo "verified: server matches the build"
 
       # Works out how to reach the app for the steps below.
       # DEPLOY_URL = site root, e.g. https://boxtop.harithroowijayawardhana.com
@@ -189,7 +200,16 @@ jobs:
             code=$(curl -s -o home.html -w '%{http_code}' --max-time 60 $RESOLVE "$URL/")
             echo "attempt $i: running build ${live:-?}, home page HTTP $code"
             if grep -q "Just a moment" home.html 2>/dev/null; then echo "Blocked by Cloudflare: set DEPLOY_ORIGIN_IP."; exit 1; fi
-            if [ "$live" = "$GITHUB_SHA" ] && [ "$code" = 200 ]; then echo "OK, $GITHUB_SHA is live"; exit 0; fi
+            if [ "$live" = "$GITHUB_SHA" ] && [ "$code" = 200 ]; then
+              echo "OK, $GITHUB_SHA is live"
+              # 3) every image the home page references is served
+              bad=0
+              for p in $(grep -oE '(src|href)="/[^"?]+\.(webp|png|jpe?g|svg)' home.html | sed -E 's/^(src|href)="//' | sort -u); do
+                c=$(curl -s -o /dev/null -w '%{http_code}' --max-time 30 $RESOLVE "$URL$p")
+                [ "$c" = 200 ] || { echo "  missing asset: $p ($c)"; bad=1; }
+              done
+              exit $bad
+            fi
             [ "$live" != "$GITHUB_SHA" ] && echo "  old process still serving (expected $GITHUB_SHA)"
             sleep 10
           done
