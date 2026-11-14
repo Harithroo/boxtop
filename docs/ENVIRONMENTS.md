@@ -33,9 +33,10 @@ GitHub repo secrets used by the deploy: `FTP_SERVER`, `FTP_USERNAME`, `FTP_PASSW
 1. Build with the test `NEXT_PUBLIC_*` values.
 2. Assemble `deploy/app` (standalone + static + public + `drizzle/`) and `deploy/tmp/restart.txt`.
 3. Stamp every file's mtime from its content hash, so lftp uploads only files whose content changed.
-4. Upload over FTPS (3 connections), `restart.txt` last.
-5. POST `/api/deploy/migrate` (see below).
-6. Smoke test: `/api/health` must report this commit's SHA (proves Passenger restarted onto the new code) **and** the home page must return 200.
+4. Upload `app/` over FTPS (3 connections, two passes so anything missed the first time is re-sent).
+5. Only then touch `tmp/restart.txt` and upload it in a separate connection, so it's newer than any process that started during the upload.
+6. POST `/api/deploy/migrate` (see below).
+7. Smoke test: `/api/health` must report this commit's SHA (proves Passenger restarted onto the new code) **and** the home page must return 200.
 
 Deploys queue rather than cancel each other, and the job times out after 45 minutes.
 
@@ -43,7 +44,7 @@ Gotchas this host has shown:
 - Cloudflare gives runner IPs a "Just a moment…" 403. Fix: `DEPLOY_ORIGIN_IP`.
 - The origin's LiteSpeed firewall 403s a POST with no body. The workflow sends `{}` as JSON.
 - More than ~6 FTP connections can trigger `421 Too many connections`.
-- The server is LiteSpeed: it restarts the app only when `tmp/restart.txt` is **newer than the running process**. Never give that file an old mtime; the workflow uploads it last with the server's own clock. Next also scans `public/` only at startup, so an app that (re)started mid-upload 404s images that arrived later. A restart fixes it. If `/api/health` shows an old SHA (or 404s), the app didn't restart. Fix it with cPanel → Setup Node.js App → Restart.
+- The server is LiteSpeed: it restarts the app only when `tmp/restart.txt` is **newer than the running process**. Never give that file an old mtime; the workflow touches it only after the upload finishes. Next also scans `public/` only at startup, so an app that (re)started mid-upload 404s images that arrived later. A restart fixes it. If `/api/health` shows an old SHA (or 404s), the app didn't restart. Fix it with cPanel → Setup Node.js App → Restart.
 - In PowerShell, `curl` means `Invoke-WebRequest`; use `curl.exe` for the commands in this doc.
 
 ### Automatic migrations
