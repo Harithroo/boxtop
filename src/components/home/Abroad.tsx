@@ -147,7 +147,7 @@ export function Abroad({ wa }: { wa: string }) {
             </div>
           </div>
           <div className="pass-stub">
-            <svg className="barcode" viewBox="0 0 110 46" aria-hidden="true">{BARS.map(([x, w]) => <rect key={x} x={x} y="0" width={w} height="46" fill="#24152f" />)}</svg>
+            <svg className="barcode" viewBox="0 0 110 46" aria-hidden="true">{BARS.map(([x, w]) => <rect key={x} x={x} y="0" width={w} height="46" fill="#3b2e22" />)}</svg>
             <a className="btn btn-ribbon" href={wa ? `https://wa.me/${wa}?text=${encodeURIComponent(msg)}` : "/contact"} target="_blank" rel="noopener"><WaIcon />Book this flight</a>
           </div>
         </article>

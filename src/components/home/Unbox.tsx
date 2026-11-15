@@ -51,7 +51,7 @@ export function Unbox() {
           const r = 2 * (1 - e) - 5 * Math.sin(Math.PI * e);
           fly.style.width = b.width + "px"; fly.style.height = b.height + "px";
           fly.style.transform = `translate(${x.toFixed(1)}px,${y.toFixed(1)}px) rotate(${r.toFixed(2)}deg) scale(${(w / b.width).toFixed(4)})`;
-          fly.style.boxShadow = `0 0 0 ${((6 * b.width) / w).toFixed(1)}px #f6efe6,0 ${(40 + 40 * Math.sin(Math.PI * e)).toFixed(0)}px 90px -30px rgba(0,0,0,.85)`;
+          fly.style.boxShadow = `0 0 0 ${((6 * b.width) / w).toFixed(1)}px #fffdf7,0 ${(30 + 30 * Math.sin(Math.PI * e)).toFixed(0)}px 70px -30px rgba(59,46,34,.6)`;
         };
         gsap.ticker.add(flyTick);
       }

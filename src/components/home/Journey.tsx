@@ -15,7 +15,8 @@ type Props = {
   proof: string; areas: string[]; quotes: { text: string; by: string }[];
 };
 
-const JBG = ["#150c24", "#1c0f30", "#120a20", "#1a0e2e", "#210f2c"];
+// light tints per order step; ink-soft stays above 5.3:1 on every one
+const JBG = ["#f5efe3", "#f2ebf5", "#f6efe2", "#efe8f5", "#f7ede4"];
 const listOf = (a: string[]) => (a.length <= 1 ? a.join("") : `${a.slice(0, -1).join(", ")} and ${a[a.length - 1]}`);
 
 export function Journey({ wa, waDisplay, instagram, igHandle, facebook, hours, payLine, proof, areas, quotes }: Props) {

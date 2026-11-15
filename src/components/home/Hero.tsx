@@ -150,7 +150,7 @@ export function Hero({ cards, proof, fromPrice, next }: Props) {
           <span className="band band-h"><i /><i /></span>
           <span className="band band-v"><i /><i /></span>
           <svg className="intro-bow" viewBox="0 0 300 190" aria-hidden="true">
-            <g fill="#ff3d8b">
+            <g fill="#d5136f">
               <path className="bow-l" d="M150 112 C 112 66, 46 38, 30 76 C 16 110, 76 128, 150 112 Z" />
               <path className="bow-r" d="M150 112 C 188 66, 254 38, 270 76 C 284 110, 224 128, 150 112 Z" />
               <path className="bow-tl" d="M146 116 L 104 186 L 122 178 L 132 190 L 156 120 Z" />
@@ -159,7 +159,7 @@ export function Hero({ cards, proof, fromPrice, next }: Props) {
             <g fill="none" stroke="rgba(255,255,255,.28)" strokeWidth="3" strokeLinecap="round">
               <path d="M140 108 C 108 80, 66 64, 52 82" /><path d="M160 108 C 192 80, 234 64, 248 82" />
             </g>
-            <rect className="bow-knot" x="134" y="98" width="32" height="28" rx="9" fill="#c9145f" />
+            <rect className="bow-knot" x="134" y="98" width="32" height="28" rx="9" fill="#b50f5e" />
           </svg>
           <div className="intro-tag" id="introTag">
             <span className="string" />
@@ -189,7 +189,7 @@ export function Hero({ cards, proof, fromPrice, next }: Props) {
           <div className="hero-facts">
             {proof && <span><b>{proofLead}</b> {proofRest.join(" ")}</span>}
             {fromPrice && <span>Boxes from <b className="tnum">{fromPrice}</b></span>}
-            {next && <span><span className="dot">●</span> Next occasion: <b>{next.name}</b> · {next.when.toLowerCase()}</span>}
+            {next && <span><span className="dot" aria-hidden="true">●</span> Next occasion: <b>{next.name}</b> · {next.when.toLowerCase()}</span>}
           </div>
         </div>
         <div className="fan" id="fan" aria-label="Real BOXTOP boxes, as posted on their pages">

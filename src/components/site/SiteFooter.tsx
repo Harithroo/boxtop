@@ -14,7 +14,8 @@ export type FooterData = {
 /** The links a shop must show, printed along the bottom of the paper. */
 const LEGAL: [string, string][] = [["Terms", "/terms"], ["Privacy", "/privacy"], ["Refunds", "/refunds"], ["Delivery policy", "/delivery-policy"], ["About", "/about"], ["Contact", "/contact"]];
 
-const SHEET = "#ff3d8b", PAPER = "#f6efe6", NS = "http://www.w3.org/2000/svg";
+// keep these two in step with --tpf-sheet / --tpf-paper in src/styles/footer.css
+const SHEET = "#5b3a87", PAPER = "#f5efe3", SHADE = "#2d1a4a", NS = "http://www.w3.org/2000/svg";
 const RIDGE_N = 84, START = 1.06, FLAPS = 6;
 
 // ---------- the maths of a tear (pure) ----------
@@ -86,7 +87,7 @@ const SEAL = (() => {
   for (let i = 0; i <= 24; i++) { const a = (i / 24) * Math.PI * 2 - Math.PI / 2, r = i % 2 ? 8.6 : 10; d += (i ? "L" : "M") + (12 + Math.cos(a) * r).toFixed(2) + " " + (12 + Math.sin(a) * r).toFixed(2); }
   return d + "Z";
 })();
-// the pushpin, shaded from the ribbon pink
+// the pushpin, shaded from the sheet's plum
 const PIN_SVG = (() => {
   const base = SHEET, hi = mixHex(base, "#ffffff", 0.62), lo = mixHex(base, "#000000", 0.42), deep = mixHex(base, "#000000", 0.66);
   return '<svg viewBox="0 0 100 200" class="tpf-pin-svg" aria-hidden="true"><defs>' +
@@ -94,7 +95,7 @@ const PIN_SVG = (() => {
     `<radialGradient id="ppT" cx=".38" cy=".3" r=".8"><stop offset="0" stop-color="${hi}"/><stop offset=".55" stop-color="${base}"/><stop offset="1" stop-color="${lo}"/></radialGradient>` +
     '<linearGradient id="ppN" x1="0" x2="1" y1="0" y2="0"><stop offset="0" stop-color="#5b616b"/><stop offset=".4" stop-color="#f4f5f7"/><stop offset=".7" stop-color="#a3a9b2"/><stop offset="1" stop-color="#4a4f57"/></linearGradient>' +
     '<filter id="ppB" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="1.4"/></filter></defs>' +
-    '<path d="M48.3 112h3.4l-.7 76-1 4-1-4z" fill="url(#ppN)"/><ellipse cx="50" cy="191.5" rx="3.2" ry="1.1" fill="#1d1231" opacity=".35"/>' +
+    '<path d="M48.3 112h3.4l-.7 76-1 4-1-4z" fill="url(#ppN)"/><ellipse cx="50" cy="191.5" rx="3.2" ry="1.1" fill="#2d1a4a" opacity=".35"/>' +
     '<path d="M28 103v6.5a22 7 0 0 0 44 0V103z" fill="url(#ppS)"/><ellipse cx="50" cy="103" rx="22" ry="7" fill="url(#ppT)"/>' +
     '<path d="M41.5 38c1.6 16 4.6 26 3 36-1.8 10-13 19-14.6 29h40.2c-1.6-10-12.8-19-14.6-29-1.6-10 1.4-20 3-36z" fill="url(#ppS)"/>' +
     '<path d="M16 22v14a34 13 0 0 0 68 0V22z" fill="url(#ppS)"/><ellipse cx="50" cy="22" rx="34" ry="13" fill="url(#ppT)"/>' +
@@ -133,7 +134,7 @@ export function SiteFooter({ data }: { data: FooterData }) {
     const grads: SVGLinearGradientElement[] = [], flapEls: SVGPathElement[] = [];
     for (let k = 0; k < FLAPS * 2; k++) {
       const g = document.createElementNS(NS, "linearGradient"); g.setAttribute("id", "tpFg" + k); g.setAttribute("gradientUnits", "userSpaceOnUse");
-      g.innerHTML = `<stop offset="0" stop-color="${mixHex(flapBase, "#3a1030", 0.34)}"/><stop offset=".5" stop-color="${mixHex(flapBase, "#3a1030", 0.08)}"/><stop offset="1" stop-color="#ffffff"/>`;
+      g.innerHTML = `<stop offset="0" stop-color="${mixHex(flapBase, SHADE, 0.34)}"/><stop offset=".5" stop-color="${mixHex(flapBase, SHADE, 0.08)}"/><stop offset="1" stop-color="#ffffff"/>`;
       defs.appendChild(g); grads.push(g);
       const p = document.createElementNS(NS, "path"); p.setAttribute("fill", `url(#tpFg${k})`); flapG.appendChild(p); flapEls.push(p);
     }
@@ -270,11 +271,11 @@ export function SiteFooter({ data }: { data: FooterData }) {
     <footer className="tpf" id="tpf" ref={root}>
       <svg className="tpf-stage" id="tpfSvg" ref={svg} aria-hidden="true">
         <defs>
-          <radialGradient id="tpV" cx=".5" cy=".78" r=".75"><stop offset=".45" stopColor="#fff" stopOpacity="0" /><stop offset="1" stopColor="#1d1231" stopOpacity=".08" /></radialGradient>
-          <linearGradient id="tpL" x1="0" y1="0" x2=".35" y2="1"><stop offset="0" stopColor="#fff" stopOpacity=".16" /><stop offset=".55" stopColor="#fff" stopOpacity="0" /><stop offset="1" stopColor="#3a0420" stopOpacity=".16" /></linearGradient>
+          <radialGradient id="tpV" cx=".5" cy=".78" r=".75"><stop offset=".45" stopColor="#fff" stopOpacity="0" /><stop offset="1" stopColor="#2d1a4a" stopOpacity=".08" /></radialGradient>
+          <linearGradient id="tpL" x1="0" y1="0" x2=".35" y2="1"><stop offset="0" stopColor="#fff" stopOpacity=".16" /><stop offset=".55" stopColor="#fff" stopOpacity="0" /><stop offset="1" stopColor={SHADE} stopOpacity=".16" /></linearGradient>
           <pattern id="tpG" width="160" height="160" patternUnits="userSpaceOnUse"><image id="tpGrain" width="160" height="160" /></pattern>
-          <filter id="tpD" x="-5%" y="-5%" width="110%" height="120%"><feDropShadow dx="0" dy="3" stdDeviation="3.5" floodColor="#3a0420" floodOpacity=".3" /></filter>
-          <filter id="tpF" x="-30%" y="-30%" width="160%" height="170%"><feDropShadow dx="-2" dy="4" stdDeviation="4" floodColor="#3a0420" floodOpacity=".26" /></filter>
+          <filter id="tpD" x="-5%" y="-5%" width="110%" height="120%"><feDropShadow dx="0" dy="3" stdDeviation="3.5" floodColor={SHADE} floodOpacity=".3" /></filter>
+          <filter id="tpF" x="-30%" y="-30%" width="160%" height="170%"><feDropShadow dx="-2" dy="4" stdDeviation="4" floodColor={SHADE} floodOpacity=".26" /></filter>
           <path id="tpS" />
         </defs>
         <rect className="tpf-paper" width="100%" height="100%" />

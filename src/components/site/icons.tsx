@@ -23,7 +23,7 @@ export function Bow({ className, tails, loops, knot, gradient }: { className?: s
       {gradient && (
         <defs>
           <linearGradient id="bowG2" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stopColor="#ff8cbc" /><stop offset=".5" stopColor="#ff3d8b" /><stop offset="1" stopColor="#c9145f" />
+            <stop offset="0" stopColor="#e5559a" /><stop offset=".5" stopColor="#d5136f" /><stop offset="1" stopColor="#b80f5f" />
           </linearGradient>
         </defs>
       )}

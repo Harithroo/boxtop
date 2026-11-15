@@ -13,7 +13,7 @@ export function ReviewForm({ token, boxId, title, defaultName }: { token: string
       <div role="radiogroup" aria-label="Rating" className="flex gap-1">
         {[1, 2, 3, 4, 5].map((n) => (
           <button key={n} type="button" role="radio" aria-checked={rating === n} aria-label={`${n} star${n > 1 ? "s" : ""}`} onClick={() => setRating(n)}
-            className={`h-11 w-11 text-3xl leading-none ${n <= rating ? "text-accent" : "text-line"}`}>★</button>
+            className={`h-11 w-11 text-3xl leading-none ${n <= rating ? "text-brand" : "text-ink/25"}`}>★</button>
         ))}
       </div>
       <textarea name="body" rows={3} className="input" placeholder="What did they think? How was the delivery?" aria-label="Review" />

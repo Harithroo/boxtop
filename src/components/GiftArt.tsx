@@ -1,9 +1,9 @@
 // Placeholder art for a box that has no photo yet: a gift box in the site's colours.
 const TONES = [
-  ["#261a40", "#3f2894", "#ff3d8b"],
-  ["#2a1436", "#ff3d8b", "#f2c46d"],
-  ["#1d1231", "#5b3a87", "#ff3d8b"],
-  ["#241a36", "#22388f", "#f2c46d"],
+  ["#efe6f7", "#5b3a87", "#d5136f"],
+  ["#e8dac2", "#45296a", "#d5136f"],
+  ["#f1e9f8", "#22388f", "#d5136f"],
+  ["#eee6d6", "#5b3a87", "#cbb7e0"],
 ];
 
 export function GiftArt({ seed = 0, className = "" }: { seed?: number; className?: string }) {

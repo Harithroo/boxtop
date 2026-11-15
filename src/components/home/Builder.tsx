@@ -285,7 +285,7 @@ export function Builder({ styles, items, occasions, boxes, starter, wa, waDispla
             <p className="bx-empty" style={{ display: picked.length ? "none" : undefined }}>Tap items to pack them in</p>
             <div className="bx-lid" id="bxLid" aria-hidden="true">
               <span className="bx-rib-v" /><span className="bx-rib-h" />
-              <Bow className="bx-bow" tails={["#d81d6e", "#c9145f"]} loops="url(#bowG2)" knot="#ff4d97" gradient />
+              <Bow className="bx-bow" tails={["#d5136f", "#b80f5f"]} loops="url(#bowG2)" knot="#e5559a" gradient />
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <span className="bx-sticker"><img src="/brand/logo.jpg" alt="" width={360} height={360} /></span>
             </div>
@@ -298,7 +298,7 @@ export function Builder({ styles, items, occasions, boxes, starter, wa, waDispla
               sendT.current = window.setTimeout(goMsg, reducedMotion() ? 100 : 1400);
             }}>
             <WaIcon className="wa" />
-            <Bow className="bow" tails={["#7a0b3b", "#7a0b3b"]} loops="#fff" knot="#ffd2e5" />
+            <Bow className="bow" tails={["#2d1a4a", "#2d1a4a"]} loops="#fff" knot="#cbb7e0" />
             <span>
               <span>{wrapped ? "Lid on · check your message ↓" : "Close the lid & tie the ribbon"}</span>
               <small>{wrapped ? "Take me to the WhatsApp message" : picked.length ? "Then check your message and send it" : "Pack a few things first, or send it as a surprise"}</small>

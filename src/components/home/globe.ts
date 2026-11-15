@@ -82,7 +82,7 @@ export function createGlobe({ wrap, canvas, pins: pinEls, reduce, current, touri
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, size, size);
     /* the sphere */
     const g = ctx.createRadialGradient(C - R * 0.35, C - R * 0.4, R * 0.1, C, C, R);
-    g.addColorStop(0, "#2a1a52"); g.addColorStop(1, "#0d0719");
+    g.addColorStop(0, "#3a2463"); g.addColorStop(1, "#160c27");
     ctx.fillStyle = g; ctx.beginPath(); ctx.arc(C, C, R, 0, 7); ctx.fill();
     /* land dots, brighter on the day side, fading to the edge */
     const s0 = Math.sin(view.lat), c0 = Math.cos(view.lat), Bk: number[][] = [[], [], [], []];
@@ -108,8 +108,8 @@ export function createGlobe({ wrap, canvas, pins: pinEls, reduce, current, touri
     ctx.setLineDash([2, 6]); ctx.strokeStyle = "rgba(203,183,224,.35)"; ctx.lineWidth = 1.2;
     strokeRoute(0, 1);
     ctx.setLineDash([]);
-    ctx.globalAlpha = fade; ctx.shadowColor = "rgba(255,61,139,.8)"; ctx.shadowBlur = 12;
-    ctx.strokeStyle = "#ff3d8b"; ctx.lineWidth = 2.6; strokeRoute(0, p);
+    ctx.globalAlpha = fade; ctx.shadowColor = "rgba(213,19,111,.8)"; ctx.shadowBlur = 12;
+    ctx.strokeStyle = "#d5136f"; ctx.lineWidth = 2.6; strokeRoute(0, p);
     ctx.restore();
     /* the plane */
     if (T < FLY + 0.3 || reduce) {
@@ -120,8 +120,8 @@ export function createGlobe({ wrap, canvas, pins: pinEls, reduce, current, touri
         ctx.save(); ctx.globalAlpha = reduce ? 1 : Math.min(1, (FLY + 0.3 - T) / 0.3);
         ctx.translate(a.x, a.y); ctx.rotate(ang); ctx.scale(sc, sc);
         ctx.shadowColor = "rgba(0,0,0,.6)"; ctx.shadowBlur = 8; ctx.shadowOffsetY = 4;
-        ctx.fillStyle = "#fdf3d8"; ctx.fill(PLANE);
-        ctx.shadowColor = "transparent"; ctx.fillStyle = "#ff3d8b"; ctx.fillRect(-14, -1, 26, 2);
+        ctx.fillStyle = "#fffdf7"; ctx.fill(PLANE);
+        ctx.shadowColor = "transparent"; ctx.fillStyle = "#d5136f"; ctx.fillRect(-14, -1, 26, 2);
         ctx.restore();
       }
     }
@@ -129,13 +129,13 @@ export function createGlobe({ wrap, canvas, pins: pinEls, reduce, current, touri
     const hp = project(B, 0);
     if (T > FLY && T < 5.6 && hp.vis && !reduce) {
       const k = (T - FLY) / 1.2;
-      if (k < 1) { ctx.strokeStyle = `rgba(242,196,109,${1 - k})`; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(hp.x, hp.y, 8 + k * 34, 0, 7); ctx.stroke(); }
+      if (k < 1) { ctx.strokeStyle = `rgba(203,183,224,${1 - k})`; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(hp.x, hp.y, 8 + k * 34, 0, 7); ctx.stroke(); }
       const d = Math.min(1, (T - FLY) / 0.7), bounce = d < 1 ? 1 - Math.abs(Math.cos(d * Math.PI * 1.5)) * (1 - d) : 1;
       const gy = hp.y - 30 - (1 - bounce) * 36, al = T > 5 ? Math.max(0, 1 - (T - 5) / 0.5) : 1, u = size / 560;
       ctx.save(); ctx.globalAlpha = al; ctx.translate(hp.x, gy); ctx.scale(u, u);
       ctx.fillStyle = "#22388f"; ctx.fillRect(-11, -9, 22, 18);
       ctx.fillStyle = "#2d47a6"; ctx.fillRect(-13, -12, 26, 6);
-      ctx.fillStyle = "#ff3d8b"; ctx.fillRect(-2, -12, 4, 21);
+      ctx.fillStyle = "#d5136f"; ctx.fillRect(-2, -12, 4, 21);
       ctx.beginPath(); ctx.ellipse(-5, -15, 5, 3, -0.5, 0, 7); ctx.ellipse(5, -15, 5, 3, 0.5, 0, 7); ctx.fill();
       ctx.restore();
     }
