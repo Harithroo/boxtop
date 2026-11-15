@@ -5,6 +5,7 @@
 import "./register";
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import { nearBudget } from "@/lib/budget-match";
 import { rs } from "@/lib/format";
@@ -175,10 +176,22 @@ export function Builder({ styles, items, occasions, boxes, starter, wa, waDispla
 
     /* tiles deal in, group by group */
     gsap.matchMedia().add("(prefers-reduced-motion: no-preference)", () => {
-      gsap.utils.toArray<HTMLElement>(".items-grid").forEach((g) => {
-        // fromTo, not from: an explicit end state, so a re-run can never adopt a half-dealt tile as "home"
-        gsap.fromTo(g.querySelectorAll(".it"), { y: 30, opacity: 0 }, { y: 0, opacity: 1, clearProps: "transform", duration: 0.55, stagger: 0.04, ease: "power2.out", scrollTrigger: { trigger: g, start: "top 88%", once: true } });
+      const grids = gsap.utils.toArray<HTMLElement>(".items-grid");
+      // Until its group scrolls in, a tile waits out of sight through one class on the grid (home.css), not a
+      // tween of its own: starting a tween per tile made the browser restyle the page once for every tile.
+      // Every grid is marked before the first trigger is made, because a new trigger measures the page.
+      grids.forEach((g) => g.classList.add("is-undealt"));
+      grids.forEach((g) => {
+        ScrollTrigger.create({
+          trigger: g, start: "top 88%", once: true,
+          onEnter: () => {
+            g.classList.remove("is-undealt");
+            // fromTo, not from: an explicit end state, so a re-run can never adopt a half-dealt tile as "home"
+            gsap.fromTo(g.querySelectorAll(".it"), { y: 30, opacity: 0 }, { y: 0, opacity: 1, clearProps: "transform", duration: 0.55, stagger: 0.04, ease: "power2.out" });
+          },
+        });
       });
+      return () => grids.forEach((g) => g.classList.remove("is-undealt"));
     });
 
     /* Phone tray: the box is far below the tiles on a phone, so a pill keeps count */
@@ -291,7 +304,7 @@ export function Builder({ styles, items, occasions, boxes, starter, wa, waDispla
                 ? <Bow className="bx-bow" tails={["#d81d6e", "#c9145f"]} loops="url(#bowG2)" knot="#ff4d97" gradient={["#ff8cbc", "#ff3d8b", "#c9145f"]} />
                 : <Bow className="bx-bow" tails={["#d5136f", "#b80f5f"]} loops="url(#bowG2)" knot="#e5559a" gradient={["#e5559a", "#d5136f", "#b80f5f"]} />}
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <span className="bx-sticker"><img src="/brand/logo.jpg" alt="" width={360} height={360} /></span>
+              <span className="bx-sticker"><img src="/brand/logo-192.webp" alt="" width={192} height={192} loading="lazy" /></span>
             </div>
           </div>
           <button className={`lidbtn${!wrapped && picked.length > 0 ? " ready" : ""}`} type="button" aria-pressed={wrapped}

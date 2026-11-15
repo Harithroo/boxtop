@@ -7,6 +7,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import { scrollToEl } from "@/components/site/scroll";
+import { later } from "./later";
 import { SCENE_DOOR, SCENE_MESSAGE, SCENE_PAY, SCENE_VAN, themed } from "./scenes";
 import { MM, STK } from "./stickers";
 import { useSiteTheme } from "@/components/SiteTheme";
@@ -91,18 +92,29 @@ export function Journey({ wa, waDisplay, instagram, igHandle, facebook, hours, p
           .fromTo(q(".s5-badge", r), { scale: 0, opacity: 0, transformOrigin: "50% 50%" }, { scale: 1, opacity: 1, duration: 0.55, ease: "back.out(2.5)" }, 1.6)
           .fromTo(q(".s5-quote", r), { scale: 0, opacity: 0, transformOrigin: "100% 100%" }, { scale: 1, opacity: 1, duration: 0.5, ease: "back.out(2)" }, 2.1);
       };
-      const SC = [scene1(), scene2(), scene3(), scene4(), scene5()];
+      /* A scene is some thirty tweens, and its step stays hidden until goJ shows it. So a scene is drawn up the
+         first time it is wanted rather than all five as the page loads: the idle queue has normally made it
+         ready by then, and if not, it is made on the spot, before the step fades in. */
+      const draw = [scene1, scene2, scene3, scene4, scene5];
+      const SC: (gsap.core.Timeline | undefined)[] = [];
+      const scene = (n: number) => (SC[n] ??= draw[n]());
+      const unqueue = draw.map((_, n) => later(() => scene(n)));
       gsap.set(jSteps, { autoAlpha: 0 });
       const goJ = (n: number, dir: number) => {
         if (n === jCur) return;
         const prev = jCur; jCur = n;
         jSteps.forEach((st, k) => st.classList.toggle("is-active", k === n));
-        if (prev > -1) { gsap.to(jSteps[prev], { autoAlpha: 0, y: -60 * dir, duration: 0.45, ease: "power2.in", overwrite: true }); SC[prev].pause(); }
+        if (prev > -1) { gsap.to(jSteps[prev], { autoAlpha: 0, y: -60 * dir, duration: 0.45, ease: "power2.in", overwrite: true }); SC[prev]?.pause(); }
         gsap.fromTo(jSteps[n], { autoAlpha: 0, y: 70 * dir }, { autoAlpha: 1, y: 0, duration: 0.75, delay: prev > -1 ? 0.2 : 0, ease: "power3.out", overwrite: true });
         gsap.fromTo(qa(".jr-text > *", jSteps[n]), { y: 26, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, stagger: 0.06, delay: prev > -1 ? 0.3 : 0.1, ease: "power3.out", overwrite: true });
         gsap.to(journey, { backgroundColor: JBG[theme][n], duration: 0.8, ease: "power1.out" });
-        SC[n].restart();
+        scene(n).restart();
       };
+      /* the order itself: its start states go on before any trigger is made, since making a trigger measures
+         the page, and measuring between two changes makes the browser lay it all out again */
+      const reviewsIn = gsap.from(".rv", { clipPath: "inset(0 0 100% 0)", duration: 0.9, stagger: 0.15, ease: "power3.out", paused: true });
+      const factsIn = gsap.from(".or-side .fact", { y: 40, opacity: 0, duration: 0.8, stagger: 0.12, ease: "power3.out", paused: true });
+
       const tw = desk ? 46 : 31;
       ScrollTrigger.create({
         trigger: journey, start: "top top", end: () => "+=" + Math.round(window.innerHeight * 4), pin: true, invalidateOnRefresh: true,
@@ -118,9 +130,11 @@ export function Journey({ wa, waDisplay, instagram, igHandle, facebook, hours, p
       // first reveal, unless the scroll position has already chosen a step (arriving by a jump or a link)
       ScrollTrigger.create({ trigger: journey, start: "top 70%", once: true, onEnter: () => { if (jCur === -1) goJ(0, 1); } });
 
-      /* the order itself */
-      gsap.from(".rv", { clipPath: "inset(0 0 100% 0)", duration: 0.9, stagger: 0.15, ease: "power3.out", scrollTrigger: { trigger: ".reviews", start: "top 88%", once: true } });
-      gsap.from(".or-side .fact", { y: 40, opacity: 0, duration: 0.8, stagger: 0.12, ease: "power3.out", scrollTrigger: { trigger: ".or-final", start: "top 80%", once: true } });
+      ScrollTrigger.create({ animation: reviewsIn, trigger: ".reviews", start: "top 88%", once: true });
+      ScrollTrigger.create({ animation: factsIn, trigger: ".or-final", start: "top 80%", once: true });
+
+      // scenes the idle queue drew up were made outside GSAP's bookkeeping, so they are put back by hand
+      return () => { unqueue.forEach((stop) => stop()); SC.forEach((tl) => tl?.revert()); };
     });
   }, { scope: root });
 
@@ -181,7 +195,7 @@ export function Journey({ wa, waDisplay, instagram, igHandle, facebook, hours, p
             {["Pending", "Confirmed", "Packed", "Dispatched", "Delivered"].map((l, n) => <li key={l} className={n === 0 ? "jr-node is-done" : "jr-node"}><span />{l}</li>)}
           </ol>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <div className="jr-trav" id="jrTrav"><img src="/brand/logo.jpg" alt="" width={40} height={40} /></div>
+          <div className="jr-trav" id="jrTrav"><img src="/brand/logo-96.webp" alt="" width={40} height={40} /></div>
         </div>
       </div>
 
@@ -212,7 +226,8 @@ export function Journey({ wa, waDisplay, instagram, igHandle, facebook, hours, p
             <p className="eyebrow">Reach us</p>
             <dl className="facts">
               {wa && <><dt>WhatsApp</dt><dd><a href={waHref} target="_blank" rel="noopener">{waDisplay}</a><small>{hours}</small></dd></>}
-              {instagram && <><dt>Instagram</dt><dd><a href={instagram} target="_blank" rel="noopener">{igHandle}</a><small>Every box we pack, as it leaves</small></dd></>}
+              {/* named in full: read aloud, the bare handle is the same word as the BOXTOP home link */}
+              {instagram && <><dt>Instagram</dt><dd><a href={instagram} target="_blank" rel="noopener" aria-label={`Instagram ${igHandle}`}>{igHandle}</a><small>Every box we pack, as it leaves</small></dd></>}
               {facebook && <><dt>Facebook</dt><dd><a href={facebook} target="_blank" rel="noopener">BOX TOP</a><small>{proof}</small></dd></>}
               <dt>Payment</dt><dd>{payLine}</dd>
             </dl>

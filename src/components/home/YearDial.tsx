@@ -18,6 +18,16 @@ const M_NAMES = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", 
 const rad = (day: number) => (day * K * Math.PI) / 180;
 const px = (day: number, r: number) => (Math.sin(rad(day)) * r).toFixed(1);
 const py = (day: number, r: number) => (-Math.cos(rad(day)) * r).toFixed(1);
+/** One stroke per day of the year, from the tick's inner end out to the rim; month starts reach further in. */
+const ticks = (months: boolean) => {
+  let d = "";
+  for (let day = 0; day < 365; day++) {
+    if (M_START.includes(day) !== months) continue;
+    const r1 = months ? 222 : 236;
+    d += `M${px(day, r1)} ${py(day, r1)}L${px(day, 248)} ${py(day, 248)}`;
+  }
+  return d;
+};
 
 export function YearDial({ occasions, boxes, today }: { occasions: HomeOccasion[]; boxes: HomeBox[]; today: string }) {
   const root = useRef<HTMLElement>(null);
@@ -128,10 +138,9 @@ export function YearDial({ occasions, boxes, today }: { occasions: HomeOccasion[
             <circle className="dring outer" r="252" /><circle className="dring" r="214" />
             <g id="dialRot">
               <circle className="dring hit" r="232" />
-              {Array.from({ length: 365 }, (_, d) => {
-                const m = M_START.includes(d), r1 = m ? 222 : 236;
-                return <line key={d} className={m ? "tick m" : "tick"} x1={px(d, r1)} y1={py(d, r1)} x2={px(d, 248)} y2={py(d, 248)} />;
-              })}
+              {/* 365 ticks as two paths (days, and the longer first-of-the-month ones), not 365 elements */}
+              <path className="tick" fill="none" d={ticks(false)} />
+              <path className="tick m" fill="none" d={ticks(true)} />
               {M_NAMES.map((n, m) => (
                 <text key={n} className="mon" textAnchor="middle" dominantBaseline="middle" transform={`rotate(${((M_START[m] + 15) * K).toFixed(1)}) translate(0 -274)`}>{n}</text>
               ))}

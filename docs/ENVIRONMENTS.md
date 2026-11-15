@@ -61,6 +61,10 @@ Gotchas this host has shown:
 
 Only ever add new migrations with `npm run db:generate`; never edit one that already ran on test/prod.
 
+## Pictures in `public/` (cache rule)
+
+Everything under `/catalog`, `/home` and `/brand` is sent with a one-year browser cache (`next.config.ts`). So **a changed picture needs a new file name**; replacing a file under its old name leaves returning visitors with the old one. After adding or replacing a photo there, run `node scripts/thumbs.mjs`: it writes the smaller copies the pages ask for (`-400.webp` beside each box photo, plus the hero and logo sizes) and commit them with the photo. Photos uploaded in the back office already get random names and are not affected.
+
 ## Dev
 
 1. Install MariaDB (or run `scripts/setup-db.ps1` from an admin PowerShell, which also writes `.env`).

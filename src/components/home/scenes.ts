@@ -16,7 +16,7 @@ export const SCENE_MESSAGE = `<svg class="sc1" viewBox="0 0 600 480" role="img" 
     <rect x="196" y="38" width="208" height="414" rx="26" fill="#F4EEF8"/>
     <g clip-path="url(#c1scr)">
       <rect x="196" y="38" width="208" height="62" fill="#5B3A87"/>
-      <image href="/brand/logo.jpg" x="217" y="54" width="30" height="30" clip-path="url(#c1av)"/>
+      <image href="/brand/logo-192.webp" x="217" y="54" width="30" height="30" clip-path="url(#c1av)"/>
       <text x="256" y="68" fill="#fff" font-size="13" font-weight="600" letter-spacing="1.5">BOXTOP</text>
       <text x="256" y="84" fill="#CBB7E0" font-size="10" font-weight="500">online</text>
       <g class="s1-b1"><rect x="258" y="112" width="134" height="48" rx="13" fill="#D5136F"/><text fill="#fff" font-size="11" font-weight="500"><tspan x="270" y="132">Hi! A box for my</tspan><tspan x="270" y="148">sister's birthday?</tspan></text></g>
@@ -91,7 +91,7 @@ export const SCENE_VAN = `<svg class="sc4" viewBox="0 0 600 480" role="img" aria
           <rect x="298" y="98" width="12" height="10" rx="3" fill="#F2D488"/>
           <rect x="200" y="120" width="118" height="10" rx="5" fill="#3B2E22"/>
           <rect x="16" y="16" width="82" height="82" rx="12" fill="#fff"/>
-          <image href="/brand/logo.jpg" x="18" y="18" width="78" height="78" clip-path="url(#c4logo)"/>
+          <image href="/brand/logo-192.webp" x="18" y="18" width="78" height="78" clip-path="url(#c4logo)"/>
           <text x="112" y="50" fill="#fff" font-size="20" font-weight="600" letter-spacing="2">BOXTOP</text>
           <text x="112" y="70" fill="#CBB7E0" font-size="9.5" font-weight="500">packed by hand</text>
           <text x="112" y="88" fill="#fff" font-size="10" font-weight="600">box-top.lk</text>
@@ -125,7 +125,7 @@ export const SCENE_DOOR = `<svg class="sc5" viewBox="0 0 600 480" role="img" ari
     <rect x="294" y="342" width="12" height="68" fill="#D5136F"/>
     <path d="M300 340 C 286 322, 264 322, 270 336 C 274 344, 292 344, 300 340 Z M300 340 C 314 322, 336 322, 330 336 C 326 344, 308 344, 300 340 Z" fill="#D5136F"/>
     <circle cx="300" cy="340" r="5" fill="#b50f5e"/>
-    <image href="/brand/logo.jpg" x="271" y="366" width="18" height="18"/>
+    <image href="/brand/logo-192.webp" x="271" y="366" width="18" height="18"/>
   </g>
   <g class="s5-conf"><circle cx="300" cy="336" r="4" fill="#D5136F" opacity="0"/><rect x="296" y="330" width="8" height="13" rx="1.5" fill="#5B3A87" opacity="0"/><rect x="296" y="330" width="10" height="16" rx="1.5" fill="#CBB7E0" opacity="0"/><circle cx="300" cy="336" r="4" fill="#45296A" opacity="0"/><rect x="296" y="330" width="6" height="13" rx="1.5" fill="#FFFDF7" opacity="0"/><rect x="296" y="330" width="8" height="16" rx="1.5" fill="#D5136F" opacity="0"/><circle cx="300" cy="336" r="4" fill="#5B3A87" opacity="0"/><rect x="296" y="330" width="12" height="13" rx="1.5" fill="#CBB7E0" opacity="0"/><rect x="296" y="330" width="6" height="16" rx="1.5" fill="#45296A" opacity="0"/><circle cx="300" cy="336" r="4" fill="#FFFDF7" opacity="0"/><rect x="296" y="330" width="10" height="13" rx="1.5" fill="#D5136F" opacity="0"/><rect x="296" y="330" width="12" height="16" rx="1.5" fill="#5B3A87" opacity="0"/><circle cx="300" cy="336" r="4" fill="#CBB7E0" opacity="0"/><rect x="296" y="330" width="8" height="13" rx="1.5" fill="#45296A" opacity="0"/><rect x="296" y="330" width="10" height="16" rx="1.5" fill="#FFFDF7" opacity="0"/><circle cx="300" cy="336" r="4" fill="#D5136F" opacity="0"/><rect x="296" y="330" width="6" height="13" rx="1.5" fill="#5B3A87" opacity="0"/><rect x="296" y="330" width="8" height="16" rx="1.5" fill="#CBB7E0" opacity="0"/><circle cx="300" cy="336" r="4" fill="#45296A" opacity="0"/><rect x="296" y="330" width="12" height="13" rx="1.5" fill="#FFFDF7" opacity="0"/><rect x="296" y="330" width="6" height="16" rx="1.5" fill="#D5136F" opacity="0"/><circle cx="300" cy="336" r="4" fill="#5B3A87" opacity="0"/><rect x="296" y="330" width="10" height="13" rx="1.5" fill="#CBB7E0" opacity="0"/><rect x="296" y="330" width="12" height="16" rx="1.5" fill="#45296A" opacity="0"/><circle cx="300" cy="336" r="4" fill="#FFFDF7" opacity="0"/><rect x="296" y="330" width="8" height="13" rx="1.5" fill="#D5136F" opacity="0"/><rect x="296" y="330" width="10" height="16" rx="1.5" fill="#5B3A87" opacity="0"/><circle cx="300" cy="336" r="4" fill="#CBB7E0" opacity="0"/><rect x="296" y="330" width="6" height="13" rx="1.5" fill="#45296A" opacity="0"/><rect x="296" y="330" width="8" height="16" rx="1.5" fill="#FFFDF7" opacity="0"/></g>
   <g class="s5-badge"><rect x="380" y="40" width="160" height="50" rx="25" fill="#fff"/><circle cx="407" cy="65" r="15" fill="#D5136F"/><path d="M400 65 l5 5 9 -10" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/><text x="430" y="71" font-size="16" font-weight="600" fill="#3B2E22">Delivered</text></g>

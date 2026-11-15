@@ -75,7 +75,7 @@ function Dock({ secs }: { secs: string[] }) {
     <nav className="dock" id="dock" ref={dock} aria-label="On this page">
       <span className="dock-pill" aria-hidden="true" />
       {DOCK.filter((d) => secs.includes(d.sec)).map((d) => (
-        <a key={d.sec} href={`#${d.sec}`} data-sec={d.sec} onClick={(e) => { e.preventDefault(); scrollToEl(document.getElementById(d.sec)); }}>{d.icon}<span>{d.label}</span></a>
+        <a key={d.sec} href={`#${d.sec}`} data-sec={d.sec} aria-label={d.label} onClick={(e) => { e.preventDefault(); scrollToEl(document.getElementById(d.sec)); }}>{d.icon}<span>{d.label}</span></a>
       ))}
     </nav>
   );
@@ -99,11 +99,8 @@ export function Home(p: HomeProps) {
         if (document.documentElement.classList.contains("bt-lock")) lenis.stop(); // the intro is playing
       } catch { lenis = null; }
     }
-    // Sections pin in page order; measure again once photos and fonts have settled.
-    const refresh = () => { ScrollTrigger.sort(); ScrollTrigger.refresh(); };
-    refresh();
-    window.addEventListener("load", refresh);
-    document.fonts?.ready.then(refresh).catch(() => {});
+    // Sections pin in page order, and each measured itself as it was made. GSAP follows up with one full
+    // refresh in the next frame; register.ts measures again later only if photos or fonts moved something.
 
     // Arriving with a section in the address (/#build), or from a box page's "tweak this box" link (/?tweak=slug).
     const t = window.setTimeout(() => {
@@ -118,7 +115,6 @@ export function Home(p: HomeProps) {
 
     return () => {
       window.clearTimeout(t);
-      window.removeEventListener("load", refresh);
       if (tick) gsap.ticker.remove(tick);
       gsap.ticker.lagSmoothing(500, 33);
       lenis?.destroy();

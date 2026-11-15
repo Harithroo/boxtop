@@ -159,7 +159,7 @@ export function SiteHeader({ nav }: { nav: NavData }) {
         <div className="hd-bar">
           <Link className="logo" href="/" aria-label="BOXTOP home" onClick={toSection("top")}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/brand/logo.jpg" alt="" width={36} height={36} />BOXTOP
+            <img src="/brand/logo-96.webp" alt="" width={36} height={36} />BOXTOP
           </Link>
           <nav className="hd-links" aria-label="Pages">
             <Link href="/" onClick={toSection("top")} onMouseEnter={() => closeSoon(120)} {...cur(onHome)}>Home</Link>
@@ -177,7 +177,8 @@ export function SiteHeader({ nav }: { nav: NavData }) {
             <Link className="hd-ic" href="/cart" aria-label={`Cart, ${nav.cartCount} ${nav.cartCount === 1 ? "item" : "items"}`}>
               <ShoppingBag strokeWidth={1.8} />{nav.cartCount > 0 && <b className="hd-count">{nav.cartCount}</b>}
             </Link>
-            <a className="hd-wa" href={waHref} target="_blank" rel="noopener"><WaIcon /><span>Order</span></a>
+            {/* the word is hidden on narrow phones, so the name is given here */}
+            <a className="hd-wa" href={waHref} target="_blank" rel="noopener" aria-label="Order on WhatsApp"><WaIcon /><span>Order</span></a>
             <button type="button" className="hd-burger" id="burger" ref={burger} aria-expanded={menuOn} aria-controls="menuOv" aria-label={menuOn ? "Close menu" : "Open menu"}
               onClick={() => setMenu(!menuRef.current)}><i /><i /></button>
           </div>
