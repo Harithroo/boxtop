@@ -85,7 +85,9 @@ Only ever add new migrations with `npm run db:generate`; never edit one that alr
   | `UPLOAD_DIR` | `/home/harithroo/uploads` |
   | `NEXT_PUBLIC_SITE_URL` | `https://boxtop.harithroowijayawardhana.com` (no effect here, see above; the real one is in `deploy.yml`) |
 - Migrations/seed: run from the cPanel terminal in the app folder, or from your PC with `DATABASE_URL` pointing at the host (needs Remote MySQL access for your IP).
-- Cron (**required**: it sends notifications *and* applies deploys): cPanel → Cron Jobs, every minute: `curl -s "https://boxtop.harithroowijayawardhana.com/api/cron?key=CRON_SECRET" > /dev/null`
+- Cron (**required**: it sends notifications *and* applies deploys and migrations): cPanel → Cron Jobs, Once Per Minute (`* * * * *`):
+  `curl -s --max-time 50 --resolve boxtop.harithroowijayawardhana.com:443:104.255.169.49 -o /home/harithroo/boxtop/cron-last.json "https://boxtop.harithroowijayawardhana.com/api/cron?key=CRON_SECRET" > /dev/null 2>&1`
+  `--resolve` calls the server directly (no Cloudflare). `cron-last.json` (File Manager, `boxtop/`) always holds the latest result: `deploy.status` is `current` / `updating` / `failed` + error.
 
 ## Prod (box-top.lk) — checklist when setting up
 
