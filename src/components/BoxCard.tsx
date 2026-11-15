@@ -20,7 +20,7 @@ export function BoxCard({ box, sameDayOpen }: { box: CardBox; sameDayOpen?: bool
         {(box.badge || soldOut) && (
           <div className="absolute left-2 top-2 flex flex-wrap gap-1">
             {box.badge && <span className="badge">{box.badge}</span>}
-            {soldOut && <span className="badge bg-night text-cream">Sold out</span>}
+            {soldOut && <span className="badge bg-ink text-page dark:bg-page dark:text-ink">Sold out</span>}
           </div>
         )}
       </div>

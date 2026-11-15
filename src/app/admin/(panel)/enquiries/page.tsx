@@ -15,7 +15,7 @@ export default async function Enquiries() {
       <p className="hint">Custom orders, corporate requests and contact messages. Reply on WhatsApp, then create a manual order when they confirm.</p>
       <div className="space-y-3">
         {rows.map((e) => (
-          <article key={e.id} className={`card p-4 ${e.status === "new" ? "ring-2 ring-accent" : ""}`}>
+          <article key={e.id} className={`card p-4 ${e.status === "new" ? "ring-2 ring-brand dark:ring-accent" : ""}`}>
             <div className="flex flex-wrap items-center gap-2">
               <span className="badge">{e.kind.toLowerCase()}</span>
               <b>{e.name}</b>{e.company && <span>· {e.company}</span>}

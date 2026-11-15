@@ -14,9 +14,9 @@ export default async function Reviews() {
       <h1 className="h1">Reviews</h1>
       <p className="hint">Only customers with delivered orders can review (the link is in the delivered message). Nothing shows on the site until you approve it.</p>
       {rows.map(({ r, box, number, orderId }) => (
-        <article key={r.id} className={`card p-4 ${r.approved ? "" : "ring-2 ring-accent"}`}>
+        <article key={r.id} className={`card p-4 ${r.approved ? "" : "ring-2 ring-brand dark:ring-accent"}`}>
           <div className="flex flex-wrap items-center gap-2 text-sm">
-            <span className="text-accent">{"★".repeat(r.rating)}<span className="text-line">{"★".repeat(5 - r.rating)}</span></span>
+            <span className="text-brand dark:text-accent">{"★".repeat(r.rating)}<span className="text-ink/25 dark:text-line">{"★".repeat(5 - r.rating)}</span></span>
             <b>{r.name}</b><span>on {box ?? "a build-your-own box"}</span>
             <Link href={`/admin/orders/${orderId}`} className="text-brand">{number}</Link>
             <span className={`ml-auto rounded-full px-2 py-0.5 text-xs font-bold ${r.approved ? "bg-success/15 text-success" : "bg-accent-soft text-accent-text"}`}>{r.approved ? "Showing" : "Waiting"}</span>

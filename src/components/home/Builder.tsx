@@ -12,6 +12,7 @@ import { homeBus } from "@/lib/home-bus";
 import type { HomeBox, HomeItem, HomeStyle } from "@/lib/home-data";
 import { Bow, WaIcon } from "@/components/site/icons";
 import { reducedMotion, scrollToEl } from "@/components/site/scroll";
+import { useSiteTheme } from "@/components/SiteTheme";
 
 type Props = {
   styles: HomeStyle[]; items: HomeItem[]; occasions: string[]; boxes: HomeBox[];
@@ -30,6 +31,7 @@ const slot = (n: number) => {
 const onScreen = (el: Element) => { const r = el.getBoundingClientRect(); return r.bottom > 60 && r.top < window.innerHeight - 40; };
 
 export function Builder({ styles, items, occasions, boxes, starter, wa, waDisplay }: Props) {
+  const dark = useSiteTheme() === "dark";
   const root = useRef<HTMLElement>(null);
   const [styleId, setStyleId] = useState(styles[0]?.id ?? 0);
   const [who, setWho] = useState<string>("Her");
@@ -285,7 +287,9 @@ export function Builder({ styles, items, occasions, boxes, starter, wa, waDispla
             <p className="bx-empty" style={{ display: picked.length ? "none" : undefined }}>Tap items to pack them in</p>
             <div className="bx-lid" id="bxLid" aria-hidden="true">
               <span className="bx-rib-v" /><span className="bx-rib-h" />
-              <Bow className="bx-bow" tails={["#d81d6e", "#c9145f"]} loops="url(#bowG2)" knot="#ff4d97" gradient />
+              {dark
+                ? <Bow className="bx-bow" tails={["#d81d6e", "#c9145f"]} loops="url(#bowG2)" knot="#ff4d97" gradient={["#ff8cbc", "#ff3d8b", "#c9145f"]} />
+                : <Bow className="bx-bow" tails={["#d5136f", "#b80f5f"]} loops="url(#bowG2)" knot="#e5559a" gradient={["#e5559a", "#d5136f", "#b80f5f"]} />}
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <span className="bx-sticker"><img src="/brand/logo.jpg" alt="" width={360} height={360} /></span>
             </div>
@@ -298,7 +302,9 @@ export function Builder({ styles, items, occasions, boxes, starter, wa, waDispla
               sendT.current = window.setTimeout(goMsg, reducedMotion() ? 100 : 1400);
             }}>
             <WaIcon className="wa" />
-            <Bow className="bow" tails={["#7a0b3b", "#7a0b3b"]} loops="#fff" knot="#ffd2e5" />
+            {dark
+              ? <Bow className="bow" tails={["#7a0b3b", "#7a0b3b"]} loops="#fff" knot="#ffd2e5" />
+              : <Bow className="bow" tails={["#2d1a4a", "#2d1a4a"]} loops="#fff" knot="#cbb7e0" />}
             <span>
               <span>{wrapped ? "Lid on · check your message ↓" : "Close the lid & tie the ribbon"}</span>
               <small>{wrapped ? "Take me to the WhatsApp message" : picked.length ? "Then check your message and send it" : "Pack a few things first, or send it as a surprise"}</small>

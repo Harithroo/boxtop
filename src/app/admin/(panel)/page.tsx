@@ -4,11 +4,15 @@ import { db, schema } from "@/db";
 import { requireAdmin } from "@/lib/auth";
 import { colomboNow, addDays } from "@/lib/delivery";
 import { rs, prettyDate } from "@/lib/format";
+import { getSiteTheme } from "@/lib/settings";
+import { setSiteTheme } from "@/app/actions/admin-settings";
+import { Moon, Sun } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
 export default async function Dashboard() {
   await requireAdmin();
+  const theme = await getSiteTheme();
   const today = colomboNow().date;
   const weekAgo = new Date(new Date(`${today}T00:00:00+05:30`).getTime() - 6 * 86400000);
   const live = notInArray(schema.orders.status, ["CANCELLED", "REFUNDED"]);
@@ -55,13 +59,23 @@ export default async function Dashboard() {
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="h1">Today · {prettyDate(today)}</h1>
+        <h1 className="h1 mr-auto">Today · {prettyDate(today)}</h1>
+        {/* the whole site's colours, for every visitor; saving reloads the page in the new theme */}
+        <form action={setSiteTheme} className="inline-flex items-center gap-1 rounded-full border border-line bg-surface p-1" role="group" aria-label="Site theme">
+          <span className="hint px-2">Site theme</span>
+          {([["light", "Light", Sun], ["dark", "Dark", Moon]] as const).map(([t, label, Icon]) => (
+            <button key={t} name="theme" value={t} aria-pressed={theme === t}
+              className="inline-flex min-h-9 items-center gap-1.5 rounded-full px-3 text-sm font-semibold text-ink-muted hover:text-ink aria-pressed:bg-brand aria-pressed:text-on-brand">
+              <Icon size={15} aria-hidden="true" />{label}
+            </button>
+          ))}
+        </form>
         <Link href="/admin/orders/new" className="btn-primary btn-sm">+ Manual order</Link>
       </div>
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4 xl:grid-cols-7">
         {tiles.map(([l, n, h]) => (
           <Link key={l} href={h} className="card p-4 hover:shadow-[var(--shadow-raised)]">
-            <p className="hint">{l}</p><p className={`font-display text-3xl font-bold tracking-tight ${n ? "text-foil" : "text-ink-muted"}`}>{n}</p>
+            <p className="hint">{l}</p><p className={`font-display text-3xl font-bold tracking-tight ${n ? "text-brand dark:text-accent" : "text-ink-muted"}`}>{n}</p>
           </Link>
         ))}
       </div>

@@ -9,7 +9,7 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   return (
-    <div className="admin grid min-h-screen place-items-center px-4" style={{ background: "radial-gradient(70% 60% at 50% 40%, rgba(63,40,148,.45), transparent 70%), var(--night)" }}>
+    <div className="admin login-glow grid min-h-screen place-items-center px-4">
       <form action={action} className="card w-full max-w-sm space-y-4 p-6">
         <div className="text-center"><img src="/brand/logo.jpg" alt="Boxtop" className="mx-auto h-20 w-20 rounded-2xl" /><p className="hint mt-2">Back office</p></div>
         <div className={s.needCode ? "hidden" : ""}>
