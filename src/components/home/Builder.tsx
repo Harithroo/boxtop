@@ -174,7 +174,8 @@ export function Builder({ styles, items, occasions, boxes, starter, wa, waDispla
     /* tiles deal in, group by group */
     gsap.matchMedia().add("(prefers-reduced-motion: no-preference)", () => {
       gsap.utils.toArray<HTMLElement>(".items-grid").forEach((g) => {
-        gsap.from(g.querySelectorAll(".it"), { y: 30, opacity: 0, duration: 0.55, stagger: 0.04, ease: "power2.out", scrollTrigger: { trigger: g, start: "top 88%", once: true } });
+        // fromTo, not from: an explicit end state, so a re-run can never adopt a half-dealt tile as "home"
+        gsap.fromTo(g.querySelectorAll(".it"), { y: 30, opacity: 0 }, { y: 0, opacity: 1, clearProps: "transform", duration: 0.55, stagger: 0.04, ease: "power2.out", scrollTrigger: { trigger: g, start: "top 88%", once: true } });
       });
     });
 

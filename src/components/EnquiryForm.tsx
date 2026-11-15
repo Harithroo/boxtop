@@ -12,7 +12,7 @@ export function EnquiryForm({ kind }: { kind: "CUSTOM" | "CORPORATE" | "CONTACT"
       </div>
     );
   return (
-    <form action={action} className="card space-y-3 p-5" encType="multipart/form-data">
+    <form action={action} className="card space-y-3 p-5">
       <input type="hidden" name="kind" value={kind} />
       <input type="text" name="website" className="hidden" tabIndex={-1} autoComplete="off" aria-hidden />
       <div className="grid gap-3 sm:grid-cols-2">

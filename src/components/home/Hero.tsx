@@ -41,6 +41,9 @@ export function Hero({ cards, proof, fromPrice, next }: Props) {
     const reduce = reducedMotion();
     const el = root.current!;
     const num = el.querySelector<HTMLElement>("#introNum")!, bar = el.querySelector<HTMLElement>("#introBar")!;
+    // the "scroll to unpack" pill bows out as soon as the visitor starts scrolling, and comes back at the very top
+    const cue = el.querySelector<HTMLElement>(".scroll-cue");
+    if (cue) ScrollTrigger.create({ trigger: el, start: "top+=40 top", onEnter: () => cue.classList.add("is-gone"), onLeaveBack: () => cue.classList.remove("is-gone") });
 
     const heroIn = (fast: boolean) =>
       gsap.timeline()
