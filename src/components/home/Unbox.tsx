@@ -34,7 +34,8 @@ export function Unbox() {
       let flyTick: (() => void) | null = null;
       if (heroCard && heroImg) {
         const fly = (flyImg = document.createElement("img"));
-        fly.className = "hero-fly"; fly.src = heroImg.currentSrc || heroImg.src; fly.alt = "";
+        // the full-size photo, not the small copy the hero may have picked: it lands at the size of the stage
+        fly.className = "hero-fly"; fly.src = heroImg.src; fly.alt = "";
         document.body.appendChild(fly);
         const fp = { p: 0 }, ease = gsap.parseEase("power2.inOut");
         let flyState = 0;
@@ -62,7 +63,7 @@ export function Unbox() {
 
       /* How far a sticker may travel before it would leave the screen or cover the copy */
       const f = desk ? 1 : 0.58;
-      const room = () => {
+      const measure = () => {
         const inner = stage.offsetParent as HTMLElement, sr = sect.getBoundingClientRect();
         const W = stage.offsetWidth, H = stage.offsetHeight;
         const top = inner.offsetTop + stage.offsetTop, left = sr.left + inner.offsetLeft + stage.offsetLeft;
@@ -74,6 +75,10 @@ export function Unbox() {
           b: Math.max(0, sect.offsetHeight - top - H - (desk ? 56 : 190)),
         };
       };
+      // Every sticker asks for the room twice (x and y), and nothing here moves between two refreshes: measure
+      // once per refresh instead of eighteen times, each of which made the browser lay the page out again.
+      let fits: ReturnType<typeof measure> | null = null;
+      const room = () => (fits ??= measure());
       const goX = (s: Sticker) => {
         const R = room(), cx = (s.cx / 900) * R.W, hw = ((s.w / 100) * R.W * s.s) / 2;
         let t = cx + ((s.tx - s.cx) / 900) * R.W * f;
@@ -92,6 +97,7 @@ export function Unbox() {
         scrollTrigger: {
           trigger: sect, start: "top top", end: () => "+=" + Math.round(window.innerHeight * 3.2),
           pin: true, scrub: 0.8, invalidateOnRefresh: true,
+          onRefreshInit: () => { fits = null; },
           onUpdate: (self) => {
             const p = self.progress;
             ubBar.style.transform = `scaleX(${p})`;

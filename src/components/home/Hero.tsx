@@ -9,6 +9,8 @@ import { useGSAP } from "@gsap/react";
 import { homeBus } from "@/lib/home-bus";
 import { coarsePointer, lockScroll, reducedMotion, scrollToEl, scroller, siteEl } from "@/components/site/scroll";
 import { useSiteTheme } from "@/components/SiteTheme";
+import { boxSrcSet } from "@/lib/srcset";
+import { settle } from "./register";
 
 export type HeroCard = { img: string; alt: string; caption: string; price: string | null; href: string | null };
 type Props = { cards: [HeroCard, HeroCard, HeroCard]; proof: string; fromPrice: string | null; next: { name: string; when: string } | null };
@@ -21,7 +23,7 @@ function Photo({ c, cls, wide }: { c: HeroCard; cls: string; wide?: boolean }) {
   const inner = (
     <>
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={c.img} alt={c.alt} />
+      <img src={c.img} srcSet={boxSrcSet(c.img)} sizes={wide ? "(max-width: 899px) 52vw, 340px" : "(max-width: 899px) 34vw, 232px"} alt={c.alt} />
       <figcaption>{c.caption}{c.price && <b>{c.price}</b>}</figcaption>
     </>
   );
@@ -59,7 +61,8 @@ export function Hero({ cards, proof, fromPrice, next }: Props) {
       try { sessionStorage.setItem(SEEN, "1"); } catch {}
       lockScroll(false);
       tl.current = null;
-      ScrollTrigger.refresh();
+      // releasing the lock brings the scrollbar back where there is one, and the page gets that much narrower
+      settle();
     };
     /* Untie, then lift the lid. */
     const playIntro = contextSafe!(() => {
@@ -200,7 +203,7 @@ export function Hero({ cards, proof, fromPrice, next }: Props) {
           <figure className="hcard c3 wide">
             <div className="card-p"><span className="tape" />
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/home/cafe-treat.webp" alt="Open navy BOXTOP box with Hope cookies, Soul cold brew, Dilmah iced tea, marshmallows, Ferrero Rocher, Richlife cheese spread, KitKat and Kinder Bueno" width={900} height={675} />
+              <img src="/home/cafe-treat.webp" srcSet="/home/cafe-treat-480.webp 480w, /home/cafe-treat.webp 900w" sizes="(max-width: 899px) 52vw, 340px" alt="Open navy BOXTOP box with Hope cookies, Soul cold brew, Dilmah iced tea, marshmallows, Ferrero Rocher, Richlife cheese spread, KitKat and Kinder Bueno" width={900} height={675} />
               <figcaption>The café box, unpacked below ↓</figcaption>
             </div>
           </figure>
@@ -208,7 +211,7 @@ export function Hero({ cards, proof, fromPrice, next }: Props) {
           <figure className="hcard c5">
             <div className="card-p"><span className="tape" />
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/home/birthday-mug.webp" alt="Navy box with a teddy holding an I love you heart, a Happy Birthday mug, Yardley spray, Toblerone and Ferrero Rocher" width={598} height={745} />
+              <img src="/home/birthday-mug.webp" srcSet="/home/birthday-mug-320.webp 320w, /home/birthday-mug.webp 598w" sizes="(max-width: 899px) 34vw, 232px" alt="Navy box with a teddy holding an I love you heart, a Happy Birthday mug, Yardley spray, Toblerone and Ferrero Rocher" width={598} height={745} />
               <figcaption>Her birthday</figcaption>
             </div>
           </figure>

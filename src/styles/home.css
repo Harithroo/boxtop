@@ -348,6 +348,8 @@
 .items-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px}
 .it{position:relative;display:grid;gap:10px;padding:10px 10px 14px;border-radius:18px;border:1.5px solid var(--line);background:var(--bg);text-align:left;cursor:pointer;transition:border-color .25s,background-color .25s,transform .3s var(--ease),box-shadow .3s}
 :where([data-theme=dark]) .it{border:1.5px solid rgba(248,239,251,.12);background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.02))}
+/* a group's tiles before it has scrolled in: the state Builder.tsx deals them in from */
+.items-grid.is-undealt .it{opacity:0;transform:translateY(30px)}
 .it:hover{border-color:rgba(91,58,135,.6);transform:translateY(-4px);box-shadow:0 22px 40px -20px rgba(59,46,34,.5),0 0 0 4px rgba(91,58,135,.1)}
 :where([data-theme=dark]) .it:hover{border-color:rgba(255,61,139,.7);box-shadow:0 22px 40px -18px rgba(0,0,0,.8),0 0 0 4px rgba(255,61,139,.12)}
 .it img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:12px;box-shadow:0 10px 20px -12px rgba(59,46,34,.5)}

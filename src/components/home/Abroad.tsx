@@ -3,6 +3,7 @@
 // and see your time against Colombo's. The boarding pass becomes a WhatsApp message.
 import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import { WaIcon } from "@/components/site/icons";
 import { reducedMotion } from "@/components/site/scroll";
@@ -80,10 +81,15 @@ export function Abroad({ wa }: { wa: string }) {
 
   useGSAP(() => {
     gsap.matchMedia().add("(prefers-reduced-motion: no-preference)", () => {
-      gsap.from(".ab-globe", { y: 60, opacity: 0, duration: 1, ease: "expo.out", scrollTrigger: { trigger: ".ab-stage", start: "top 85%", once: true } });
-      gsap.from(".pass", { y: 80, rotation: 4, opacity: 0, duration: 1.1, delay: 0.15, ease: "expo.out", scrollTrigger: { trigger: ".ab-stage", start: "top 85%", once: true } });
-      gsap.from(".cities li", { y: 20, opacity: 0, duration: 0.5, stagger: 0.04, ease: "power2.out", scrollTrigger: { trigger: ".ab-pick", start: "top 90%", once: true } });
-      gsap.from(".ab-steps li", { y: 30, opacity: 0, duration: 0.7, stagger: 0.1, ease: "power3.out", scrollTrigger: { trigger: ".ab-steps", start: "top 90%", once: true } });
+      // All four start states go on first and the triggers are made after: a trigger measures the page as it is
+      // created, and a measurement between two changes makes the browser lay the page out again each time.
+      const reveals: [gsap.core.Tween, string, string][] = [
+        [gsap.from(".ab-globe", { y: 60, opacity: 0, duration: 1, ease: "expo.out", paused: true }), ".ab-stage", "top 85%"],
+        [gsap.from(".pass", { y: 80, rotation: 4, opacity: 0, duration: 1.1, delay: 0.15, ease: "expo.out", paused: true }), ".ab-stage", "top 85%"],
+        [gsap.from(".cities li", { y: 20, opacity: 0, duration: 0.5, stagger: 0.04, ease: "power2.out", paused: true }), ".ab-pick", "top 90%"],
+        [gsap.from(".ab-steps li", { y: 30, opacity: 0, duration: 0.7, stagger: 0.1, ease: "power3.out", paused: true }), ".ab-steps", "top 90%"],
+      ];
+      reveals.forEach(([animation, trigger, start]) => ScrollTrigger.create({ animation, trigger, start, once: true }));
     });
   }, { scope: root });
 
@@ -117,7 +123,7 @@ export function Abroad({ wa }: { wa: string }) {
                 <button key={k} type="button" className="gp" data-c={k} aria-label={`Fly from ${CITIES[k].n}`} onClick={() => pick(k, true)}>{k}<span className="lb">{CITIES[k].n}</span></button>
               ))}
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <button type="button" className="gp home" data-c="CMB" aria-label="Colombo, home" tabIndex={-1}><img src="/brand/logo.jpg" alt="" /><span className="lb">Home · Colombo</span></button>
+              <button type="button" className="gp home" data-c="CMB" aria-label="Colombo, home" tabIndex={-1}><img src="/brand/logo-96.webp" alt="" /><span className="lb">Home · Colombo</span></button>
             </div>
           </div>
           <p className="gl-hint">Drag to spin · tap a city to fly from it</p>
@@ -131,7 +137,7 @@ export function Abroad({ wa }: { wa: string }) {
           <div className="pass-main">
             <div className="pass-top">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <span className="pass-brand"><img src="/brand/logo.jpg" alt="" width={30} height={30} />BOXTOP AIR</span>
+              <span className="pass-brand"><img src="/brand/logo-96.webp" alt="" width={30} height={30} />BOXTOP AIR</span>
               <span className="pass-class">Gift class</span>
             </div>
             <div className="pass-route">

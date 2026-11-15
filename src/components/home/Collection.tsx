@@ -8,7 +8,9 @@ import { useGSAP } from "@gsap/react";
 import { homeBus } from "@/lib/home-bus";
 import type { HomeBox, HomeChapter } from "@/lib/home-data";
 import { rs } from "@/lib/format";
+import { boxSrcSet } from "@/lib/srcset";
 import { glideTo, reducedMotion, scrollToEl, siteEl } from "@/components/site/scroll";
+import { soon } from "./later";
 import { MM } from "./stickers";
 
 const pad2 = (n: number) => (n < 10 ? "0" : "") + n;
@@ -27,10 +29,11 @@ export function Collection({ chapters, boxes }: { chapters: HomeChapter[]; boxes
 
     /* the ribbon the cards hang from: it sags a little between pegs */
     const drawLine = () => {
-      const w = track.scrollWidth, y = 14;
+      // measure first, draw after: the line is laid over the track, so sizing it cannot move a peg
+      const w = track.scrollWidth, y = 14, pegs = cards.map((c) => c.offsetLeft + c.offsetWidth / 2);
       line.setAttribute("width", String(w)); line.setAttribute("height", "90"); line.setAttribute("viewBox", `0 0 ${w} 90`);
       let d = "M0 " + y, prev = 0;
-      cards.map((c) => c.offsetLeft + c.offsetWidth / 2).concat([w]).forEach((x) => {
+      pegs.concat([w]).forEach((x) => {
         const sag = Math.min(34, (x - prev) * 0.09);
         d += ` Q${((prev + x) / 2).toFixed(1)} ${(y + sag * 2).toFixed(1)} ${x.toFixed(1)} ${y}`; prev = x;
       });
@@ -81,9 +84,13 @@ export function Collection({ chapters, boxes }: { chapters: HomeChapter[]; boxes
         // one point per category, placed where that category starts
         clNodes.forEach((nd) => nd.el.remove()); clNodes = [];
         const d = Math.max(1, track.scrollWidth - window.innerWidth);
-        chapters.forEach((c, n) => {
-          const f = first(c.slug); if (!f) return;
-          const p = n ? Math.min(1, Math.max(0, (f.offsetLeft - window.innerWidth * 0.3) / d)) : 0;
+        // every position is read before the first point goes in, so the page is laid out once, not once a category
+        const at = chapters.map((c, n) => {
+          const f = first(c.slug);
+          return f ? (n ? Math.min(1, Math.max(0, (f.offsetLeft - window.innerWidth * 0.3) / d)) : 0) : null;
+        });
+        at.forEach((p) => {
+          if (p === null) return;
           const el = document.createElement("span"); el.className = "cl-node"; el.style.left = (p * 100).toFixed(2) + "%";
           clTrk.insertBefore(el, clTrav); clNodes.push({ el, p });
         });
@@ -104,12 +111,18 @@ export function Collection({ chapters, boxes }: { chapters: HomeChapter[]; boxes
           onUpdate: (self) => { clProgress(self.progress); markChapter(); swing(self.getVelocity()); },
         },
       });
-      gsap.utils.toArray<HTMLElement>(".ph img").forEach((img) => {
-        gsap.fromTo(img, { xPercent: -7 }, { xPercent: 7, ease: "none", scrollTrigger: { trigger: img.closest(".tcard"), containerAnimation: hTween, start: "left right", end: "right left", scrub: true } });
+      /* Each photo and each category word drifts a little as the strip travels: a tween and a trigger apiece,
+         thirty-odd in all. None of it shows until the strip is on screen, so it is set up in a quiet moment
+         (or as the strip nears), not while the page is first coming alive. */
+      const drift = ctx.add("drift", () => {
+        gsap.utils.toArray<HTMLElement>(".ph img").forEach((img) => {
+          gsap.fromTo(img, { xPercent: -7 }, { xPercent: 7, ease: "none", scrollTrigger: { trigger: img.closest(".tcard"), containerAnimation: hTween, start: "left right", end: "right left", scrub: true } });
+        });
+        gsap.utils.toArray<HTMLElement>(".ch-word").forEach((w) => {
+          gsap.fromTo(w, { xPercent: 30, rotation: -2 }, { xPercent: -30, rotation: -9, ease: "none", scrollTrigger: { trigger: w, containerAnimation: hTween, start: "left right", end: "right left", scrub: true } });
+        });
       });
-      gsap.utils.toArray<HTMLElement>(".ch-word").forEach((w) => {
-        gsap.fromTo(w, { xPercent: 30, rotation: -2 }, { xPercent: -30, rotation: -9, ease: "none", scrollTrigger: { trigger: w, containerAnimation: hTween, start: "left right", end: "right left", scrub: true } });
-      });
+      const stopDrift = soon(sect, () => drift());
       chapterTicks(); clProgress(0);
       gsap.from(".cl-chips li", { y: 30, opacity: 0, duration: 0.7, stagger: 0.06, ease: "expo.out", scrollTrigger: { trigger: sect, start: "top 70%", once: true } });
 
@@ -121,6 +134,7 @@ export function Collection({ chapters, boxes }: { chapters: HomeChapter[]; boxes
         glideTo(st.start + (st.end - st.start) * (off / d));
       };
       return () => {
+        stopDrift();
         site?.classList.remove("cl-pin");
         clNodes.forEach((nd) => nd.el.remove());
         gsap.set(track, { x: 0 });
@@ -166,7 +180,7 @@ export function Collection({ chapters, boxes }: { chapters: HomeChapter[]; boxes
                 <span className="peg" aria-hidden="true" />
                 <Link className="pol" href={`/box/${p.slug}`}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <div className="ph"><img src={p.img!} alt={p.alt} loading="lazy" /></div>
+                  <div className="ph"><img src={p.img!} srcSet={boxSrcSet(p.img)} sizes="345px" alt={p.alt} loading="lazy" /></div>
                   <div className="cap"><h3>{p.name}</h3><p>{p.summary}</p></div>
                 </Link>
                 <span className="ptag">{p.price === null ? "Ask for price" : rs(p.price)}</span>
@@ -188,7 +202,7 @@ export function Collection({ chapters, boxes }: { chapters: HomeChapter[]; boxes
           <div className="cl-trk" id="clTrk">
             <div className="cl-rl"><i id="clBar" /></div>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <span className="cl-trav" id="clTrav"><img src="/brand/logo.jpg" alt="" width={36} height={36} /></span>
+            <span className="cl-trav" id="clTrav"><img src="/brand/logo-96.webp" alt="" width={36} height={36} /></span>
           </div>
         </div>
       </div>

@@ -306,7 +306,7 @@ export function SiteFooter({ data }: { data: FooterData }) {
         </div>
         <Link className="tpf-logo tpf-h" style={i(1)} href="/" aria-label="BOXTOP, home" onClick={sec("top")}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/brand/logo.jpg" alt="" /><span>BOXTOP</span>
+          <img src="/brand/logo-96.webp" alt="" /><span>BOXTOP</span>
         </Link>
         <div className="tpf-h" style={{ ...i(2), position: "relative" }}>
           {data.wa && (
@@ -356,7 +356,8 @@ export function SiteFooter({ data }: { data: FooterData }) {
       <nav className="tpf-z tpf-col tpf-h r" style={i(7)} aria-label="Help">
         <h3>help<Wave /></h3>
         <ul>{helpLinks.map((l) => <li key={l.href}><Link href={l.href} onClick={l.id ? sec(l.id) : undefined}>{l.label}</Link></li>)}</ul>
-        <a className="tpf-big" href={wa()} target="_blank" rel="noopener">order.</a>
+        {/* named like the header's button: both go to the same WhatsApp chat */}
+        <a className="tpf-big" href={wa()} target="_blank" rel="noopener" aria-label="Order on WhatsApp">order.</a>
       </nav>
 
       <button type="button" className="tpf-pin" ref={pin} data-pin="idle" aria-label="Pull the pin: tear a new edge" title="Pull the pin">
