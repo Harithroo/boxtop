@@ -104,20 +104,21 @@
 .tpf-side:hover .tpf-ico{transform:translateY(-2px) rotate(-8deg)}
 .tpf-side span{background:linear-gradient(currentColor,currentColor) 0 100%/0 1px no-repeat;transition:background-size .4s var(--ease)}
 .tpf-side:hover span{background-size:100% 1px}
-.tpf-foot{left:0;right:0;bottom:5%;display:flex;align-items:center;justify-content:space-between;gap:1.5em;padding:0 15%;font-size:max(12px,1.85cqmin)}
-.tpf-foot{align-items:flex-end}
-.tpf-copy{margin:0;display:grid;gap:.1em;line-height:1.4}
+/* bottom lines: the legal links centred, then the credit (left) and copyright (right) */
+.tpf-foot{left:0;right:0;bottom:4%;display:flex;flex-direction:column;align-items:stretch;gap:.9em;padding:0 15%;font-size:max(12px,1.85cqmin)}
+.tpf-copy{margin:0;display:flex;justify-content:space-between;align-items:baseline;gap:.4em 1.5em;flex-wrap:wrap;line-height:1.4}
 .tpf-dev{font-size:.84em;opacity:.65}
-.tpf-legal{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:.2em 1.3em;font-weight:600;line-height:1.4}
+.tpf-legal{display:flex;flex-wrap:wrap;justify-content:center;gap:.2em 1.3em;font-weight:600;line-height:1.4}
 .tpf-legal a:hover{text-decoration:underline;text-underline-offset:.2em}
 @container (max-width: 620px){
-  .tpf-top{padding:0 7%}.tpf-flank,.tpf-mail span{display:none}
+  .tpf-top{padding:0 7%}.tpf-flank{display:none}.tpf-mail{font-size:max(13px,2.1cqmin);gap:.4em}
   .tpf-logo span{display:none}
   .tpf-news{top:16%}.tpf-pill{width:min(80cqw,320px)}
   .tpf-status{top:29%}.tpf-badge{top:33%}
   .tpf-col{top:37%}.tpf-col.l{left:7%}.tpf-col.r{right:7%}.tpf-col li:nth-child(n+3){display:none}
   .tpf-side{top:79%}.tpf-side.l{left:16%!important}.tpf-side.r{left:84%!important}
-  .tpf-foot{padding:0 7%;bottom:2.5%;flex-direction:column-reverse;align-items:center;gap:.6em;text-align:center}
+  .tpf-foot{padding:0 7%;bottom:2.5%;align-items:center;gap:.6em;text-align:center}
+  .tpf-copy{flex-direction:column-reverse;align-items:center;gap:.1em}
   .tpf-legal{justify-content:center;gap:.2em 1.1em;max-width:17em}
   .tpf-hint{top:65.2%}
 }

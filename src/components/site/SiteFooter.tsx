@@ -378,13 +378,13 @@ export function SiteFooter({ data }: { data: FooterData }) {
         </Link>
       )}
       <div className="tpf-z tpf-foot tpf-ink">
-        <p className="tpf-copy tpf-p" style={i(3)}>
-          <span>© {data.year} BOXTOP. All rights reserved.</span>
-          <span className="tpf-dev">Designed &amp; developed by Shenal and Harithroo</span>
-        </p>
-        <nav className="tpf-legal tpf-p" style={i(4)} aria-label="Legal and company">
+        <nav className="tpf-legal tpf-p" style={i(3)} aria-label="Legal and company">
           {LEGAL.map(([label, href]) => <Link key={href} href={href}>{label}</Link>)}
         </nav>
+        <p className="tpf-copy tpf-p" style={i(4)}>
+          <span className="tpf-dev">Designed &amp; developed by Shenal and Harithroo</span>
+          <span>© {data.year} BOXTOP. All rights reserved.</span>
+        </p>
       </div>
     </footer>
   );

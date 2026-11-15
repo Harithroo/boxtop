@@ -71,6 +71,8 @@
 .c5{left:69%;top:21%;--r:14deg}
 .hero-fly{position:fixed;left:0;top:0;z-index:35;transform-origin:0 0;border-radius:10px;box-shadow:0 0 0 6px var(--paper),0 40px 80px -30px rgba(0,0,0,.85);pointer-events:none;will-change:transform;visibility:hidden;max-width:none}
 .scroll-cue{white-space:nowrap;position:absolute;left:50%;top:calc(100svh - 118px);transform:translateX(-50%);z-index:4;display:flex;flex-direction:column;align-items:center;gap:10px;font:700 .7rem var(--display);letter-spacing:.16em;text-transform:uppercase;color:var(--cream);text-decoration:none;padding:12px 18px;border-radius:999px;transition:color .25s}
+.scroll-cue{transition:opacity .4s var(--ease),visibility .4s,translate .4s var(--ease)}
+.scroll-cue.is-gone{opacity:0;visibility:hidden;translate:0 12px;pointer-events:none}
 .scroll-cue:hover{color:var(--foil)}
 .scroll-cue .mouse{position:relative;width:26px;height:40px;border-radius:14px;border:2px solid var(--ribbon);box-shadow:0 0 18px rgba(255,61,139,.5)}
 .scroll-cue .mouse i{position:absolute;left:50%;top:7px;width:4px;height:8px;margin-left:-2px;border-radius:2px;background:var(--cream);animation:wheel 1.6s var(--ease) infinite}
@@ -79,7 +81,7 @@
 @keyframes cuebob{50%{transform:translateY(5px)}}
 @keyframes cue{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}51%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
 @media (max-width:899px){
-  .hero{grid-template-columns:1fr;padding-top:124px;padding-bottom:110px;gap:28px;align-items:start}
+  .hero{grid-template-columns:1fr;min-height:0;padding-top:104px;padding-bottom:40px;gap:28px;align-items:start}
   .t-big{font-size:clamp(3.6rem,17vw,7rem)}
   .fan{height:auto;min-height:0;aspect-ratio:1/1.02;max-width:520px;width:100%;margin:0 auto}
   .hcard{--w:34%}
@@ -131,13 +133,14 @@
 @media (prefers-reduced-motion:reduce){html:root .step{opacity:1}}
 @media (prefers-reduced-motion:reduce){html:root .ub-list{display:grid}}
 @media (max-width:899px){
-  .ub-inner{grid-template-columns:1fr;align-items:start;padding-top:84px;gap:10px}
+  .ub-inner{grid-template-columns:1fr;grid-template-rows:auto 1fr;align-items:start;padding-top:56px;gap:6px}
   .ub-copy .sub{display:none}
   .ub-copy h2{font-size:clamp(1.8rem,8vw,2.6rem)}
-  .ub-stagewrap{align-items:start;padding-top:40px}
+  .ub-stagewrap{align-items:center;padding:8px 0 150px}
   .ub-stage{width:100%}
   .st-lbl{display:none}
-  .steps{position:absolute;left:var(--gut);right:var(--gut);bottom:56px;margin:0}
+  .steps{position:absolute;left:var(--gut);right:var(--gut);bottom:112px;margin:0}
+  .ub-bar{bottom:96px}
   .step{display:none;opacity:1;transform:none;background:rgba(17,10,28,.85);border:1px solid rgba(255,61,139,.25);border-radius:14px;padding:12px 14px;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
   .step.is-on{display:grid}
   @media (prefers-reduced-motion:reduce){html:root .steps{position:static;margin-top:18px}}
@@ -328,7 +331,7 @@
 .b-tray button{border:0;border-radius:999px;background:var(--ribbon);color:#1a0612;font:700 .78rem/1 var(--body);padding:.75em 1em;cursor:pointer;white-space:nowrap}
 @media (max-width:899px){
   .b-head{grid-template-columns:1fr}
-  .b-grid{grid-template-columns:1fr}
+  .b-grid{grid-template-columns:1fr;row-gap:44px}
   .b-basics{grid-template-columns:1fr;padding:18px}
   .b-send{grid-template-columns:1fr}
   .b-tray{display:flex}
