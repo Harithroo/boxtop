@@ -7,19 +7,24 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import { scrollToEl } from "@/components/site/scroll";
-import { SCENE_DOOR, SCENE_MESSAGE, SCENE_PAY, SCENE_VAN } from "./scenes";
+import { SCENE_DOOR, SCENE_MESSAGE, SCENE_PAY, SCENE_VAN, themed } from "./scenes";
 import { MM, STK } from "./stickers";
+import { useSiteTheme } from "@/components/SiteTheme";
 
 type Props = {
   wa: string; waDisplay: string; instagram: string; igHandle: string; facebook: string; hours: string; payLine: string;
   proof: string; areas: string[]; quotes: { text: string; by: string }[];
 };
 
-// light tints per order step; ink-soft stays above 5.3:1 on every one
-const JBG = ["#f5efe3", "#f2ebf5", "#f6efe2", "#efe8f5", "#f7ede4"];
+// the section's background per order step: light tints (ink-soft stays above 5.3:1 on every one), or night shades
+const JBG = {
+  light: ["#f5efe3", "#f2ebf5", "#f6efe2", "#efe8f5", "#f7ede4"],
+  dark: ["#150c24", "#1c0f30", "#120a20", "#1a0e2e", "#210f2c"],
+};
 const listOf = (a: string[]) => (a.length <= 1 ? a.join("") : `${a.slice(0, -1).join(", ")} and ${a[a.length - 1]}`);
 
 export function Journey({ wa, waDisplay, instagram, igHandle, facebook, hours, payLine, proof, areas, quotes }: Props) {
+  const theme = useSiteTheme();
   const root = useRef<HTMLElement>(null);
   const waHref = wa ? `https://wa.me/${wa}` : "/contact";
   const near = areas.slice(0, 3);
@@ -95,7 +100,7 @@ export function Journey({ wa, waDisplay, instagram, igHandle, facebook, hours, p
         if (prev > -1) { gsap.to(jSteps[prev], { autoAlpha: 0, y: -60 * dir, duration: 0.45, ease: "power2.in", overwrite: true }); SC[prev].pause(); }
         gsap.fromTo(jSteps[n], { autoAlpha: 0, y: 70 * dir }, { autoAlpha: 1, y: 0, duration: 0.75, delay: prev > -1 ? 0.2 : 0, ease: "power3.out", overwrite: true });
         gsap.fromTo(qa(".jr-text > *", jSteps[n]), { y: 26, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, stagger: 0.06, delay: prev > -1 ? 0.3 : 0.1, ease: "power3.out", overwrite: true });
-        gsap.to(journey, { backgroundColor: JBG[n], duration: 0.8, ease: "power1.out" });
+        gsap.to(journey, { backgroundColor: JBG[theme][n], duration: 0.8, ease: "power1.out" });
         SC[n].restart();
       };
       const tw = desk ? 46 : 31;
@@ -131,7 +136,7 @@ export function Journey({ wa, waDisplay, instagram, igHandle, facebook, hours, p
       {scene}
     </article>
   );
-  const drawn = (svg: string) => <div className="jr-scene" dangerouslySetInnerHTML={{ __html: svg.replaceAll("{{wa}}", waDisplay || "WhatsApp") }} />;
+  const drawn = (svg: string) => <div className="jr-scene" dangerouslySetInnerHTML={{ __html: themed(svg, theme).replaceAll("{{wa}}", waDisplay || "WhatsApp") }} />;
 
   return (
     <section id="order" aria-labelledby="dr-title" ref={root}>

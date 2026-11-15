@@ -7,6 +7,7 @@ import { useGSAP } from "@gsap/react";
 import { WaIcon } from "@/components/site/icons";
 import { reducedMotion } from "@/components/site/scroll";
 import { CITIES, ORIGINS, clockIn, flightNo, gapText, nightAtHome } from "./cities";
+import { useSiteTheme } from "@/components/SiteTheme";
 
 const FL = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 const BARS = [[2, 2.4], [5.6, 3.2], [11.4, 1.2], [13.8, 1.2], [16.8, 1.2], [20.6, 1.6], [23.4, 1.2], [26.4, 3.2], [30.8, 1.6], [33.6, 3.2], [38, 1.2], [40.4, 1.2], [44.2, 3.2], [48.6, 1.6], [51.4, 1.6], [54.8, 3.2], [59.2, 1.2], [63, 2.4], [68, 1.6], [70.8, 1.6], [74.2, 1.2], [78, 1.2], [81.8, 1.2], [85.6, 1.6], [89, 3.2], [94, 3.2], [99.8, 3.2], [104.8, 2.4]];
@@ -14,6 +15,7 @@ const PLANE_D = "M-18 -2.6 L13 -2.6 C19 -2.6 23 -1.2 23 0 C23 1.2 19 2.6 13 2.6 
 const START = "DXB";
 
 export function Abroad({ wa }: { wa: string }) {
+  const theme = useSiteTheme(), dark = theme === "dark";
   const root = useRef<HTMLElement>(null);
   const [code, setCode] = useState(START);
   const [times, setTimes] = useState({ you: "--:--", home: "--:--", gap: "", night: "live" });
@@ -63,7 +65,7 @@ export function Abroad({ wa }: { wa: string }) {
         globe.current = m.createGlobe({
           wrap: el.querySelector<HTMLElement>("#glWrap")!, canvas: el.querySelector<HTMLCanvasElement>("#glCanvas")!,
           pins: Array.from(el.querySelectorAll<HTMLElement>(".gp")), reduce: reducedMotion(),
-          current: () => cur.current, touring: () => auto.current, onTour: (next) => pickRef.current(next, false),
+          current: () => cur.current, touring: () => auto.current, onTour: (next) => pickRef.current(next, false), theme,
         });
         globe.current.route(cur.current);
       });
@@ -147,7 +149,7 @@ export function Abroad({ wa }: { wa: string }) {
             </div>
           </div>
           <div className="pass-stub">
-            <svg className="barcode" viewBox="0 0 110 46" aria-hidden="true">{BARS.map(([x, w]) => <rect key={x} x={x} y="0" width={w} height="46" fill="#3b2e22" />)}</svg>
+            <svg className="barcode" viewBox="0 0 110 46" aria-hidden="true">{BARS.map(([x, w]) => <rect key={x} x={x} y="0" width={w} height="46" fill={dark ? "#24152f" : "#3b2e22"} />)}</svg>
             <a className="btn btn-ribbon" href={wa ? `https://wa.me/${wa}?text=${encodeURIComponent(msg)}` : "/contact"} target="_blank" rel="noopener"><WaIcon />Book this flight</a>
           </div>
         </article>

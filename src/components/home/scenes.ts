@@ -131,3 +131,14 @@ export const SCENE_DOOR = `<svg class="sc5" viewBox="0 0 600 480" role="img" ari
   <g class="s5-badge"><rect x="380" y="40" width="160" height="50" rx="25" fill="#fff"/><circle cx="407" cy="65" r="15" fill="#D5136F"/><path d="M400 65 l5 5 9 -10" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/><text x="430" y="71" font-size="16" font-weight="600" fill="#3B2E22">Delivered</text></g>
   <g class="s5-quote"><rect x="54" y="226" width="170" height="80" rx="16" fill="#fff"/><path d="M196 304 l16 18 -2 -20z" fill="#fff"/><text font-size="13" font-weight="500" font-style="italic" fill="#3B2E22"><tspan x="70" y="254">"Thank you so</tspan><tspan x="70" y="272">much Box Top"</tspan></text><text x="70" y="293" font-size="9" font-weight="600" letter-spacing="1" fill="#5B3A87">CHANAKA, ON FACEBOOK</text></g>
 </svg>`;
+
+// The scenes were drawn for the light theme. On the dark site the halo behind each scene is violet, the
+// captions are cream and the confetti is pink, violet and gold; nothing else changes.
+const CONF_DARK: Record<string, string> = { "#D5136F": "#ff3d8b", "#5B3A87": "#7b5bff", "#45296A": "#f2c46d" };
+export function themed(svg: string, theme: "light" | "dark") {
+  if (theme === "light") return svg;
+  return svg
+    .replace(/(<ellipse cx="300" cy="2(?:50|46)" rx="2(?:36|50)" ry="20[56]" fill=")#CBB7E0"/g, '$1#3f2894"')
+    .replace(/fill="#3B2E22">(Cash on delivery|Bank transfer \+ slip photo)<\/text>/g, 'fill="#f8effb">$1</text>')
+    .replace(/<g class="s5-conf">.*?<\/g>/, (g) => g.replace(/#(D5136F|5B3A87|45296A)/g, (c) => CONF_DARK[c]));
+}

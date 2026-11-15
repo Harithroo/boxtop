@@ -28,7 +28,7 @@ export default async function VoucherPage({ params }: { params: Promise<{ token:
       )}
       {(v.status === "ACTIVE" || v.status === "USED") && (
         <div className="ribbon-frame mt-6 p-8">
-          <p className="text-xs font-bold uppercase tracking-[0.12em] text-lilac">Code</p>
+          <p className="text-xs font-bold uppercase tracking-[0.12em] text-lilac dark:text-accent-soft">Code</p>
           <p className="mt-1 font-mono text-2xl tracking-widest">{v.code}</p>
           <p className="mt-4">Balance <b>{rs(v.balance)}</b> of {rs(v.amount)}{v.expiresAt && <> · valid until {prettyDate(v.expiresAt)} {v.expiresAt.slice(0, 4)}</>}</p>
           {v.message && <p className="mt-4 italic opacity-90">&ldquo;{v.message}&rdquo; · {v.buyerName}</p>}

@@ -30,10 +30,10 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         <div className="flex items-center gap-3 p-5"><img src="/brand/logo.jpg" alt="" className="h-10 w-10 rounded-[9px]" /><div><p className="wordmark">BOXTOP</p><p className="mt-1 text-xs text-ink-muted">Back office · {s.name}</p></div></div>
         <nav className="flex-1 space-y-1 px-2 text-sm">
           {NAV.map(([href, label, Icon]) => (
-            <Link key={href} href={href} className="flex items-center gap-3 rounded-md px-3 py-2 hover:bg-brand-soft hover:text-brand"><Icon size={18} strokeWidth={1.75} />{label}</Link>
+            <Link key={href} href={href} className="flex items-center gap-3 rounded-md px-3 py-2 hover:bg-brand-soft hover:text-brand dark:hover:bg-white/[0.06] dark:hover:text-accent"><Icon size={18} strokeWidth={1.75} />{label}</Link>
           ))}
         </nav>
-        <form action={logout} className="p-3"><button className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm hover:bg-brand-soft hover:text-brand"><LogOut size={18} />Sign out</button></form>
+        <form action={logout} className="p-3"><button className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm hover:bg-brand-soft hover:text-brand dark:hover:bg-white/[0.06] dark:hover:text-accent"><LogOut size={18} />Sign out</button></form>
       </aside>
       <div className="min-w-0 flex-1 pb-20 md:pb-0">
         <header className="border-b border-line bg-surface md:hidden">

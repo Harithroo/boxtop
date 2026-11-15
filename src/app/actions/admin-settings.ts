@@ -5,7 +5,7 @@ import bcrypt from "bcryptjs";
 import webpush from "web-push";
 import { db, schema } from "@/db";
 import { requireAdmin } from "@/lib/auth";
-import { getSettings, saveSetting, CHANNELS, EVENTS, type Channel, type NotifyEvent } from "@/lib/settings";
+import { getSettings, saveSetting, CHANNELS, EVENTS, SITE_THEMES, type Channel, type NotifyEvent, type SiteTheme } from "@/lib/settings";
 import { sendNow } from "@/lib/notify";
 import { newTotpSecret, verifyTotp } from "@/lib/totp";
 
@@ -22,6 +22,15 @@ export async function saveStore(_: SState, fd: FormData): Promise<SState> {
   await saveSetting("delivery", { sameDayEnabled: on(fd, "sameDayEnabled"), maxDaysAhead: Math.max(1, num(fd, "maxDaysAhead") || 30) });
   revalidatePath("/", "layout");
   return { ok: Date.now() };
+}
+
+/** The dashboard's Light / Dark switch: one site theme for every visitor and the back office. */
+export async function setSiteTheme(fd: FormData) {
+  await requireAdmin();
+  const theme = String(fd.get("theme"));
+  if (!SITE_THEMES.includes(theme as SiteTheme)) return;
+  await saveSetting("appearance", { theme: theme as SiteTheme });
+  revalidatePath("/", "layout");
 }
 
 /** The words and switches of the home page that aren't catalogue: the abroad section, the proof line, areas and quotes. */

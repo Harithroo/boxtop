@@ -1,4 +1,5 @@
 import { eq } from "drizzle-orm";
+import { connection } from "next/server";
 import { cache } from "react";
 import { db, schema } from "@/db";
 
@@ -24,6 +25,10 @@ export const EVENTS = {
 } as const;
 export type NotifyEvent = keyof typeof EVENTS;
 
+/** The whole site's colours: "light" (kraft & plum) or "dark" (night plum). The admin switches it on the dashboard. */
+export const SITE_THEMES = ["light", "dark"] as const;
+export type SiteTheme = (typeof SITE_THEMES)[number];
+
 export type BankAccount = { bankName: string; branch: string; accountName: string; accountNumber: string };
 
 export type Settings = {
@@ -36,6 +41,7 @@ export type Settings = {
     bank: { enabled: boolean; accounts: BankAccount[]; instructions: string };
   };
   delivery: { sameDayEnabled: boolean; maxDaysAhead: number };
+  appearance: { theme: SiteTheme };
   /** Words and switches for the home page that aren't part of the catalogue. */
   home: {
     abroad: boolean; // the "Send a box home" section and every link to it
@@ -67,6 +73,7 @@ export const DEFAULT_SETTINGS: Settings = {
     bank: { enabled: true, accounts: [], instructions: "Transfer the total to any one of these accounts and upload the slip. We confirm your order once it clears." },
   },
   delivery: { sameDayEnabled: true, maxDaysAhead: 30 },
+  appearance: { theme: "light" },
   home: {
     abroad: true,
     proof: "100% recommend · 7 reviews on Facebook",
@@ -136,3 +143,13 @@ export async function saveSetting<K extends Key>(key: K, value: Settings[K]) {
   if (existing.length) await db.update(schema.settings).set({ value }).where(eq(schema.settings.key, key));
   else await db.insert(schema.settings).values({ key, value });
 }
+
+/** The site theme for this request. Never throws: if the settings can't be read, the site stays light. */
+export const getSiteTheme = cache(async (): Promise<SiteTheme> => {
+  await connection(); // read per request, never baked in at build time
+  try {
+    return (await getSettings()).appearance.theme === "dark" ? "dark" : "light";
+  } catch {
+    return "light";
+  }
+});

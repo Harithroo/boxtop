@@ -17,13 +17,13 @@ export function Chevron() {
 }
 
 /** The bow that ties the builder's lid and the "close the lid" button. */
-export function Bow({ className, tails, loops, knot, gradient }: { className?: string; tails: [string, string]; loops: string; knot: string; gradient?: boolean }) {
+export function Bow({ className, tails, loops, knot, gradient }: { className?: string; tails: [string, string]; loops: string; knot: string; gradient?: [string, string, string] }) {
   return (
     <svg className={className} viewBox="0 0 240 170" aria-hidden="true">
       {gradient && (
         <defs>
           <linearGradient id="bowG2" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stopColor="#e5559a" /><stop offset=".5" stopColor="#d5136f" /><stop offset="1" stopColor="#b80f5f" />
+            <stop offset="0" stopColor={gradient[0]} /><stop offset=".5" stopColor={gradient[1]} /><stop offset="1" stopColor={gradient[2]} />
           </linearGradient>
         </defs>
       )}

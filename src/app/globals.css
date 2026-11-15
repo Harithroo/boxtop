@@ -1,11 +1,16 @@
 @import "tailwindcss";
 
+/* dark: utilities follow the site theme the admin picks (<html data-theme="dark">), not the visitor's OS setting */
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
 /* Boxtop "kraft & ribbon" light design tokens, taken from the design artifact (claude.ai/artifact/7HGeTaru77dkJfsH8xT4pG).
    The first group are the design's own names. The second group keeps the names the pages already use
    (brand, accent, surface, ink …) and points them at the palette, so one change here re-themes everything.
    Plum is the brand colour; magenta is only for the gift ribbon itself (bands, ribbon lines, progress bars, small dots).
    Contrast (WCAG 2.2): ink on page 11.5, ink-muted on page 5.6, brand on page 7.6, white on brand 8.8,
    white on magenta 5.1, line-strong on page 3.5 (form-field borders). Magenta is never used for small text (4.4 on page). */
+/* The dark ("night plum") theme: a light rule below may be followed by a :where([data-theme=dark]) rule with its dark
+   colours. :where() adds no specificity, so each dark rule overrides only the light rule just above it. */
 @theme {
   --color-plum: #5b3a87;
   --color-plum-deep: #45296a;
@@ -64,9 +69,54 @@
   --hd-h: 104px;
   color-scheme: light;
 }
+:root:where([data-theme=dark]) {
+  --night: #110a1c;
+  --plum: #1d1231;
+  --violet: #3f2894;
+  --ribbon: #ff3d8b;
+  --foil: #f2c46d;
+  --cream: #f8effb;
+  --dim: #b8a9cf;
+  --kraft: #c9a074;
+  --paper: #f6efe6;
+  --line: rgba(248, 239, 251, 0.12);
+  color-scheme: dark;
+  --bg: #110a1c;
+  --surface: #1b1230;
+  --lilac: #b8a9cf;
+  --plum-deep: #110a1c;
+  --magenta: #ff3d8b;
+  --ink: #f8effb;
+  --ink-soft: #b8a9cf;
+  --line-strong: rgba(248, 239, 251, 0.2);
+  --color-plum: #1d1231;
+  --color-plum-deep: #110a1c;
+  --color-lilac: #b8a9cf;
+  --color-magenta: #ff3d8b;
+  --color-kraft: #c9a074;
+  --color-page: #110a1c;
+  --color-surface: #1b1230;
+  --color-surface-alt: #261a40;
+  --color-line: rgba(248, 239, 251, 0.12);
+  --color-line-strong: rgba(248, 239, 251, 0.2);
+  --color-ink: #f8effb;
+  --color-ink-muted: #b8a9cf;
+  --color-brand: #ff3d8b;
+  --color-brand-deep: #ff5a9d;
+  --color-brand-soft: rgba(255, 61, 139, 0.14);
+  --color-on-brand: #1a0612;
+  --color-accent: #f2c46d;
+  --color-accent-soft: rgba(242, 196, 109, 0.12);
+  --color-accent-text: #f2c46d;
+  --color-success: #5fd39a;
+  --color-danger: #ff8080;
+  --shadow-card: 0 30px 60px -30px rgba(0, 0, 0, 0.8);
+  --shadow-raised: 0 40px 80px -30px rgba(0, 0, 0, 0.9);
+}
 
 @layer base {
   html { background: var(--bg); overflow-x: clip; -webkit-text-size-adjust: 100%; }
+  html:where([data-theme=dark]) { background: var(--night); }
   body {
     background: var(--bg);
     color: var(--ink);
@@ -74,6 +124,7 @@
     overflow-x: clip;
     -webkit-font-smoothing: antialiased;
   }
+  :where([data-theme=dark]) body { background: var(--night); color: var(--cream); }
   /* kraft-paper grain over everything */
   body::before {
     content: "";
@@ -85,21 +136,28 @@
     mix-blend-mode: multiply;
     background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .45 0 0 0 0 .33 0 0 0 0 .2 0 0 0 1 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   }
+  :where([data-theme=dark]) body::before { opacity: 0.05; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); mix-blend-mode: normal; }
   :focus-visible { outline: 3px solid var(--plum); outline-offset: 3px; border-radius: 8px; }
+  :where([data-theme=dark]) :focus-visible { outline: 2px solid var(--foil); border-radius: 6px; }
   p { text-wrap: pretty; }
   ::selection { background: var(--plum); color: #fff; }
+  :where([data-theme=dark]) ::selection { background: var(--ribbon); color: #1a0612; }
   option, optgroup { background: var(--surface); color: var(--ink); }
+  :where([data-theme=dark]) option, :where([data-theme=dark]) optgroup { background: #1b1230; color: var(--cream); }
 }
 
 @layer components {
   .container-bt { @apply mx-auto w-full max-w-6xl px-4 sm:px-6; }
   .eyebrow { font: 600 0.74rem/1.4 var(--font-display); letter-spacing: 0.16em; text-transform: uppercase; color: var(--plum); }
+  :where([data-theme=dark]) .eyebrow { color: var(--ribbon); }
   .hand { font-family: var(--font-hand); }
   .tnum { font-variant-numeric: tabular-nums; }
   .h1 { font-family: var(--font-display); font-weight: 700; font-size: clamp(1.9rem, 4.4vw, 3.2rem); line-height: 1.02; letter-spacing: -0.035em; text-wrap: balance; }
   .h2 { font-family: var(--font-display); font-weight: 700; font-size: clamp(1.2rem, 2.2vw, 1.6rem); line-height: 1.12; letter-spacing: -0.025em; text-wrap: balance; }
   .price { font-family: var(--font-display); font-weight: 700; font-size: 1.125rem; letter-spacing: -0.02em; color: var(--plum); font-variant-numeric: tabular-nums; }
+  :where([data-theme=dark]) .price { color: var(--foil); }
   .wordmark { font: 800 0.95rem/1 var(--font-display); letter-spacing: 0.16em; color: var(--plum); }
+  :where([data-theme=dark]) .wordmark { color: inherit; }
 
   /* Buttons: one pill shape. btn-primary / btn-outline are the names older pages use. */
   .btn, .btn-primary, .btn-accent, .btn-outline {
@@ -108,63 +166,95 @@
     font: 600 0.95rem/1 var(--font-body); text-decoration: none; cursor: pointer;
     transition: transform 0.25s, background-color 0.25s, color 0.25s, border-color 0.25s, box-shadow 0.25s;
   }
+  :where([data-theme=dark]) .btn, :where([data-theme=dark]) .btn-primary, :where([data-theme=dark]) .btn-accent, :where([data-theme=dark]) .btn-outline { border: 1px solid transparent; }
   .btn:hover, .btn-primary:hover, .btn-accent:hover, .btn-outline:hover { transform: translateY(-2px); }
   .btn:disabled, .btn-primary:disabled, .btn-accent:disabled, .btn-outline:disabled,
   .btn[aria-disabled="true"] { cursor: not-allowed; opacity: 0.5; transform: none; box-shadow: none; }
   .btn svg, .btn-primary svg, .btn-accent svg, .btn-outline svg { width: 18px; height: 18px; flex: none; }
   .btn-ribbon, .btn-primary { background: var(--plum); color: #fff; box-shadow: 0 10px 24px -12px rgba(91, 58, 135, 0.8); }
+  :where([data-theme=dark]) .btn-ribbon, :where([data-theme=dark]) .btn-primary { background: var(--ribbon); color: #1a0612; box-shadow: 0 10px 30px -10px rgba(255, 61, 139, 0.7); }
   .btn-ribbon:hover, .btn-primary:hover { background: var(--plum-deep); box-shadow: 0 14px 30px -12px rgba(69, 41, 106, 0.85); }
+  :where([data-theme=dark]) .btn-ribbon:hover, :where([data-theme=dark]) .btn-primary:hover { background: #ff5a9d; box-shadow: 0 14px 34px -10px rgba(255, 61, 139, 0.9); }
   .btn-ghost, .btn-outline { border-color: rgba(59, 46, 34, 0.35); color: var(--ink); background: transparent; }
+  :where([data-theme=dark]) .btn-ghost, :where([data-theme=dark]) .btn-outline { border-color: rgba(248, 239, 251, 0.3); color: var(--cream); }
   .btn-ghost:hover, .btn-outline:hover { border-color: var(--plum); color: var(--plum); }
+  :where([data-theme=dark]) .btn-ghost:hover, :where([data-theme=dark]) .btn-outline:hover { border-color: var(--foil); color: var(--foil); }
   /* a quieter filled button: kraft paper with ink */
   .btn-accent { background: var(--kraft); color: var(--ink); box-shadow: 0 10px 22px -14px rgba(59, 46, 34, 0.6); }
+  :where([data-theme=dark]) .btn-accent { background: var(--foil); color: #241500; box-shadow: 0 10px 26px -10px rgba(242, 196, 109, 0.75); }
   .btn-accent:hover { background: #dfcdb0; }
+  :where([data-theme=dark]) .btn-accent:hover { background: #f6d490; }
   .btn-wa { background: #25d366; color: #04210f; box-shadow: 0 10px 24px -12px rgba(18, 140, 64, 0.7); }
+  :where([data-theme=dark]) .btn-wa { box-shadow: 0 10px 26px -12px rgba(37, 211, 102, 0.8); }
   .btn-wa:hover { background: #3fe07a; }
   .btn-sm { padding: 0.7em 1.05em; font-size: 0.84rem; }
   /* on a plum panel */
   .ribbon-frame .btn-ghost, .ribbon-frame .btn-outline { border-color: rgba(255, 255, 255, 0.45); color: #fff; }
+  :where([data-theme=dark]) .ribbon-frame .btn-ghost, :where([data-theme=dark]) .ribbon-frame .btn-outline { border-color: rgba(248, 239, 251, 0.3); color: var(--cream); }
   .ribbon-frame .btn-ghost:hover, .ribbon-frame .btn-outline:hover { border-color: #fff; color: #fff; }
+  :where([data-theme=dark]) .ribbon-frame .btn-ghost:hover, :where([data-theme=dark]) .ribbon-frame .btn-outline:hover { border-color: var(--foil); color: var(--foil); }
 
   .card { border-radius: 20px; background: var(--surface); border: 1px solid var(--line); }
+  :where([data-theme=dark]) .card { background: rgba(255, 255, 255, 0.035); }
   .input {
     display: block; width: 100%; min-height: 44px; padding: 0.55rem 0.85rem; border-radius: 12px;
     border: 1px solid var(--line-strong); background: var(--surface); color: var(--ink);
     font: 400 1rem/1.5 var(--font-body);
   }
+  :where([data-theme=dark]) .input { border: 1px solid rgba(248, 239, 251, 0.2); background: rgba(255, 255, 255, 0.04); color: var(--cream); }
   .input::placeholder { color: var(--ink-soft); opacity: 1; }
+  :where([data-theme=dark]) .input::placeholder { color: rgba(184, 169, 207, 0.7); opacity: revert; }
   .input:focus { border-color: var(--plum); outline: none; }
+  :where([data-theme=dark]) .input:focus { border-color: var(--ribbon); }
   .input:focus-visible { outline: 3px solid var(--plum); outline-offset: 2px; border-radius: 12px; }
+  :where([data-theme=dark]) .input:focus-visible { outline: 2px solid var(--foil); }
   .input[type="file"] { padding: 0.45rem 0.6rem; font-size: 0.9rem; color: var(--ink-soft); }
+  :where([data-theme=dark]) .input[type="file"] { color: var(--dim); }
   .input[type="file"]::file-selector-button {
     margin-right: 0.8rem; padding: 0.45em 0.9em; border-radius: 999px; border: 1.5px solid rgba(59, 46, 34, 0.35);
     background: transparent; color: var(--ink); font: 600 0.82rem/1 var(--font-body); cursor: pointer;
   }
+  :where([data-theme=dark]) .input[type="file"]::file-selector-button { border: 1px solid rgba(248, 239, 251, 0.3); color: var(--cream); }
   .label { display: block; margin-bottom: 0.35rem; font: 600 0.84rem/1.35 var(--font-body); color: var(--ink); }
+  :where([data-theme=dark]) .label { color: var(--cream); }
   .hint { font-size: 0.84rem; line-height: 1.45; color: var(--ink-soft); }
+  :where([data-theme=dark]) .hint { color: var(--dim); }
   .chip {
     display: inline-flex; align-items: center; min-height: 36px; padding: 0.5em 1em; border-radius: 999px;
     border: 1.5px solid rgba(59, 46, 34, 0.22); background: var(--surface); font-size: 0.9rem; font-weight: 500; white-space: nowrap;
     transition: background-color 0.2s, border-color 0.2s, color 0.2s;
   }
+  :where([data-theme=dark]) .chip { border: 1px solid rgba(248, 239, 251, 0.22); background: none; }
   .chip:hover { border-color: var(--plum); color: var(--plum); }
+  :where([data-theme=dark]) .chip:hover { border-color: var(--ribbon); color: inherit; }
   .chip-on, .chip-on:hover { background: var(--plum); border-color: var(--plum); color: #fff; font-weight: 600; }
+  :where([data-theme=dark]) .chip-on, :where([data-theme=dark]) .chip-on:hover { background: var(--cream); border-color: var(--cream); color: var(--night); }
   .badge { display: inline-flex; align-items: center; padding: 0.4em 0.75em; border-radius: 999px; background: var(--plum); color: #fff; font: 700 0.7rem/1 var(--font-body); }
+  :where([data-theme=dark]) .badge { background: var(--foil); color: #241500; }
   .linkbtn { background: none; border: 0; padding: 0; color: var(--plum); font: inherit; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+  :where([data-theme=dark]) .linkbtn { color: var(--cream); font-weight: inherit; }
   .linkbtn:hover { color: var(--plum-deep); }
+  :where([data-theme=dark]) .linkbtn:hover { color: var(--foil); }
   /* text links inside copy */
   .tlink { color: var(--plum); font-weight: 600; text-decoration: underline; text-decoration-color: rgba(91, 58, 135, 0.45); text-decoration-thickness: 2px; text-underline-offset: 4px; }
+  :where([data-theme=dark]) .tlink { color: var(--cream); text-decoration-color: var(--ribbon); }
   .tlink:hover { color: var(--plum-deep); text-decoration-color: currentColor; }
+  :where([data-theme=dark]) .tlink:hover { color: var(--foil); text-decoration-color: var(--ribbon); }
 
   /* a plum panel with a magenta ribbon glow, for call-outs (the design's "on-plum" band) */
   .ribbon-frame { position: relative; overflow: hidden; border-radius: 24px; background: linear-gradient(150deg, var(--plum), var(--plum-deep)); color: #fff; }
+  :where([data-theme=dark]) .ribbon-frame { background: linear-gradient(150deg, #3f2894, #1d1231 70%); color: var(--cream); }
   .ribbon-frame::before {
     content: ""; position: absolute; right: -40px; top: -40px; width: 220px; height: 220px; border-radius: 50%;
     background: radial-gradient(closest-side, rgba(213, 19, 111, 0.4), transparent); pointer-events: none;
   }
+  :where([data-theme=dark]) .ribbon-frame::before { background: radial-gradient(closest-side, rgba(255, 61, 139, 0.55), transparent); }
   .ribbon-frame > * { position: relative; }
   .ribbon-frame .eyebrow, .ribbon-frame .hint { color: var(--lilac); }
+  :where([data-theme=dark]) .ribbon-frame .eyebrow { color: var(--ribbon); }
+  :where([data-theme=dark]) .ribbon-frame .hint { color: var(--dim); }
   .ribbon-frame :focus-visible { outline-color: #fff; }
+  :where([data-theme=dark]) .ribbon-frame :focus-visible { outline-color: var(--foil); }
 
   /* A box as a paper print with a kraft price tag (shop, search, collections). */
   .pcard {
@@ -172,42 +262,60 @@
     background: var(--surface); color: var(--ink); text-decoration: none; box-shadow: 0 1px 0 rgba(59, 46, 34, 0.08), 0 26px 50px -22px rgba(59, 46, 34, 0.55);
     transition: transform 0.35s var(--ease), box-shadow 0.35s;
   }
+  :where([data-theme=dark]) .pcard { border-radius: 4px; background: var(--paper); color: #24152f; box-shadow: 0 26px 50px -18px rgba(0, 0, 0, 0.7); }
   .pcard:hover { transform: translateY(-5px) rotate(-0.7deg); box-shadow: 0 1px 0 rgba(59, 46, 34, 0.08), 0 34px 60px -20px rgba(59, 46, 34, 0.6); }
+  :where([data-theme=dark]) .pcard:hover { box-shadow: 0 36px 60px -18px rgba(0, 0, 0, 0.85); }
   .pcard-ph { position: relative; aspect-ratio: 4 / 5; overflow: hidden; border-radius: 3px; background: var(--kraft); }
+  :where([data-theme=dark]) .pcard-ph { border-radius: 2px; background: #d8cfc4; }
   .pcard-ph img { width: 100%; height: 100%; object-fit: cover; }
   .pcard h3 { margin-top: 12px; font: 700 0.98rem/1.2 var(--font-display); letter-spacing: -0.02em; }
   .pcard p { margin-top: 5px; font-size: 0.84rem; line-height: 1.45; color: var(--ink-soft); }
+  :where([data-theme=dark]) .pcard p { color: #5b4c6b; }
   .pcard .pcard-meta { margin-top: auto; padding-top: 8px; display: flex; flex-wrap: wrap; gap: 4px 10px; font-size: 0.78rem; font-weight: 600; color: var(--color-success); }
+  :where([data-theme=dark]) .pcard .pcard-meta { color: #1e7a4c; }
   .pcard .pcard-meta s { color: var(--ink-soft); font-weight: 500; }
+  :where([data-theme=dark]) .pcard .pcard-meta s { color: #8a7a9a; }
   .ptag {
     position: absolute; right: -10px; top: 20px; z-index: 2; padding: 0.55em 0.85em 0.55em 1.45em; rotate: 8deg;
     background: var(--kraft); color: #2b1a0e; font: 700 0.92rem/1 var(--font-body); font-variant-numeric: tabular-nums;
     clip-path: polygon(14px 0, 100% 0, 100% 100%, 14px 100%, 0 50%); box-shadow: 0 6px 12px rgba(59, 46, 34, 0.25);
   }
+  :where([data-theme=dark]) .ptag { box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); }
   .ptag::before { content: ""; position: absolute; left: 11px; top: 50%; width: 6px; height: 6px; margin-top: -3px; border-radius: 50%; background: var(--surface); }
+  :where([data-theme=dark]) .ptag::before { background: var(--paper); }
 
   /* A photo taped to the page (box page, about). */
   .print { position: relative; padding: 10px 10px 12px; border-radius: 6px; background: var(--surface); box-shadow: 0 1px 0 rgba(59, 46, 34, 0.08), 0 26px 50px -22px rgba(59, 46, 34, 0.55); }
+  :where([data-theme=dark]) .print { border-radius: 5px; background: var(--paper); box-shadow: 0 2px 0 rgba(0, 0, 0, 0.2), 0 30px 60px -18px rgba(0, 0, 0, 0.75); }
   .print::before {
     content: ""; position: absolute; left: 50%; top: -12px; z-index: 2; width: 78px; height: 24px; margin-left: -39px; rotate: -3deg;
     background: rgba(232, 218, 194, 0.92); box-shadow: 0 1px 2px rgba(59, 46, 34, 0.12);
   }
+  :where([data-theme=dark]) .print::before { background: rgba(242, 196, 109, 0.6); box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25); }
   /* a customer's words on a paper note */
   .note-card { padding: 18px; border-radius: 16px; background: var(--surface); color: var(--ink); border: 1px solid var(--line); box-shadow: 0 18px 30px -24px rgba(59, 46, 34, 0.6); }
+  :where([data-theme=dark]) .note-card { background: var(--paper); color: #24152f; border: 0; box-shadow: none; }
   .note-card .hint { color: var(--ink-soft); }
+  :where([data-theme=dark]) .note-card .hint { color: #5b4c6b; }
 
   /* The top of an inner page: eyebrow, big title, a line of copy. */
   .page-head { padding: clamp(24px, 4vw, 48px) 0 clamp(20px, 3vw, 32px); }
   .page-head .h1 em { font: 700 1.1em/1 var(--font-hand); font-style: normal; letter-spacing: 0; color: var(--plum); }
+  :where([data-theme=dark]) .page-head .h1 em { color: var(--ribbon); }
   .page-head p:not(.eyebrow) { margin-top: 12px; max-width: 60ch; color: var(--ink-soft); }
+  :where([data-theme=dark]) .page-head p:not(.eyebrow) { color: var(--dim); }
   /* long-form text pages */
   .prose-bt { max-width: 68ch; color: var(--ink); }
+  :where([data-theme=dark]) .prose-bt { color: var(--cream); }
   .prose-bt p { margin-top: 1em; color: var(--ink); }
+  :where([data-theme=dark]) .prose-bt p { color: #d9cfe8; }
   .prose-bt h2 { margin-top: 1.8em; font: 700 1.25rem/1.2 var(--font-display); letter-spacing: -0.02em; }
   .prose-bt a { color: var(--plum); text-decoration: underline; text-decoration-color: rgba(91, 58, 135, 0.45); text-underline-offset: 4px; }
+  :where([data-theme=dark]) .prose-bt a { text-decoration-color: var(--ribbon); color: inherit; }
 
   /* Storefront forms use the design's small capital labels. */
   .site .label { margin-bottom: 0.6rem; font: 600 0.7rem/1.4 var(--font-display); letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-soft); }
+  :where([data-theme=dark]) .site .label { color: var(--dim); }
 
   /* Back office: same palette, calmer and denser. */
   .admin { font-size: 0.95rem; }
@@ -218,11 +326,40 @@
   .admin .btn-sm { padding: 0.62em 0.95em; font-size: 0.82rem; }
   .admin .btn-primary:hover, .admin .btn-outline:hover, .admin .btn-accent:hover, .admin .btn:hover { transform: none; }
 
+  /* the back-office sign-in page */
+  .login-glow { background: radial-gradient(70% 60% at 50% 40%, rgba(203, 183, 224, 0.6), transparent 70%), var(--bg); }
+  :where([data-theme=dark]) .login-glow { background: radial-gradient(70% 60% at 50% 40%, rgba(63, 40, 148, 0.45), transparent 70%), var(--night); }
+
+  /* GiftArt (placeholder art for a box with no photo): four tones of background, box and bow */
+  .ga-0 { --ga-bg: #efe6f7; --ga-box: #5b3a87; --ga-bow: #d5136f; }
+  .ga-1 { --ga-bg: #e8dac2; --ga-box: #45296a; --ga-bow: #d5136f; }
+  .ga-2 { --ga-bg: #f1e9f8; --ga-box: #22388f; --ga-bow: #d5136f; }
+  .ga-3 { --ga-bg: #eee6d6; --ga-box: #5b3a87; --ga-bow: #cbb7e0; }
+  :where([data-theme=dark]) .ga-0 { --ga-bg: #261a40; --ga-box: #3f2894; --ga-bow: #ff3d8b; }
+  :where([data-theme=dark]) .ga-1 { --ga-bg: #2a1436; --ga-box: #ff3d8b; --ga-bow: #f2c46d; }
+  :where([data-theme=dark]) .ga-2 { --ga-bg: #1d1231; --ga-box: #5b3a87; --ga-bow: #ff3d8b; }
+  :where([data-theme=dark]) .ga-3 { --ga-bg: #241a36; --ga-box: #22388f; --ga-bow: #f2c46d; }
+
   /* Anything that prints on white paper (the packing slip). */
   .paper {
     --color-page: #ffffff; --color-surface: #ffffff; --color-surface-alt: #f5efe3; --color-line: #ddd3c4;
     --color-accent-soft: #f5efe3;
     background: #ffffff; color: var(--ink);
+  }
+  :where([data-theme=dark]) .paper {
+    --color-surface-alt: #f3f0f8;
+    --color-line: #d9d3e6;
+    --color-ink: #1c1433;
+    --color-ink-muted: #5e5775;
+    --color-brand: #3f2894;
+    --color-on-brand: #ffffff;
+    --color-accent: #c9145f;
+    --color-accent-text: #a80a5a;
+    --color-success: #1e7a4c;
+    --color-danger: #b42318;
+    color: #1c1433;
+    color-scheme: light;
+    --color-accent-soft: rgba(242, 196, 109, 0.12);
   }
 }
 
