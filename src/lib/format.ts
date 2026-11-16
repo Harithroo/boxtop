@@ -1,5 +1,7 @@
 // "Rs 5,000". The locale is pinned so the server and the browser print the same string.
-export const rs = (n: number) => `Rs ${Math.round(n).toLocaleString("en-US")}`;
+// One formatter for every call: toLocaleString builds a new one each time, and the builder prices many items at once.
+const NUM = new Intl.NumberFormat("en-US");
+export const rs = (n: number) => `Rs ${NUM.format(Math.round(n))}`;
 
 /** A box's price as shown to customers: boxes sold on request say so instead of a number. */
 export const priceText = (b: { price: number; priceOnRequest?: boolean | null }) => (b.priceOnRequest ? "Ask for price" : rs(b.price));

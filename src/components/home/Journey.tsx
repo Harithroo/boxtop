@@ -11,6 +11,12 @@ import { later } from "./later";
 import { SCENE_DOOR, SCENE_MESSAGE, SCENE_PAY, SCENE_VAN, themed } from "./scenes";
 import { MM, STK } from "./stickers";
 import { useSiteTheme } from "@/components/SiteTheme";
+import { Pic } from "@/components/Pic";
+import { CAFE, cutSources } from "@/lib/srcset";
+
+// How wide the packing scene is drawn (home.css .jr-scene): at most 680px and short enough to fit the screen,
+// and on phones also no wider than the page minus gutters. The cut-outs scale with the photo, so they share it.
+const PK_STAGE = "(max-width: 899px) min(90vw, calc((100vh - 470px) * 1.25)), min(680px, calc((100vh - 290px) * 1.25))";
 
 type Props = {
   wa: string; waDisplay: string; instagram: string; igHandle: string; facebook: string; hours: string; payLine: string;
@@ -168,12 +174,10 @@ export function Journey({ wa, waDisplay, instagram, igHandle, facebook, hours, p
         {step(2, "Packed", "Packed by hand", "Every item goes in by hand, swaps included. The card gets written, the lid goes on and the ribbon gets tied.", "The café box, from our Instagram",
           <div className="jr-scene pack" role="img" aria-label="Items from a real BOXTOP photo dropping into the box, then a ribbon tied across it">
             <div className="pk-stage" id="pkStage">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img className="pk-photo" src="/home/cafe-treat.webp" alt="" width={900} height={675} loading="lazy" />
+              <Pic className="pk-photo" src="/home/cafe-treat.webp" sources={CAFE} sizes={PK_STAGE} alt="" width={900} height={675} loading="lazy" />
               <div className="pk-veil" />
               {STK.map((s) => (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img key={s.k} className="pk-st" src={`/home/cut/${s.k}.webp`} alt="" loading="lazy" style={{ left: `${s.l}%`, top: `${s.t}%`, width: `${s.w}%`, height: `${s.h}%` }} />
+                <Pic key={s.k} className="pk-st" src={`/home/cut/${s.k}.webp`} sources={cutSources(s.k)} sizes={PK_STAGE} alt="" loading="lazy" style={{ left: `${s.l}%`, top: `${s.t}%`, width: `${s.w}%`, height: `${s.h}%` }} />
               ))}
               <span className="pk-band pk-h" /><span className="pk-band pk-v" />
               <svg className="pk-bow" viewBox="0 0 300 190" aria-hidden="true">
