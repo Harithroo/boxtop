@@ -27,7 +27,9 @@ export async function generateViewport(): Promise<Viewport> {
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const theme = await getSiteTheme();
   return (
-    <html lang="en-LK" data-theme={theme} className={`${unbounded.variable} ${figtree.variable} ${caveat.variable}`}>
+    // suppressHydrationWarning: the home intro's pre-paint script (Hero.tsx PREPAINT) adds "bt-lock" here before
+    // React hydrates, on purpose. It only quiets this element's own attributes, not anything inside it.
+    <html lang="en-LK" data-theme={theme} suppressHydrationWarning className={`${unbounded.variable} ${figtree.variable} ${caveat.variable}`}>
       <body className="min-h-screen"><SiteThemeProvider theme={theme}>{children}</SiteThemeProvider></body>
     </html>
   );
