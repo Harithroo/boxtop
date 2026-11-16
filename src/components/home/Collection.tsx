@@ -8,12 +8,16 @@ import { useGSAP } from "@gsap/react";
 import { homeBus } from "@/lib/home-bus";
 import type { HomeBox, HomeChapter } from "@/lib/home-data";
 import { rs } from "@/lib/format";
-import { boxSrcSet } from "@/lib/srcset";
+import { boxSources } from "@/lib/srcset";
+import { Pic } from "@/components/Pic";
 import { glideTo, reducedMotion, scrollToEl, siteEl } from "@/components/site/scroll";
 import { soon } from "./later";
 import { MM } from "./stickers";
 
 const pad2 = (n: number) => (n < 10 ? "0" : "") + n;
+// How wide a card's photo is drawn (home.css .tcard, .ph img): 118% of the card minus its 20px frame.
+// Desktop uses the pinned card's width; the unpinned one (reduced motion) is a little wider and still fits.
+const PH_SIZES = "(max-width: 899px) calc((68vw - 20px) * 1.18), calc((clamp(196px, 18vw, 286px) - 20px) * 1.18)";
 
 export function Collection({ chapters, boxes }: { chapters: HomeChapter[]; boxes: HomeBox[] }) {
   const root = useRef<HTMLElement>(null);
@@ -179,8 +183,7 @@ export function Collection({ chapters, boxes }: { chapters: HomeChapter[]; boxes
               <article key={p.id} className="tcard" data-ch={c.slug} id={`box-${p.slug}`} style={{ rotate: `${n % 2 ? 1.5 : -1.5}deg` }}>
                 <span className="peg" aria-hidden="true" />
                 <Link className="pol" href={`/box/${p.slug}`}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <div className="ph"><img src={p.img!} srcSet={boxSrcSet(p.img)} sizes="345px" alt={p.alt} loading="lazy" /></div>
+                  <div className="ph"><Pic src={p.img!} sources={boxSources(p.img)} sizes={PH_SIZES} alt={p.alt} loading="lazy" /></div>
                   <div className="cap"><h3>{p.name}</h3><p>{p.summary}</p></div>
                 </Link>
                 <span className="ptag">{p.price === null ? "Ask for price" : rs(p.price)}</span>

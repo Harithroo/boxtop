@@ -6,6 +6,12 @@ import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { GROUPS, MM, STK, type Sticker } from "./stickers";
 import { useSiteTheme } from "@/components/SiteTheme";
+import { Pic } from "@/components/Pic";
+import { CAFE, cutSources } from "@/lib/srcset";
+
+// How wide the stage is drawn (home.css .ub-stage): the page minus gutters on phones; on desktop the column beside
+// the copy, at most 760px and short enough to fit the screen height. The cut-outs scale with it, so they share it.
+const STAGE = "(max-width: 899px) 90vw, min(760px, calc(86vw - 370px), calc((100vh - 270px) * 1.3333))";
 
 export function Unbox() {
   const dark = useSiteTheme() === "dark";
@@ -34,8 +40,9 @@ export function Unbox() {
       let flyTick: (() => void) | null = null;
       if (heroCard && heroImg) {
         const fly = (flyImg = document.createElement("img"));
-        // the full-size photo, not the small copy the hero may have picked: it lands at the size of the stage
-        fly.className = "hero-fly"; fly.src = heroImg.src; fly.alt = "";
+        // the copy the stage picked, not the small one in the hero print: it lands at the size of the stage
+        const ubImg = stage.querySelector<HTMLImageElement>(".ub-photo");
+        fly.className = "hero-fly"; fly.src = ubImg?.currentSrc || ubImg?.src || heroImg.src; fly.alt = "";
         document.body.appendChild(fly);
         const fp = { p: 0 }, ease = gsap.parseEase("power2.inOut");
         let flyState = 0;
@@ -150,16 +157,13 @@ export function Unbox() {
         </div>
         <div className="ub-stagewrap">
           <div className="ub-stage" id="ubStage">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img className="ub-photo" src="/home/cafe-treat.webp" alt="An open BOXTOP gift box filled with snacks and drinks" width={900} height={675} />
+            <Pic className="ub-photo" src="/home/cafe-treat.webp" sources={CAFE} sizes={STAGE} alt="An open BOXTOP gift box filled with snacks and drinks" width={900} height={675} />
             <div className="ub-veil" id="ubVeil" />
             {STK.map((s) => (
               <div key={s.k} className="st" data-k={s.k} style={{ left: `${s.l}%`, top: `${s.t}%`, width: `${s.w}%`, height: `${s.h}%`, zIndex: s.g + 2 }}>
                 <div className="st-rot">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img className="st-plain" src={`/home/cut/${s.k}.webp`} alt="" />
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img className="st-s" src={`/home/cut/${s.k}-s.webp`} alt="" style={{ left: `${s.bl}%`, top: `${s.bt}%`, width: `${s.bw}%`, height: `${s.bh}%` }} />
+                  <Pic className="st-plain" src={`/home/cut/${s.k}.webp`} sources={cutSources(s.k)} sizes={STAGE} alt="" />
+                  <Pic className="st-s" src={`/home/cut/${s.k}-s.webp`} sources={cutSources(`${s.k}-s`)} sizes={STAGE} alt="" style={{ left: `${s.bl}%`, top: `${s.bt}%`, width: `${s.bw}%`, height: `${s.bh}%` }} />
                 </div>
                 <div className={`st-lbl side-${s.side}`}>{s.local && <span className="mk" title="Made in Sri Lanka">LK</span>}{s.name}</div>
               </div>

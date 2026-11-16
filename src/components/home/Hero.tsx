@@ -9,7 +9,8 @@ import { useGSAP } from "@gsap/react";
 import { homeBus } from "@/lib/home-bus";
 import { coarsePointer, lockScroll, reducedMotion, scrollToEl, scroller, siteEl } from "@/components/site/scroll";
 import { useSiteTheme } from "@/components/SiteTheme";
-import { boxSrcSet } from "@/lib/srcset";
+import { boxSources, CAFE } from "@/lib/srcset";
+import { Pic } from "@/components/Pic";
 import { settle } from "./register";
 
 export type HeroCard = { img: string; alt: string; caption: string; price: string | null; href: string | null };
@@ -19,11 +20,20 @@ const SEEN = "bt3-intro";
 // Runs while the page is still being parsed, so a first-time visitor never sees the hero before the lid covers it.
 const PREPAINT = `(function(){var s=document.getElementById('site');if(!s)return;var seen=null;try{seen=sessionStorage.getItem('${SEEN}')}catch(e){}var rm=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;if(!seen&&!rm){s.classList.add('intro-on');document.documentElement.classList.add('bt-lock')}setTimeout(function(){if(!s.dataset.intro){s.classList.remove('intro-on');document.documentElement.classList.remove('bt-lock')}},9000)})()`;
 
+// How wide a print's photo is drawn (home.css .fan/.hcard; the frame's padding is 18px). On phones the fan is
+// min(520px, page minus gutters) wide and a print a share of it; on desktop a print is clamped to the viewport.
+const NARROW = "(max-width: 899px) calc(min(520px, 90vw) * .34 - 18px), calc(clamp(150px, 15vw, 232px) - 18px)";
+const WIDE = "(max-width: 899px) calc(min(520px, 90vw) * .52 - 18px), calc(clamp(210px, 23vw, 340px) - 18px)";
+
+const MUG = {
+  avif: "/home/birthday-mug-240.avif 240w, /home/birthday-mug-320.avif 320w, /home/birthday-mug.avif 598w",
+  webp: "/home/birthday-mug-320.webp 320w, /home/birthday-mug.webp 598w",
+};
+
 function Photo({ c, cls, wide }: { c: HeroCard; cls: string; wide?: boolean }) {
   const inner = (
     <>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={c.img} srcSet={boxSrcSet(c.img)} sizes={wide ? "(max-width: 899px) 52vw, 340px" : "(max-width: 899px) 34vw, 232px"} alt={c.alt} />
+      <Pic src={c.img} sources={boxSources(c.img)} sizes={wide ? WIDE : NARROW} alt={c.alt} />
       <figcaption>{c.caption}{c.price && <b>{c.price}</b>}</figcaption>
     </>
   );
@@ -48,6 +58,16 @@ export function Hero({ cards, proof, fromPrice, next }: Props) {
     // the "scroll to unpack" pill bows out as soon as the visitor starts scrolling, and comes back at the very top
     const cue = el.querySelector<HTMLElement>(".scroll-cue");
     if (cue) ScrollTrigger.create({ trigger: el, start: "top+=40 top", onEnter: () => cue.classList.add("is-gone"), onLeaveBack: () => cue.classList.remove("is-gone") });
+    // "Boxed." is filled with a slowly drifting photo (home.css .t-big, @keyframes drift). The browser cannot hand
+    // that animation to the GPU, so every frame of it is repainted on the main thread, for as long as the page is open.
+    const big = el.querySelector<HTMLElement>(".t-big");
+    if (big) ScrollTrigger.create({
+      trigger: big, start: "top bottom", end: "bottom top",
+      onToggle: (self) => {
+        // self.isActive: the word is on screen. Decide when the drift runs, through big.style.animationPlayState.
+        // TODO(human)
+      },
+    });
 
     const heroIn = (fast: boolean) =>
       gsap.timeline()
@@ -197,21 +217,19 @@ export function Hero({ cards, proof, fromPrice, next }: Props) {
             {next && <span><span className="dot" aria-hidden="true">●</span> Next occasion: <b>{next.name}</b> · {next.when.toLowerCase()}</span>}
           </div>
         </div>
-        <div className="fan" id="fan" aria-label="Real BOXTOP boxes, as posted on their pages">
+        <div className="fan" id="fan" role="group" aria-label="Real BOXTOP boxes, as posted on their pages">
           <Photo c={cards[0]} cls="c1" />
           <Photo c={cards[1]} cls="c2" />
           <figure className="hcard c3 wide">
             <div className="card-p"><span className="tape" />
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/home/cafe-treat.webp" srcSet="/home/cafe-treat-480.webp 480w, /home/cafe-treat.webp 900w" sizes="(max-width: 899px) 52vw, 340px" alt="Open navy BOXTOP box with Hope cookies, Soul cold brew, Dilmah iced tea, marshmallows, Ferrero Rocher, Richlife cheese spread, KitKat and Kinder Bueno" width={900} height={675} />
+              <Pic src="/home/cafe-treat.webp" sources={CAFE} sizes={WIDE} alt="Open navy BOXTOP box with Hope cookies, Soul cold brew, Dilmah iced tea, marshmallows, Ferrero Rocher, Richlife cheese spread, KitKat and Kinder Bueno" width={900} height={675} />
               <figcaption>The café box, unpacked below ↓</figcaption>
             </div>
           </figure>
           <Photo c={cards[2]} cls="c4" />
           <figure className="hcard c5">
             <div className="card-p"><span className="tape" />
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/home/birthday-mug.webp" srcSet="/home/birthday-mug-320.webp 320w, /home/birthday-mug.webp 598w" sizes="(max-width: 899px) 34vw, 232px" alt="Navy box with a teddy holding an I love you heart, a Happy Birthday mug, Yardley spray, Toblerone and Ferrero Rocher" width={598} height={745} />
+              <Pic src="/home/birthday-mug.webp" sources={MUG} sizes={NARROW} alt="Navy box with a teddy holding an I love you heart, a Happy Birthday mug, Yardley spray, Toblerone and Ferrero Rocher" width={598} height={745} />
               <figcaption>Her birthday</figcaption>
             </div>
           </figure>

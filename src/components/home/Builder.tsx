@@ -14,6 +14,8 @@ import type { HomeBox, HomeItem, HomeStyle } from "@/lib/home-data";
 import { Bow, WaIcon } from "@/components/site/icons";
 import { reducedMotion, scrollToEl } from "@/components/site/scroll";
 import { useSiteTheme } from "@/components/SiteTheme";
+import { Pic } from "@/components/Pic";
+import { itemSources } from "@/lib/srcset";
 
 type Props = {
   styles: HomeStyle[]; items: HomeItem[]; occasions: string[]; boxes: HomeBox[];
@@ -142,7 +144,7 @@ export function Builder({ styles, items, occasions, boxes, starter, wa, waDispla
         /* fly from the tile you tapped into its spot in the box */
         const a = src.getBoundingClientRect(), b = c.getBoundingClientRect();
         const fl = document.createElement("img");
-        fl.className = "flyer"; fl.src = src.src; fl.alt = "";
+        fl.className = "flyer"; fl.src = src.currentSrc || src.src; fl.alt = "";
         fl.style.cssText = `left:${a.left}px;top:${a.top}px;width:${a.width}px;height:${a.height}px`;
         document.body.appendChild(fl);
         gsap.set(c, { opacity: 0 });
@@ -277,8 +279,8 @@ export function Builder({ styles, items, occasions, boxes, starter, wa, waDispla
                   <div className="items-grid">
                     {items.filter((it) => it.group === g).map((it) => (
                       <button className="it" type="button" key={it.id} aria-pressed={picked.includes(it.id)} onClick={(e) => toggleItem(it.id, e.currentTarget)}>
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={it.img ?? "/brand/logo.jpg"} alt="" width={240} height={240} loading="lazy" />
+                        {/* a tile is 110-185px wide depending on how many fit a row; 160 covers most of them */}
+                        <Pic src={it.img ?? "/brand/logo.jpg"} sources={itemSources(it.img)} sizes="(max-width: 899px) 140px, 160px" alt="" width={240} height={240} loading="lazy" />
                         <b>{it.name}</b><small>{it.blurb}</small>
                         <span className="add" aria-hidden="true">
                           <svg className="plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round"><path d="M12 5v14M5 12h14" /></svg>

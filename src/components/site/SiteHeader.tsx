@@ -153,7 +153,7 @@ export function SiteHeader({ nav }: { nav: NavData }) {
   return (
     <>
       <header className={`hd${mega ? " mega-open" : ""}`} id="hd" ref={hd} onMouseLeave={() => closeSoon(220)} onMouseEnter={() => window.clearTimeout(megaT.current)}>
-        <div className="annc" aria-label="Announcements">
+        <div className="annc" role="marquee" aria-label="Announcements">
           <div className="annc-track">{ticker}<span aria-hidden="true" style={{ display: "contents" }}>{ticker}</span></div>
         </div>
         <div className="hd-bar">
