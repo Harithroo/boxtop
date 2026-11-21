@@ -140,7 +140,10 @@ jobs:
           rc=$?
           echo "[$name] lftp exit code: $rc, files uploaded: $(grep -c '^---> STOR' "$name.log")"
           echo "[$name] == errors =="
-          grep -i -E "fatal|access failed|login failed|^<--- (4|5)[0-9][0-9]|error|denied|too many" "$name.log" | grep -v -i "certificate verification" | tail -n 50
+          # Server error replies with the two lines before them (the command they answer), and lftp's own
+          # failures. Not a plain "error" match: that caught every uploaded file with "error" in its name.
+          grep -B2 -E "^<--- [45][0-9][0-9]" "$name.log" | tail -n 60
+          grep -i -E "fatal|access failed|login failed|denied|too many" "$name.log" | grep -v '^--->' | tail -n 20
           echo "[$name] == last 30 lines =="
           tail -n 30 "$name.log"
           exit $rc
@@ -176,9 +179,16 @@ jobs:
           NM_DIR: ${{ steps.nm.outputs.dir }}
         run: |
           # 3 parallel: cPanel's Pure-FTPd caps connections per user (421 Too many connections).
-          ./ftp-run.sh node_modules \
-            "mirror --reverse --parallel=3 --no-perms ./deploy/nm/node_modules/ ./$NM_DIR/node_modules/" \
-            "put -O $NM_DIR ./deploy/NM_COMPLETE"
+          # A new folder too, so a failed pass is run again like the release below; NM_COMPLETE goes last.
+          for try in 1 2 3; do
+            if ./ftp-run.sh "node_modules-$try" "mirror --reverse --parallel=3 --no-perms ./deploy/nm/node_modules/ ./$NM_DIR/node_modules/"; then
+              ./ftp-run.sh nm-complete "put -O $NM_DIR ./deploy/NM_COMPLETE"
+              exit $?
+            fi
+            echo "::warning::node_modules pass $try failed; sending what is missing again"
+            sleep 20
+          done
+          echo "::error::node_modules upload still failing after 3 passes"; exit 1
 
       - name: Upload release via FTPS
         if: steps.remote.outputs.release != 'present'
@@ -187,10 +197,20 @@ jobs:
           FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
           NM_DIR: ${{ steps.nm.outputs.dir }}
         run: |
-          # A new folder no running process uses (~950 files, ~13 MB).
-          ./ftp-run.sh upload \
-            "mirror --reverse --parallel=3 --no-perms ./deploy/release/ ./$NM_DIR/$GITHUB_SHA/" \
-            "put -O $NM_DIR/$GITHUB_SHA ./deploy/RELEASE_COMPLETE"
+          # A new folder no running process uses (~1,500 files, ~13 MB), so a pass that fails part way is
+          # simply run again: mirror skips what is already there (same size, and the time MFMT set) and
+          # sends the rest. The connection can drop during a ten-minute upload, and lftp gives up on a file
+          # after net:max-retries; that was run 24 (_journal.json, create_connection.js).
+          # RELEASE_COMPLETE goes up only after a pass with no failures.
+          for try in 1 2 3; do
+            if ./ftp-run.sh "upload-$try" "mirror --reverse --parallel=3 --no-perms ./deploy/release/ ./$NM_DIR/$GITHUB_SHA/"; then
+              ./ftp-run.sh release-complete "put -O $NM_DIR/$GITHUB_SHA ./deploy/RELEASE_COMPLETE"
+              exit $?
+            fi
+            echo "::warning::upload pass $try failed; sending what is missing again"
+            sleep 20
+          done
+          echo "::error::release upload still failing after 3 passes"; exit 1
 
       # Only after the release is whole: the launcher (a few KB, only read when a process starts), then
       # the marker. Within a minute the server's cron (/api/cron) sees DEPLOYED_SHA differ from the
