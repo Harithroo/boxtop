@@ -59,6 +59,8 @@ export function SiteHeader({ nav }: { nav: NavData }) {
     lockScroll(open);
     if (open) {
       setMega(null);
+      // the menu's photo is asked for the first time the menu opens (see the <img> below)
+      if (moPic.current && !moPic.current.getAttribute("src")) moPic.current.src = HOME_PIC.img;
       setMenuMounted(true);
       requestAnimationFrame(() => requestAnimationFrame(() => setMenuOn(true)));
       hd.current?.classList.remove("is-hidden");
@@ -264,8 +266,10 @@ export function SiteHeader({ nav }: { nav: NavData }) {
           </ol>
           <div className="mo-aside">
             <figure className="mo-pic" aria-hidden="true">
+              {/* No src until the menu opens (setMenu): the browser's look-ahead parser fetched it on every page
+                  load, lazy or not, though the menu is hidden. */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img ref={moPic} src={HOME_PIC.img} alt="" />
+              <img ref={moPic} alt="" />
               <figcaption ref={moCap}>{HOME_PIC.cap}</figcaption>
             </figure>
             <nav className="mo-help" aria-label="Help and info">

@@ -4,7 +4,7 @@
 import Link from "next/link";
 import { useRef } from "react";
 import gsap from "gsap";
-import { useGSAP } from "@gsap/react";
+import { useGSAPLater } from "./register";
 import { homeBus } from "@/lib/home-bus";
 import type { HomeBox, HomeChapter } from "@/lib/home-data";
 import { rs } from "@/lib/format";
@@ -23,7 +23,7 @@ export function Collection({ chapters, boxes }: { chapters: HomeChapter[]; boxes
   const root = useRef<HTMLElement>(null);
   const go = useRef<(slug: string) => void>(() => {});
 
-  useGSAP(() => {
+  useGSAPLater(() => {
     const sect = root.current!, site = siteEl();
     const track = sect.querySelector<HTMLElement>("#clTrack")!, vp = sect.querySelector<HTMLElement>("#clViewport")!;
     const line = sect.querySelector<SVGSVGElement>("#clLine")!, clNow = sect.querySelector<HTMLElement>("#clNow")!;
@@ -161,7 +161,7 @@ export function Collection({ chapters, boxes }: { chapters: HomeChapter[]; boxes
       off();
       site?.classList.remove("cl-pin");
     };
-  }, { scope: root });
+  }, root);
 
   return (
     <section id="collection" aria-labelledby="cl-title" ref={root}>

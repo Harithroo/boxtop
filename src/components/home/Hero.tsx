@@ -3,6 +3,7 @@
 // real box photos taped up like prints, drifting with the pointer and scattering as you scroll away.
 import Link from "next/link";
 import { useRef } from "react";
+import { preload } from "react-dom";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
@@ -44,7 +45,13 @@ function Photo({ c, cls, wide }: { c: HeroCard; cls: string; wide?: boolean }) {
   );
 }
 
+// The photo "Boxed." is filled with (home.css .t-big). The word is the page's largest paint, and it counts as
+// painted only once this photo is in, so the photo is asked for with the page, not when the stylesheet is read.
+// Same file as the first candidate of .t-big's image-set().
+const BIG = "/catalog/boxes/grand-red.avif";
+
 export function Hero({ cards, proof, fromPrice, next }: Props) {
+  preload(BIG, { as: "image", type: "image/avif", fetchPriority: "high" });
   const dark = useSiteTheme() === "dark";
   const root = useRef<HTMLDivElement>(null);
   const tl = useRef<gsap.core.Timeline | null>(null);

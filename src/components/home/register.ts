@@ -3,8 +3,19 @@
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
+import { later } from "./later";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
+
+type Setup = (context: gsap.Context, contextSafe: ReturnType<typeof useGSAP>["contextSafe"]) => void | (() => void);
+
+/** useGSAP for a section below the first screen. useGSAP runs inside React's commit, so every section set up
+    that way made one long task with hydration, and each pin made the browser lay the whole page out. Here the
+    setup waits for its own idle slice (later.ts, first queued first run, so the pins are still made in page
+    order). It runs in the same GSAP context, so what it makes is reverted the same way on unmount. */
+export function useGSAPLater(setup: Setup, scope: React.RefObject<HTMLElement | null>) {
+  useGSAP((context, contextSafe) => later(() => { context.add(() => setup(context, contextSafe!)); }), { scope });
+}
 
 /* A full refresh un-pins every scene, measures the whole page and pins it all again. GSAP runs one by itself in
    the frame after a pin is created, and that is the one the page needs. The load event, the fonts arriving and
