@@ -4,7 +4,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
-import { glideTo, reducedMotion, scrollToEl } from "./scroll";
+import { glideTo, pauseOffscreen, reducedMotion, scrollToEl } from "./scroll";
 import { useSiteTheme } from "@/components/SiteTheme";
 
 export type FooterData = {
@@ -136,108 +136,117 @@ export function SiteFooter({ data }: { data: FooterData }) {
   useEffect(() => {
     const el = root.current, sv = svg.current, pinEl = pin.current;
     if (!el || !sv || !pinEl) return;
-    const reduce = reducedMotion();
-    const sheetP = sv.querySelector<SVGPathElement>("#tpS")!, rimP = sv.querySelector<SVGPathElement>("#tpRim")!;
-    const defs = sv.querySelector("defs")!, flapG = sv.querySelector("#tpFlaps")!;
-    const flapBase = mixHex(tone.paper, "#ffffff", 0.35);
-    const grads: SVGLinearGradientElement[] = [], flapEls: SVGPathElement[] = [];
-    for (let k = 0; k < FLAPS * 2; k++) {
-      const g = document.createElementNS(NS, "linearGradient"); g.setAttribute("id", "tpFg" + k); g.setAttribute("gradientUnits", "userSpaceOnUse");
-      g.innerHTML = `<stop offset="0" stop-color="${mixHex(flapBase, tone.fold, 0.34)}"/><stop offset=".5" stop-color="${mixHex(flapBase, tone.fold, 0.08)}"/><stop offset="1" stop-color="#ffffff"/>`;
-      defs.appendChild(g); grads.push(g);
-      const p = document.createElementNS(NS, "path"); p.setAttribute("fill", `url(#tpFg${k})`); flapG.appendChild(p); flapEls.push(p);
-    }
-    // grain, once
-    const c = document.createElement("canvas"); c.width = c.height = 160;
-    const cx = c.getContext("2d");
-    if (cx) {
-      const img = cx.createImageData(160, 160), r = rng(42);
-      for (let n = 0; n < img.data.length; n += 4) { const v = r() < 0.5 ? 0 : 255; img.data[n] = img.data[n + 1] = img.data[n + 2] = v; img.data[n + 3] = Math.floor(r() * 46); }
-      cx.putImageData(img, 0, 0); sv.querySelector("#tpGrain")?.setAttribute("href", c.toDataURL());
-    }
+    // Built when the footer comes within a screen of the viewport, not as the page loads: the grain is a canvas
+    // drawn and encoded to a PNG, and the flaps add two dozen SVG nodes, none of which a visitor sees before then.
+    const build = () => {
+      const reduce = reducedMotion();
+      const sheetP = sv.querySelector<SVGPathElement>("#tpS")!, rimP = sv.querySelector<SVGPathElement>("#tpRim")!;
+      const defs = sv.querySelector("defs")!, flapG = sv.querySelector("#tpFlaps")!;
+      const flapBase = mixHex(tone.paper, "#ffffff", 0.35);
+      const grads: SVGLinearGradientElement[] = [], flapEls: SVGPathElement[] = [];
+      for (let k = 0; k < FLAPS * 2; k++) {
+        const g = document.createElementNS(NS, "linearGradient"); g.setAttribute("id", "tpFg" + k); g.setAttribute("gradientUnits", "userSpaceOnUse");
+        g.innerHTML = `<stop offset="0" stop-color="${mixHex(flapBase, tone.fold, 0.34)}"/><stop offset=".5" stop-color="${mixHex(flapBase, tone.fold, 0.08)}"/><stop offset="1" stop-color="#ffffff"/>`;
+        defs.appendChild(g); grads.push(g);
+        const p = document.createElementNS(NS, "path"); p.setAttribute("fill", `url(#tpFg${k})`); flapG.appendChild(p); flapEls.push(p);
+      }
+      // grain, once
+      const c = document.createElement("canvas"); c.width = c.height = 160;
+      const cx = c.getContext("2d");
+      if (cx) {
+        const img = cx.createImageData(160, 160), r = rng(42);
+        for (let n = 0; n < img.data.length; n += 4) { const v = r() < 0.5 ? 0 : 255; img.data[n] = img.data[n + 1] = img.data[n + 2] = v; img.data[n + 3] = Math.floor(r() * 46); }
+        cx.putImageData(img, 0, 0); sv.querySelector("#tpGrain")?.setAttribute("href", c.toDataURL());
+      }
 
-    const s = { W: 0, H: 0, tear: makeTear(11), prev: null as Tear | null, from: [] as number[], ys: [] as number[], mode: "wait", t0: 0, dur: 1, raf: 0, px: -1e4, py: -1e4, lift: [0, 0, 0, 0, 0, 0], busy: false, seed: 11 };
-    const draw = (k: number, f: Flap | null | undefined, o: number, ys: number[]) => {
-      const pathEl = flapEls[k], g = grads[k];
-      if (!f || o < 0.01) { pathEl.setAttribute("d", ""); return; }
-      const pts = flapPoly(ys, f, s.W, s.H, o); pathEl.setAttribute("d", polyD(pts));
-      const b = Math.min(ys.length - 1, f.at + f.span), tip = pts[f.span + 3];
-      g.setAttribute("x1", String(((XS[f.at] + XS[b]) / 2) * s.W)); g.setAttribute("y1", String(((ys[f.at] + ys[b]) / 2) * s.H));
-      g.setAttribute("x2", String(tip[0])); g.setAttribute("y2", String(tip[1]));
-    };
-    const frame = (now: number) => {
-      s.raf = 0;
-      const W = s.W, H = s.H, tear = s.tear; if (!W || !H) return;
-      let busy = false, ys: number[], p: number;
-      const open = [1, 1, 1, 1, 1, 1], openOld = [0, 0, 0, 0, 0, 0];
-      if (s.mode === "wait") { ys = tear.ys.map(() => START); open.fill(0); }
-      else if (s.mode === "intro") { p = (now - s.t0) / s.dur; ys = introYs(tear, Math.min(1, p)); tear.flaps.forEach((f, k) => { open[k] = flapOpen(tear, f, Math.min(1, p)); }); if (p >= 1) s.mode = "rest"; else busy = true; }
-      else if (s.mode === "morph") { p = (now - s.t0) / s.dur; ys = morphYs(s.from, tear, Math.min(1, p)); for (let n = 0; n < 6; n++) { open[n] = easeTear((p - 0.5) / 0.5); openOld[n] = 1 - easeInOut(p / 0.35); } if (p >= 1) s.mode = "rest"; else busy = true; }
-      else ys = tear.ys;
-      s.ys = ys;
-      tear.flaps.forEach((f, k) => {
-        const b = Math.min(ys.length - 1, f.at + f.span), mx = ((XS[f.at] + XS[b]) / 2) * W, my = ((ys[f.at] + ys[b]) / 2) * H;
-        const target = reduce ? 0 : clamp01(1 - Math.hypot(s.px - mx, s.py - my) / (0.2 * Math.max(W, 520)));
-        s.lift[k] += (target - s.lift[k]) * 0.14;
-        if (Math.abs(target - s.lift[k]) > 0.003) busy = true;
-        open[k] *= 1 + 0.32 * s.lift[k];
+      const s = { W: 0, H: 0, tear: makeTear(11), prev: null as Tear | null, from: [] as number[], ys: [] as number[], mode: "wait", t0: 0, dur: 1, raf: 0, px: -1e4, py: -1e4, lift: [0, 0, 0, 0, 0, 0], busy: false, seed: 11 };
+      const draw = (k: number, f: Flap | null | undefined, o: number, ys: number[]) => {
+        const pathEl = flapEls[k], g = grads[k];
+        if (!f || o < 0.01) { pathEl.setAttribute("d", ""); return; }
+        const pts = flapPoly(ys, f, s.W, s.H, o); pathEl.setAttribute("d", polyD(pts));
+        const b = Math.min(ys.length - 1, f.at + f.span), tip = pts[f.span + 3];
+        g.setAttribute("x1", String(((XS[f.at] + XS[b]) / 2) * s.W)); g.setAttribute("y1", String(((ys[f.at] + ys[b]) / 2) * s.H));
+        g.setAttribute("x2", String(tip[0])); g.setAttribute("y2", String(tip[1]));
+      };
+      const frame = (now: number) => {
+        s.raf = 0;
+        const W = s.W, H = s.H, tear = s.tear; if (!W || !H) return;
+        let busy = false, ys: number[], p: number;
+        const open = [1, 1, 1, 1, 1, 1], openOld = [0, 0, 0, 0, 0, 0];
+        if (s.mode === "wait") { ys = tear.ys.map(() => START); open.fill(0); }
+        else if (s.mode === "intro") { p = (now - s.t0) / s.dur; ys = introYs(tear, Math.min(1, p)); tear.flaps.forEach((f, k) => { open[k] = flapOpen(tear, f, Math.min(1, p)); }); if (p >= 1) s.mode = "rest"; else busy = true; }
+        else if (s.mode === "morph") { p = (now - s.t0) / s.dur; ys = morphYs(s.from, tear, Math.min(1, p)); for (let n = 0; n < 6; n++) { open[n] = easeTear((p - 0.5) / 0.5); openOld[n] = 1 - easeInOut(p / 0.35); } if (p >= 1) s.mode = "rest"; else busy = true; }
+        else ys = tear.ys;
+        s.ys = ys;
+        tear.flaps.forEach((f, k) => {
+          const b = Math.min(ys.length - 1, f.at + f.span), mx = ((XS[f.at] + XS[b]) / 2) * W, my = ((ys[f.at] + ys[b]) / 2) * H;
+          const target = reduce ? 0 : clamp01(1 - Math.hypot(s.px - mx, s.py - my) / (0.2 * Math.max(W, 520)));
+          s.lift[k] += (target - s.lift[k]) * 0.14;
+          if (Math.abs(target - s.lift[k]) > 0.003) busy = true;
+          open[k] *= 1 + 0.32 * s.lift[k];
+        });
+        sheetP.setAttribute("d", sheetD(ys, W, H, tear.rim));
+        rimP.setAttribute("d", sheetD(ys, W, H));
+        for (let k = 0; k < FLAPS; k++) { draw(k, tear.flaps[k], open[k], ys); draw(FLAPS + k, s.prev && s.prev.flaps[k], openOld[k], ys); }
+        if (busy) s.raf = requestAnimationFrame(frame);
+      };
+      const kick = () => { if (!s.raf) s.raf = requestAnimationFrame(frame); };
+      const ro = new ResizeObserver(() => {
+        s.W = el.clientWidth; s.H = el.clientHeight;
+        sv.setAttribute("width", String(s.W)); sv.setAttribute("height", String(s.H)); sv.setAttribute("viewBox", `0 0 ${s.W} ${s.H}`);
+        kick();
       });
-      sheetP.setAttribute("d", sheetD(ys, W, H, tear.rim));
-      rimP.setAttribute("d", sheetD(ys, W, H));
-      for (let k = 0; k < FLAPS; k++) { draw(k, tear.flaps[k], open[k], ys); draw(FLAPS + k, s.prev && s.prev.flaps[k], openOld[k], ys); }
-      if (busy) s.raf = requestAnimationFrame(frame);
-    };
-    const kick = () => { if (!s.raf) s.raf = requestAnimationFrame(frame); };
-    const ro = new ResizeObserver(() => {
-      s.W = el.clientWidth; s.H = el.clientHeight;
-      sv.setAttribute("width", String(s.W)); sv.setAttribute("height", String(s.H)); sv.setAttribute("viewBox", `0 0 ${s.W} ${s.H}`);
-      kick();
-    });
-    ro.observe(el);
+      ro.observe(el);
 
-    // the opening: chrome, pin, rip
-    const timers: number[] = [];
-    const later = (fn: () => void, ms: number) => { timers.push(window.setTimeout(fn, ms)); };
-    let started = false;
-    const start = () => {
-      if (started) return; started = true;
-      if (reduce) { el.classList.add("s1", "s2", "s3"); s.mode = "rest"; kick(); return; }
-      el.classList.add("s1");
-      later(() => el.classList.add("s2"), 640);
-      later(() => { el.classList.add("is-hit", "s3"); s.mode = "intro"; s.t0 = performance.now(); s.dur = 1550; kick(); }, 1140);
-      later(() => el.classList.remove("is-hit"), 1480);
-    };
-    const io = new IntersectionObserver((es) => { if (es[0].isIntersecting) start(); }, { threshold: 0.22 });
-    io.observe(el);
+      // the opening: chrome, pin, rip
+      const timers: number[] = [];
+      const later = (fn: () => void, ms: number) => { timers.push(window.setTimeout(fn, ms)); };
+      let started = false;
+      const start = () => {
+        if (started) return; started = true;
+        if (reduce) { el.classList.add("s1", "s2", "s3"); s.mode = "rest"; kick(); return; }
+        el.classList.add("s1");
+        later(() => el.classList.add("s2"), 640);
+        later(() => { el.classList.add("is-hit", "s3"); s.mode = "intro"; s.t0 = performance.now(); s.dur = 1550; kick(); }, 1140);
+        later(() => el.classList.remove("is-hit"), 1480);
+      };
+      const io = new IntersectionObserver((es) => { if (es[0].isIntersecting) start(); }, { threshold: 0.22 });
+      io.observe(el);
 
-    // pointer: flaps lift toward it, the pin tilts
-    const onMove = (e: PointerEvent) => {
-      if (reduce) return;
-      const r = el.getBoundingClientRect(); s.px = e.clientX - r.left; s.py = e.clientY - r.top;
-      pinEl.style.setProperty("--tilt", Math.max(-9, Math.min(9, (s.px / r.width - 0.5) * 18)).toFixed(2) + "deg");
-      kick();
+      // pointer: flaps lift toward it, the pin tilts
+      const onMove = (e: PointerEvent) => {
+        if (reduce) return;
+        const r = el.getBoundingClientRect(); s.px = e.clientX - r.left; s.py = e.clientY - r.top;
+        pinEl.style.setProperty("--tilt", Math.max(-9, Math.min(9, (s.px / r.width - 0.5) * 18)).toFixed(2) + "deg");
+        kick();
+      };
+      const onLeave = () => { s.px = s.py = -1e4; pinEl.style.setProperty("--tilt", "0deg"); kick(); };
+      // pull the pin: re-rip a new edge
+      const onPin = () => {
+        if (s.busy || !el.classList.contains("s3")) return;
+        const next = s.seed + 1;
+        const swap = () => { s.seed = next; s.prev = s.tear; s.from = s.ys.length ? s.ys : s.tear.ys; s.tear = makeTear(next); };
+        if (reduce) { swap(); s.prev = null; s.mode = "rest"; kick(); return; }
+        s.busy = true; pinEl.dataset.pin = "lift";
+        later(() => { swap(); s.mode = "morph"; s.t0 = performance.now(); s.dur = 1150; kick(); }, 300);
+        later(() => { pinEl.dataset.pin = "stab"; }, 1280);
+        later(() => { pinEl.dataset.pin = "idle"; s.busy = false; }, 1720);
+      };
+      el.addEventListener("pointermove", onMove);
+      el.addEventListener("pointerleave", onLeave);
+      pinEl.addEventListener("click", onPin);
+      return () => {
+        ro.disconnect(); io.disconnect(); timers.forEach(clearTimeout); cancelAnimationFrame(s.raf);
+        el.removeEventListener("pointermove", onMove); el.removeEventListener("pointerleave", onLeave); pinEl.removeEventListener("click", onPin);
+        grads.forEach((g) => g.remove()); flapEls.forEach((p) => p.remove());
+        el.classList.remove("s1", "s2", "s3", "is-hit");
+      };
     };
-    const onLeave = () => { s.px = s.py = -1e4; pinEl.style.setProperty("--tilt", "0deg"); kick(); };
-    // pull the pin: re-rip a new edge
-    const onPin = () => {
-      if (s.busy || !el.classList.contains("s3")) return;
-      const next = s.seed + 1;
-      const swap = () => { s.seed = next; s.prev = s.tear; s.from = s.ys.length ? s.ys : s.tear.ys; s.tear = makeTear(next); };
-      if (reduce) { swap(); s.prev = null; s.mode = "rest"; kick(); return; }
-      s.busy = true; pinEl.dataset.pin = "lift";
-      later(() => { swap(); s.mode = "morph"; s.t0 = performance.now(); s.dur = 1150; kick(); }, 300);
-      later(() => { pinEl.dataset.pin = "stab"; }, 1280);
-      later(() => { pinEl.dataset.pin = "idle"; s.busy = false; }, 1720);
-    };
-    el.addEventListener("pointermove", onMove);
-    el.addEventListener("pointerleave", onLeave);
-    pinEl.addEventListener("click", onPin);
-    return () => {
-      ro.disconnect(); io.disconnect(); timers.forEach(clearTimeout); cancelAnimationFrame(s.raf);
-      el.removeEventListener("pointermove", onMove); el.removeEventListener("pointerleave", onLeave); pinEl.removeEventListener("click", onPin);
-      grads.forEach((g) => g.remove()); flapEls.forEach((p) => p.remove());
-      el.classList.remove("s1", "s2", "s3", "is-hit");
-    };
+    let off: (() => void) | undefined;
+    const near = new IntersectionObserver((es) => { if (!off && es.some((e) => e.isIntersecting)) { near.disconnect(); off = build(); } }, { rootMargin: "100% 0px" });
+    near.observe(el);
+    const unpause = pauseOffscreen([el]);
+    return () => { near.disconnect(); off?.(); unpause(); };
   }, [tone.paper, tone.fold]);
 
   // Colombo clock
