@@ -1,6 +1,7 @@
 # .github/workflows/deploy.yml
-# Builds the Boxtop Next.js app (standalone output), uploads it to /home/harithroo/boxtop
-# on PeekHosting over FTPS; the server then migrates + restarts itself via cron (src/lib/self-update.ts).
+# Builds the Boxtop Next.js app (standalone output), uploads it over FTPS to a new release folder under
+# /home/harithroo/boxtop/releases on PeekHosting, then points app/DEPLOYED_SHA at it; the server then
+# migrates + restarts itself onto it via cron (src/lib/self-update.ts, scripts/deploy-launcher.cjs).
 # Secrets: FTP_SERVER, FTP_USERNAME, FTP_PASSWORD (+ DEPLOY_URL, DEPLOY_ORIGIN_IP for the final check).
 # See docs/ENVIRONMENTS.md.
 name: Deploy to PeekHosting (test)
@@ -47,52 +48,56 @@ jobs:
           # reported by /api/health; the smoke test checks it to prove the new build is running
           NEXT_PUBLIC_BUILD_SHA: ${{ github.sha }}
 
+      # Each deploy goes to a NEW folder on the server, releases/nm-<deps hash>/<sha>/, and the running
+      # build is never touched. Uploading over the live app/ is what took the site down during deploys:
+      # for the minutes the upload took, the running server loaded a mix of old and new chunks. Layout
+      # and start-up: scripts/deploy-launcher.cjs (uploaded as app/server.js, the cPanel startup file).
       - name: Assemble deploy folder
         run: |
           set -euo pipefail
-          mkdir -p deploy/app deploy/marker
+          mkdir -p deploy/release deploy/nm deploy/launcher deploy/marker
           # standalone server + its trimmed node_modules
-          cp -r .next/standalone/. deploy/app/
+          cp -r .next/standalone/. deploy/release/
+          # Turbopack reaches serverExternalPackages (sharp, mysql2) through symlinks,
+          # .next/node_modules/<pkg>-<hash> -> ../../node_modules/<pkg>. On the server node_modules sits
+          # one level above the release, and FTP can't be relied on to create symlinks, so replace each
+          # with a copy of the package (its own dependencies still resolve from the shared node_modules).
+          for link in deploy/release/.next/node_modules/*; do
+            [ -L "$link" ] || continue
+            target=$(readlink -f "$link"); rm "$link"; cp -rL "$target" "$link"
+          done
+          [ -z "$(find deploy/release -type l)" ] || { echo "::error::symlinks left in the release"; find deploy/release -type l; exit 1; }
           # Copy CONTENTS ("dir/."), never "cp -r dir dest": standalone already ships a partial
-          # public/ (only traced files), and "cp -r public deploy/app/public" then nested the full
+          # public/ (only traced files), and "cp -r public deploy/release/public" then nested the full
           # copy at public/public/, which nothing serves (that was the 19 missing images).
-          mkdir -p deploy/app/.next/static deploy/app/public
-          cp -r .next/static/. deploy/app/.next/static/
-          cp -r public/. deploy/app/public/
+          mkdir -p deploy/release/.next/static deploy/release/public
+          cp -r .next/static/. deploy/release/.next/static/
+          cp -r public/. deploy/release/public/
           # Guard: every file in public/ must be at the same path in the deploy, and no nesting.
-          [ ! -e deploy/app/public/public ] && [ ! -e deploy/app/.next/static/static ] || { echo "::error::nested copy"; exit 1; }
-          missing=$(cd public && find . -type f | while read -r f; do [ -f "../deploy/app/public/$f" ] || echo "$f"; done)
+          [ ! -e deploy/release/public/public ] && [ ! -e deploy/release/.next/static/static ] || { echo "::error::nested copy"; exit 1; }
+          missing=$(cd public && find . -type f | while read -r f; do [ -f "../deploy/release/public/$f" ] || echo "$f"; done)
           [ -z "$missing" ] || { echo "::error::not in deploy: $missing"; exit 1; }
           # SQL migrations, applied on the server by src/lib/self-update.ts (not traced into standalone)
-          cp -r drizzle deploy/app/drizzle
-          # Uploaded LAST, in its own step: tells the running app that new code is fully on disk.
+          cp -r drizzle deploy/release/drizzle
+          # node_modules goes up one level, shared by every release with the same dependencies
+          mv deploy/release/node_modules deploy/nm/node_modules
+          cp scripts/deploy-launcher.cjs deploy/launcher/server.js
+          # Uploaded LAST, in its own step: tells the running app that the new release is complete.
           echo "$GITHUB_SHA" > deploy/marker/DEPLOYED_SHA
+          echo "$GITHUB_SHA" > deploy/RELEASE_COMPLETE
+          echo "$GITHUB_SHA" > deploy/NM_COMPLETE
 
-      # Every file gets "now" as its mtime, so it's newer than the server's copy and lftp's plain
-      # mirror re-uploads ALL of it (no time tricks: hash-derived mtimes made lftp skip ~half the
-      # changed files, mixing two builds on the server). node_modules is split off: it's 29 MB
-      # and changes only with dependencies, so it's uploaded only when its content hash changes.
+      # Fresh mtimes so lftp uploads every file (never content-derived mtimes or --ignore-time: lftp
+      # then skipped changed files). node_modules lives in a folder named after its content hash, so
+      # the same dependencies are uploaded once and new ones never land on top of old ones.
       - name: Fresh mtimes, node_modules hash
         id: nm
         run: |
           set -euo pipefail
           find deploy -exec touch {} +
-          mkdir -p deploy/nm
-          mv deploy/app/node_modules deploy/nm/node_modules
-          hash=$(cd deploy/nm && find node_modules -type f -print0 | LC_ALL=C sort -z | xargs -0 md5sum | md5sum | cut -c1-32)
-          echo "hash=$hash" >> "$GITHUB_OUTPUT"
-          echo "$hash" > nm-deployed.txt
-          echo "node_modules content hash: $hash"
-
-      # Has exactly this node_modules already been uploaded to this server? (Saved only after a
-      # successful upload, below.) To force it: Actions → Run workflow → tick "full_upload".
-      - name: Check deployed node_modules
-        id: nmcache
-        uses: actions/cache/restore@v4
-        with:
-          path: nm-deployed.txt
-          key: deployed-nm-test-${{ steps.nm.outputs.hash }}
-          lookup-only: true
+          hash=$(cd deploy/nm && find node_modules -type f -print0 | LC_ALL=C sort -z | xargs -0 md5sum | md5sum | cut -c1-16)
+          echo "dir=releases/nm-$hash" >> "$GITHUB_OUTPUT"
+          echo "node_modules: releases/nm-$hash"
 
       # lftp instead of FTP-Deploy-Action: that action's FTPS data connections fail on
       # some cPanel FTP servers ("tlsv1 alert decode error") during big uploads.
@@ -143,38 +148,63 @@ jobs:
           chmod +x ftp-run.sh
           echo "FTP_HOST=$HOST" >> "$GITHUB_ENV"
 
-      - name: Upload app via FTPS
+
+      # NM_COMPLETE / RELEASE_COMPLETE are uploaded after their folder, so their presence means the
+      # folder is whole. A missing one (or an FTP error) means: upload it.
+      - name: What's already on the server
+        id: remote
+        env:
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          NM_DIR: ${{ steps.nm.outputs.dir }}
+          FULL_UPLOAD: ${{ inputs.full_upload }}
+        run: |
+          if [ "$FULL_UPLOAD" != "true" ] && ./ftp-run.sh check-nm "cls -1 $NM_DIR/NM_COMPLETE" > /dev/null; then
+            echo "node_modules: already on the server"; echo "nm=present" >> "$GITHUB_OUTPUT"
+          fi
+          # Same commit already uploaded completely (a re-run): don't rewrite it, it may be the one running.
+          if ./ftp-run.sh check-release "cls -1 $NM_DIR/$GITHUB_SHA/RELEASE_COMPLETE" > /dev/null; then
+            echo "release: already on the server"; echo "release=present" >> "$GITHUB_OUTPUT"
+          fi
+          exit 0
+
+      - name: Upload node_modules via FTPS (only when the dependencies changed)
+        if: steps.remote.outputs.nm != 'present'
+        env:
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          NM_DIR: ${{ steps.nm.outputs.dir }}
+        run: |
+          # 3 parallel: cPanel's Pure-FTPd caps connections per user (421 Too many connections).
+          ./ftp-run.sh node_modules \
+            "mirror --reverse --parallel=3 --no-perms ./deploy/nm/node_modules/ ./$NM_DIR/node_modules/" \
+            "put -O $NM_DIR ./deploy/NM_COMPLETE"
+
+      - name: Upload release via FTPS
+        if: steps.remote.outputs.release != 'present'
+        env:
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          NM_DIR: ${{ steps.nm.outputs.dir }}
+        run: |
+          # A new folder no running process uses (~950 files, ~13 MB).
+          ./ftp-run.sh upload \
+            "mirror --reverse --parallel=3 --no-perms ./deploy/release/ ./$NM_DIR/$GITHUB_SHA/" \
+            "put -O $NM_DIR/$GITHUB_SHA ./deploy/RELEASE_COMPLETE"
+
+      # Only after the release is whole: the launcher (a few KB, only read when a process starts), then
+      # the marker. Within a minute the server's cron (/api/cron) sees DEPLOYED_SHA differ from the
+      # running build, applies the new release's migrations and exits; LiteSpeed then runs the launcher
+      # on the next request, which starts the new release. See src/lib/self-update.ts.
+      # (No --delete: mirroring into app/ leaves everything else alone.)
+      - name: Publish launcher and deploy marker
         env:
           FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
           FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
         run: |
-          # 3 parallel: cPanel's Pure-FTPd caps connections per user (421 Too many connections).
-          # All files are newer than the server's, so this uploads the whole app (~945 files, ~11 MB).
-          ./ftp-run.sh upload 'mirror --reverse --parallel=3 --no-perms ./deploy/app/ ./app/'
-
-      - name: Upload node_modules via FTPS (only when it changed)
-        if: steps.nmcache.outputs.cache-hit != 'true' || inputs.full_upload
-        env:
-          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
-          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
-        run: ./ftp-run.sh node_modules 'mirror --reverse --parallel=3 --no-perms ./deploy/nm/node_modules/ ./app/node_modules/'
-
-      - name: Remember deployed node_modules
-        if: steps.nmcache.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v4
-        with:
-          path: nm-deployed.txt
-          key: deployed-nm-test-${{ steps.nm.outputs.hash }}
-
-      # Only after every file is on disk: upload the marker. Within a minute the server's cron
-      # (/api/cron) sees DEPLOYED_SHA differ from the running build, applies migrations and exits;
-      # LiteSpeed then starts the new build on the next request. See src/lib/self-update.ts.
-      # (No --delete: mirroring one file into app/ leaves everything else alone.)
-      - name: Publish deploy marker
-        env:
-          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
-          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
-        run: ./ftp-run.sh marker 'mirror --reverse --no-perms ./deploy/marker/ ./app/'
+          ./ftp-run.sh marker \
+            'mirror --reverse --no-perms ./deploy/launcher/ ./app/' \
+            'mirror --reverse --no-perms ./deploy/marker/ ./app/'
 
       # Best-effort check from outside. GitHub's runner IPs are often bot-challenged (Cloudflare and
       # the host's own firewall), so an unreadable answer is a warning, not a failure. A readable
