@@ -157,13 +157,15 @@ export function Unbox() {
         </div>
         <div className="ub-stagewrap">
           <div className="ub-stage" id="ubStage">
-            <Pic className="ub-photo" src="/home/cafe-treat.webp" sources={CAFE} sizes={STAGE} alt="An open BOXTOP gift box filled with snacks and drinks" width={900} height={675} />
+            {/* lazy: the stage starts a screen below the top, so its nineteen pictures are still fetched as the page
+                loads, but only once it is laid out, and not ahead of the stylesheets and scripts the hero waits on */}
+            <Pic className="ub-photo" src="/home/cafe-treat.webp" sources={CAFE} sizes={STAGE} alt="An open BOXTOP gift box filled with snacks and drinks" width={900} height={675} loading="lazy" />
             <div className="ub-veil" id="ubVeil" />
             {STK.map((s) => (
               <div key={s.k} className="st" data-k={s.k} style={{ left: `${s.l}%`, top: `${s.t}%`, width: `${s.w}%`, height: `${s.h}%`, zIndex: s.g + 2 }}>
                 <div className="st-rot">
-                  <Pic className="st-plain" src={`/home/cut/${s.k}.webp`} sources={cutSources(s.k)} sizes={STAGE} alt="" />
-                  <Pic className="st-s" src={`/home/cut/${s.k}-s.webp`} sources={cutSources(`${s.k}-s`)} sizes={STAGE} alt="" style={{ left: `${s.bl}%`, top: `${s.bt}%`, width: `${s.bw}%`, height: `${s.bh}%` }} />
+                  <Pic className="st-plain" src={`/home/cut/${s.k}.webp`} sources={cutSources(s.k)} sizes={STAGE} alt="" loading="lazy" />
+                  <Pic className="st-s" src={`/home/cut/${s.k}-s.webp`} sources={cutSources(`${s.k}-s`)} sizes={STAGE} alt="" loading="lazy" style={{ left: `${s.bl}%`, top: `${s.bt}%`, width: `${s.bw}%`, height: `${s.bh}%` }} />
                 </div>
                 <div className={`st-lbl side-${s.side}`}>{s.local && <span className="mk" title="Made in Sri Lanka">LK</span>}{s.name}</div>
               </div>

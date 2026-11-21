@@ -3,14 +3,13 @@
 // real box photos taped up like prints, drifting with the pointer and scattering as you scroll away.
 import Link from "next/link";
 import { useRef } from "react";
-import { preload } from "react-dom";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import { homeBus } from "@/lib/home-bus";
 import { coarsePointer, lockScroll, reducedMotion, scrollToEl, scroller, siteEl } from "@/components/site/scroll";
 import { useSiteTheme } from "@/components/SiteTheme";
-import { boxSources, CAFE } from "@/lib/srcset";
+import { boxSources, CAFE_PRINT } from "@/lib/srcset";
 import { Pic } from "@/components/Pic";
 import { settle } from "./register";
 
@@ -47,11 +46,14 @@ function Photo({ c, cls, wide }: { c: HeroCard; cls: string; wide?: boolean }) {
 
 // The photo "Boxed." is filled with (home.css .t-big). The word is the page's largest paint, and it counts as
 // painted only once this photo is in, so the photo is asked for with the page, not when the stylesheet is read.
-// Same file as the first candidate of .t-big's image-set().
-const BIG = "/catalog/boxes/grand-red.avif";
+// Same files, and the same media queries, as the first candidate of .t-big's image-set(): the 560px copy on phones,
+// the full 676px one above. React moves these <link>s into the <head>.
+const BIG = [
+  { href: "/catalog/boxes/grand-red-560.avif", media: "(max-width: 899px)" },
+  { href: "/catalog/boxes/grand-red.avif", media: "(min-width: 900px)" },
+];
 
 export function Hero({ cards, proof, fromPrice, next }: Props) {
-  preload(BIG, { as: "image", type: "image/avif", fetchPriority: "high" });
   const dark = useSiteTheme() === "dark";
   const root = useRef<HTMLDivElement>(null);
   const tl = useRef<gsap.core.Timeline | null>(null);
@@ -71,8 +73,8 @@ export function Hero({ cards, proof, fromPrice, next }: Props) {
     if (big) ScrollTrigger.create({
       trigger: big, start: "top bottom", end: "bottom top",
       onToggle: (self) => {
-        // self.isActive: the word is on screen. Decide when the drift runs, through big.style.animationPlayState.
-        // TODO(human)
+        // only while the word is on screen; while the intro's lid covers it, home.css holds it still
+        big.style.animationPlayState = self.isActive ? "" : "paused";
       },
     });
 
@@ -176,6 +178,7 @@ export function Hero({ cards, proof, fromPrice, next }: Props) {
 
   return (
     <div ref={root}>
+      {BIG.map((b) => <link key={b.href} rel="preload" as="image" type="image/avif" fetchPriority="high" href={b.href} media={b.media} />)}
       <script type={typeof window === "undefined" ? "text/javascript" : "text/plain"} suppressHydrationWarning dangerouslySetInnerHTML={{ __html: PREPAINT }} />
       <div id="intro" aria-hidden="true">
         <div className="lid" id="introLid">
@@ -229,7 +232,7 @@ export function Hero({ cards, proof, fromPrice, next }: Props) {
           <Photo c={cards[1]} cls="c2" />
           <figure className="hcard c3 wide">
             <div className="card-p"><span className="tape" />
-              <Pic src="/home/cafe-treat.webp" sources={CAFE} sizes={WIDE} alt="Open navy BOXTOP box with Hope cookies, Soul cold brew, Dilmah iced tea, marshmallows, Ferrero Rocher, Richlife cheese spread, KitKat and Kinder Bueno" width={900} height={675} />
+              <Pic src="/home/cafe-treat.webp" sources={CAFE_PRINT} sizes={WIDE} alt="Open navy BOXTOP box with Hope cookies, Soul cold brew, Dilmah iced tea, marshmallows, Ferrero Rocher, Richlife cheese spread, KitKat and Kinder Bueno" width={900} height={675} />
               <figcaption>The café box, unpacked below ↓</figcaption>
             </div>
           </figure>

@@ -28,6 +28,15 @@ export const CAFE: PicSources = {
   webp: "/home/cafe-treat-480.webp 480w, /home/cafe-treat.webp 900w",
 };
 
+/** The same photo as a hero print, which is never drawn wider than 322px (Hero.tsx WIDE), so 680w covers a 2x
+    screen. It leaves out the 900px copy on purpose: the unboxing stage loads that one on a wide screen, and
+    Chrome redraws an <img> with any bigger candidate of its own list it finds in the cache whenever the
+    viewport changes, so the print would swap to the 900px file and be scored as a 900px photo shown at 300px. */
+export const CAFE_PRINT: PicSources = {
+  avif: "/home/cafe-treat-320.avif 320w, /home/cafe-treat-480.avif 480w, /home/cafe-treat-680.avif 680w",
+  webp: CAFE.webp,
+};
+
 /** One cut-out lying on the café photo. Cut-outs scale with that photo, so their candidates are described in its
     widths (680 / 900) and they take the same `sizes` as the photo under them. */
 export const cutSources = (name: string): PicSources => ({ avif: `/home/cut/${name}-680.avif 680w, /home/cut/${name}.avif 900w` });

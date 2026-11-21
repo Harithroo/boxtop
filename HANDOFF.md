@@ -85,7 +85,7 @@ Dashboard · orders (list, `[id]`, `new` manual order) · deliveries board · bo
 - **Don't use `drizzle-kit push`** on MariaDB. Change `src/db/schema.ts` → `npm run db:generate` → `npm run db:migrate`.
 
 ## Deployment
-GitHub Actions `.github/workflows/deploy.yml`, on push to `master` or manual: Node 22, `npm ci`, `npm run build` (standalone output), assembles `.next/standalone` + `.next/static` + `public`, then uploads over **FTPS with `lftp`** to the PeekHosting cPanel account and touches `tmp/restart.txt` so Passenger restarts. Secrets `FTP_SERVER / FTP_USERNAME / FTP_PASSWORD`. `lftp` replaced `FTP-Deploy-Action`, whose FTPS data connections failed on this host.
+GitHub Actions `.github/workflows/deploy.yml`, on push to `master` or manual: Node 22, `npm ci`, `npm run build` (standalone output), assembles `.next/standalone` + `.next/static` + `public`, then uploads over **FTPS with `lftp`** to a new `releases/nm-<hash>/<sha>/` folder on the PeekHosting cPanel account (never over the running build) and updates `app/DEPLOYED_SHA`; the server's cron then migrates and restarts onto it through the launcher at `app/server.js` (`scripts/deploy-launcher.cjs`). Details in `docs/ENVIRONMENTS.md`. Secrets `FTP_SERVER / FTP_USERNAME / FTP_PASSWORD`. `lftp` replaced `FTP-Deploy-Action`, whose FTPS data connections failed on this host.
 
 Test site: `boxtop.harithroowijayawardhana.com`, app root `/home/harithroo/boxtop`, built with `NEXT_PUBLIC_NOINDEX=1` so every page and `robots.txt` says noindex. The real domain `box-top.lk` is not live yet.
 

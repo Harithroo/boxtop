@@ -61,9 +61,14 @@
 /* The same photo half the size, as AVIF (Hero.tsx preloads it). A rule of its own, so the minifier cannot fold the
    plain WebP above into it: a browser that cannot read image-set() with type() drops this and keeps the WebP. */
 .hero-title .t-big{background-image:image-set(url(/catalog/boxes/grand-red.avif) type("image/avif"),url(/catalog/boxes/grand-red.webp) type("image/webp"))}
+/* On phones the word is about 300px across, so the 560px copy covers it even at 1.75x. Same query as Hero.tsx's preload. */
+@media (max-width:899px){.hero-title .t-big{background-image:image-set(url(/catalog/boxes/grand-red-560.avif) type("image/avif"),url(/catalog/boxes/grand-red-400.webp) type("image/webp"))}}
 .t-hand{font:700 clamp(2.6rem,6vw,5.4rem)/1 var(--hand);color:var(--plum);rotate:-4deg;transform-origin:0 100%;padding:.05em .15em .1em}
 :where([data-theme=dark]) .t-hand{color:var(--ribbon)}
 @keyframes drift{to{background-position:50% 80%}}
+/* the drift repaints the word on every frame, so it waits while the intro's lid covers the hero (Hero.tsx also holds
+   it while the word is scrolled out of view) */
+.site.intro-on .t-big{animation-play-state:paused}
 .hero-lede{max-width:40ch;color:var(--ink-soft);font-size:clamp(1rem,1.3vw,1.14rem)}
 :where([data-theme=dark]) .hero-lede{color:var(--dim)}
 .hero-cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}
@@ -727,6 +732,12 @@
 :where([data-theme=dark]) .journey{background:#150c24}
 .jr-step{position:absolute;inset:0;display:grid;grid-template-columns:minmax(0,.82fr) minmax(0,1.18fr);align-items:center;gap:clamp(24px,4vw,64px);padding:92px var(--gut) 150px;visibility:hidden;opacity:0}
 .jr-step:first-child{visibility:visible;opacity:1}
+/* Each scene is some seventy SVG shapes. While the journey is off screen (most of the page's life, and all of its
+   first paint), the browser skips their styles, layout and painting. A step fills the journey exactly and the
+   journey clips at its edge anyway, so the paint clipping that comes with this changes nothing on screen. Not with
+   reduced motion or without scripts (noscript-css.ts), where the steps are stacked in the page and an unpainted one
+   would have no height. */
+@media (prefers-reduced-motion:no-preference){.jr-step{content-visibility:auto}}
 .jr-num{display:block;font:800 clamp(4rem,9vw,8.5rem)/.8 var(--display);color:var(--plum);letter-spacing:-.06em;margin-bottom:16px}
 :where([data-theme=dark]) .jr-num{color:var(--ribbon)}
 .jr-num small{font-size:.26em;letter-spacing:0;color:var(--ink-soft);margin-left:6px;vertical-align:top}
