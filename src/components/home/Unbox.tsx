@@ -3,7 +3,7 @@
 // section, lifts them out in three groups, then packs them back. The photo itself flies in from the hero collage.
 import { useRef } from "react";
 import gsap from "gsap";
-import { useGSAP } from "@gsap/react";
+import { useGSAPLater } from "./register";
 import { GROUPS, MM, STK, type Sticker } from "./stickers";
 import { useSiteTheme } from "@/components/SiteTheme";
 import { Pic } from "@/components/Pic";
@@ -17,7 +17,7 @@ export function Unbox() {
   const dark = useSiteTheme() === "dark";
   const root = useRef<HTMLElement>(null);
 
-  useGSAP(() => {
+  useGSAPLater(() => {
     const sect = root.current!;
     const stage = sect.querySelector<HTMLElement>("#ubStage")!;
     const steps = gsap.utils.toArray<HTMLElement>(".step");
@@ -139,7 +139,7 @@ export function Unbox() {
         stage.style.opacity = "";
       };
     });
-  }, { scope: root });
+  }, root);
 
   return (
     <section id="unbox" aria-labelledby="ub-title" ref={root}>

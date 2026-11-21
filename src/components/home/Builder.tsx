@@ -6,7 +6,7 @@ import "./register";
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useGSAP } from "@gsap/react";
+import { useGSAPLater } from "./register";
 import { nearBudget } from "@/lib/budget-match";
 import { rs } from "@/lib/format";
 import { homeBus } from "@/lib/home-bus";
@@ -116,7 +116,7 @@ export function Builder({ styles, items, occasions, boxes, starter, wa, waDispla
   const applyRef = useRef(applyPreset);
   useEffect(() => { applyRef.current = applyPreset; });
 
-  useGSAP((_, contextSafe) => {
+  useGSAPLater((_, contextSafe) => {
     const el = root.current!, reduce = reducedMotion();
     const bx = el.querySelector<HTMLElement>("#bx")!, floor = el.querySelector<HTMLElement>("#bxFloor")!;
     const chip = (id: number) => floor.querySelector<HTMLElement>(`.pk[data-item="${id}"]`);
@@ -211,7 +211,7 @@ export function Builder({ styles, items, occasions, boxes, starter, wa, waDispla
       window.clearTimeout(sendT.current);
       floor.innerHTML = ""; document.querySelectorAll(".flyer").forEach((f) => f.remove());
     };
-  }, { scope: root });
+  }, root);
 
   const fill = (((budget - MIN) / (MAX - MIN)) * 100).toFixed(1) + "%";
   const copy = () => {
@@ -355,7 +355,7 @@ export function Builder({ styles, items, occasions, boxes, starter, wa, waDispla
       <div className={`b-tray${showTray ? " show" : ""}`} aria-hidden="true">
         <span className="thumbs">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          {picked.slice(-3).map((id) => <img key={id} src={byId.get(id)?.img ?? "/brand/logo.jpg"} alt="" />)}
+          {picked.slice(-3).map((id) => <img key={id} src={byId.get(id)?.img ?? "/brand/logo.jpg"} alt="" loading="lazy" />)}
         </span>
         <span>{picked.length} packed</span>
         <button type="button" tabIndex={-1} onClick={() => scrollToEl(root.current?.querySelector("#bx"), -90)}>See the box</button>

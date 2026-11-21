@@ -4,7 +4,7 @@
 import { useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useGSAP } from "@gsap/react";
+import { useGSAPLater } from "./register";
 import { rs } from "@/lib/format";
 import { homeBus } from "@/lib/home-bus";
 import type { HomeBox, HomeOccasion } from "@/lib/home-data";
@@ -35,7 +35,7 @@ export function YearDial({ occasions, boxes, today }: { occasions: HomeOccasion[
   const todayDoy = dayOfYear(today);
   const first = occasions[0];
 
-  useGSAP(() => {
+  useGSAPLater(() => {
     const sect = root.current!, site = siteEl(), reduce = reducedMotion();
     const dial = sect.querySelector<SVGSVGElement>("#dial")!, rot = sect.querySelector<SVGGElement>("#dialRot")!;
     const cards = gsap.utils.toArray<HTMLElement>(".occ"), idx = gsap.utils.toArray<HTMLElement>("#occIndex button"), dots = gsap.utils.toArray<SVGGElement>(".occ-g");
@@ -126,7 +126,7 @@ export function YearDial({ occasions, boxes, today }: { occasions: HomeOccasion[
       if (!site?.classList.contains("yr-pin")) scrollToEl(sect);
     });
     return () => { dial.removeEventListener("click", onClick); dial.removeEventListener("keydown", onKey); off(); site?.classList.remove("yr-pin"); tips.forEach((t) => t.remove()); };
-  }, { scope: root });
+  }, root);
 
   const buildFor = (o: HomeOccasion) => { homeBus.emit("occasion", o.short); scrollToEl(document.getElementById("build")); };
 

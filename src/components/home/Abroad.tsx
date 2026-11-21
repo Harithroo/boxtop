@@ -4,7 +4,7 @@
 import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useGSAP } from "@gsap/react";
+import { useGSAPLater } from "./register";
 import { WaIcon } from "@/components/site/icons";
 import { reducedMotion } from "@/components/site/scroll";
 import { CITIES, ORIGINS, clockIn, flightNo, gapText, nightAtHome } from "./cities";
@@ -79,7 +79,7 @@ export function Abroad({ wa }: { wa: string }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useGSAP(() => {
+  useGSAPLater(() => {
     gsap.matchMedia().add("(prefers-reduced-motion: no-preference)", () => {
       // All four start states go on first and the triggers are made after: a trigger measures the page as it is
       // created, and a measurement between two changes makes the browser lay the page out again each time.
@@ -91,7 +91,7 @@ export function Abroad({ wa }: { wa: string }) {
       ];
       reveals.forEach(([animation, trigger, start]) => ScrollTrigger.create({ animation, trigger, start, once: true }));
     });
-  }, { scope: root });
+  }, root);
 
   const msg = `Hi BOXTOP! I'm in ${city.n} and I'd like to send a gift box to someone in Sri Lanka. Could you help me pick one and confirm the delivery day?`;
   const ic = { viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 2, strokeLinecap: "round" as const, strokeLinejoin: "round" as const, "aria-hidden": true };

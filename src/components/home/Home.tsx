@@ -14,6 +14,7 @@ import { Builder } from "./Builder";
 import { Collection } from "./Collection";
 import { Hero, type HeroCard } from "./Hero";
 import { Journey } from "./Journey";
+import { later } from "./later";
 import { NOSCRIPT_CSS } from "./noscript-css";
 import { Unbox } from "./Unbox";
 import { YearDial } from "./YearDial";
@@ -103,7 +104,8 @@ export function Home(p: HomeProps) {
     // refresh in the next frame; register.ts measures again later only if photos or fonts moved something.
 
     // Arriving with a section in the address (/#build), or from a box page's "tweak this box" link (/?tweak=slug).
-    const t = window.setTimeout(() => {
+    // Queued behind the sections' own setup (useGSAPLater), so their pins have made room by the time it measures.
+    const arrive = () => {
       const tweak = new URLSearchParams(window.location.search).get("tweak");
       const box = tweak ? p.boxes.find((b) => b.slug === tweak) : null;
       if (box) homeBus.emit("preset", box.id);
@@ -111,9 +113,12 @@ export function Home(p: HomeProps) {
         const target = document.getElementById(decodeURIComponent(window.location.hash.slice(1)));
         if (target) { const y = target.getBoundingClientRect().top + window.scrollY - 10; if (lenis) lenis.scrollTo(y, { immediate: true, force: true }); else window.scrollTo(0, y); }
       }
-    }, 120);
+    };
+    let t = 0;
+    const unqueue = later(() => { t = window.setTimeout(arrive, 120); });
 
     return () => {
+      unqueue();
       window.clearTimeout(t);
       if (tick) gsap.ticker.remove(tick);
       gsap.ticker.lagSmoothing(500, 33);

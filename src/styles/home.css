@@ -58,6 +58,9 @@
 .t-sm{font:700 clamp(2rem,4.6vw,4.2rem)/1 var(--display);letter-spacing:-.04em}
 .t-big{font:800 clamp(4.2rem,10vw,9.4rem)/.84 var(--display);letter-spacing:-.06em;text-transform:uppercase;background:url(/catalog/boxes/grand-red.webp) 50% 40%/cover;-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-stroke:1px rgba(59,46,34,.18);animation:drift 20s ease-in-out infinite alternate}
 :where([data-theme=dark]) .t-big{-webkit-text-stroke:1px rgba(255,255,255,.16)}
+/* The same photo half the size, as AVIF (Hero.tsx preloads it). A rule of its own, so the minifier cannot fold the
+   plain WebP above into it: a browser that cannot read image-set() with type() drops this and keeps the WebP. */
+.hero-title .t-big{background-image:image-set(url(/catalog/boxes/grand-red.avif) type("image/avif"),url(/catalog/boxes/grand-red.webp) type("image/webp"))}
 .t-hand{font:700 clamp(2.6rem,6vw,5.4rem)/1 var(--hand);color:var(--plum);rotate:-4deg;transform-origin:0 100%;padding:.05em .15em .1em}
 :where([data-theme=dark]) .t-hand{color:var(--ribbon)}
 @keyframes drift{to{background-position:50% 80%}}

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useGSAP } from "@gsap/react";
+import { useGSAPLater } from "./register";
 import { scrollToEl } from "@/components/site/scroll";
 import { later } from "./later";
 import { SCENE_DOOR, SCENE_MESSAGE, SCENE_PAY, SCENE_VAN, themed } from "./scenes";
@@ -37,7 +37,7 @@ export function Journey({ wa, waDisplay, instagram, igHandle, facebook, hours, p
   const near = areas.slice(0, 3);
   const [lead, ...notes] = quotes;
 
-  useGSAP(() => {
+  useGSAPLater(() => {
     const sect = root.current!;
     const q = <T extends Element = HTMLElement>(sel: string, within: Element = sect) => within.querySelector<T>(sel)!;
     const qa = <T extends Element = HTMLElement>(sel: string, within: Element = sect) => Array.from(within.querySelectorAll<T>(sel));
@@ -142,7 +142,7 @@ export function Journey({ wa, waDisplay, instagram, igHandle, facebook, hours, p
       // scenes the idle queue drew up were made outside GSAP's bookkeeping, so they are put back by hand
       return () => { unqueue.forEach((stop) => stop()); SC.forEach((tl) => tl?.revert()); };
     });
-  }, { scope: root });
+  }, root);
 
   const step = (n: number, status: string, title: string, text: string, meta: string, scene: React.ReactNode) => (
     <article className="jr-step" data-i={n}>
