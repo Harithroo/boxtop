@@ -8,7 +8,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Lenis from "lenis";
 import { homeBus } from "@/lib/home-bus";
 import type { HomeBox, HomeChapter, HomeItem, HomeOccasion, HomeStyle } from "@/lib/home-data";
-import { coarsePointer, reducedMotion, scrollToEl, scroller, siteEl } from "@/components/site/scroll";
+import { coarsePointer, pauseOffscreen, reducedMotion, scrollToEl, scroller, siteEl } from "@/components/site/scroll";
 import { Abroad } from "./Abroad";
 import { Builder } from "./Builder";
 import { Collection } from "./Collection";
@@ -116,9 +116,11 @@ export function Home(p: HomeProps) {
     };
     let t = 0;
     const unqueue = later(() => { t = window.setTimeout(arrive, 120); });
+    const unpause = pauseOffscreen(Array.from(document.querySelectorAll("#home section[id]")));
 
     return () => {
       unqueue();
+      unpause();
       window.clearTimeout(t);
       if (tick) gsap.ticker.remove(tick);
       gsap.ticker.lagSmoothing(500, 33);

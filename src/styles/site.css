@@ -13,6 +13,9 @@
 .annc-track span::after{content:"";width:6px;height:6px;border-radius:50%;background:var(--lilac);margin-left:30px}
 :where([data-theme=dark]) .annc-track span::after{background:#1a0612}
 .annc:hover .annc-track{animation-play-state:paused}
+/* a section scrolled out of view (scroll.ts pauseOffscreen). Important, so the animation shorthand of a more
+   specific rule, which also sets the play state, cannot start one again. */
+[data-off] *,[data-off] ::before,[data-off] ::after{animation-play-state:paused!important}
 @keyframes annc{to{transform:translateX(-50%)}}
 .hd.is-scrolled .annc{height:0}
 .hd-bar{position:relative;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:13px var(--gut);transition:background-color .35s,box-shadow .35s}

@@ -57,3 +57,12 @@ export function lockScroll(on: boolean) {
 
 /** The store shell. Section state classes (menu-open, cl-pin …) live here, where React never rewrites them. */
 export const siteEl = () => document.getElementById("site");
+
+/** Hold the CSS animations inside each element still while it is off screen (site.css [data-off]). A looping
+    animation keeps the browser restyling every frame even where nobody can see it, and one on an SVG shape
+    also lays out and repaints. Returns a function that lets them all run again. */
+export function pauseOffscreen(els: Element[]): () => void {
+  const io = new IntersectionObserver((es) => es.forEach((e) => e.target.toggleAttribute("data-off", !e.isIntersecting)));
+  els.forEach((el) => io.observe(el));
+  return () => { io.disconnect(); els.forEach((el) => el.removeAttribute("data-off")); };
+}
