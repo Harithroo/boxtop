@@ -24,7 +24,7 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 60
     defaults:
       run:
         shell: bash
@@ -135,14 +135,19 @@ jobs:
             printf '%s\n' "$@"
             echo 'bye'
           } > "$name.cmds"
-          # -d: full FTP transcript (password masked) into a file; show only problems + a tail
-          lftp -d -f "$name.cmds" > "$name.log" 2>&1
+          # -d: full FTP transcript into a file; show only problems + a tail. A pass gets FTP_PASS_MIN
+          # minutes at most (default 15), so one that stalls leaves the job time to run the next.
+          timeout --kill-after=10 "$(( ${FTP_PASS_MIN:-15} * 60 ))" lftp -d -f "$name.cmds" > "$name.log" 2>&1
           rc=$?
-          echo "[$name] lftp exit code: $rc, files uploaded: $(grep -c '^---> STOR' "$name.log")"
+          # lftp prints the password as XXXX already; make sure, since failed runs keep these logs
+          sed -i -E 's/^(---> PASS ).*/\1****/' "$name.log"
+          [ $rc = 124 ] && echo "[$name] stopped after ${FTP_PASS_MIN:-15} minutes"
+          echo "[$name] lftp exit code: $rc, files uploaded: $(grep -c '^---> STOR' "$name.log"), logins: $(grep -c '^<--- 230' "$name.log")"
           echo "[$name] == errors =="
-          # Server error replies with the two lines before them (the command they answer), and lftp's own
-          # failures. Not a plain "error" match: that caught every uploaded file with "error" in its name.
-          grep -B2 -E "^<--- [45][0-9][0-9]" "$name.log" | tail -n 60
+          # Not shown: replies this server always gives and that do no harm (seen in every good run):
+          # 504 to lftp's optional OPTS UTF8 / PRET MLSD, and 550 "File exists" when two connections
+          # create the same folder. The three connections interleave in the log, so no "line before".
+          grep -E "^<--- [45][0-9][0-9]" "$name.log" | grep -v -E "^<--- 504 Unknown command|Can't create directory: File exists" | sort | uniq -c | sort -rn | head -n 20
           grep -i -E "fatal|access failed|login failed|denied|too many" "$name.log" | grep -v '^--->' | tail -n 20
           echo "[$name] == last 30 lines =="
           tail -n 30 "$name.log"
@@ -225,6 +230,16 @@ jobs:
           ./ftp-run.sh marker \
             'mirror --reverse --no-perms ./deploy/launcher/ ./app/' \
             'mirror --reverse --no-perms ./deploy/marker/ ./app/'
+
+      # The full lftp transcripts of a failed deploy (passwords masked), for working out what the FTP
+      # server did: Actions → this run → Artifacts.
+      - name: Keep the FTP logs
+        if: failure() || cancelled()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ftp-logs
+          path: "*.log"
+          retention-days: 14
 
       # Best-effort check from outside. GitHub's runner IPs are often bot-challenged (Cloudflare and
       # the host's own firewall), so an unreadable answer is a warning, not a failure. A readable
