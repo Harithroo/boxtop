@@ -5,6 +5,7 @@ import { priceText, rs } from "@/lib/format";
 import { getSiteData } from "@/lib/home-data";
 import { SiteFooter, type FooterData } from "@/components/site/SiteFooter";
 import { SiteHeader, type NavData } from "@/components/site/SiteHeader";
+import { SmoothScroll } from "@/components/site/SmoothScroll";
 import { ToTop } from "@/components/site/ToTop";
 
 export default async function StoreLayout({ children }: { children: React.ReactNode }) {
@@ -27,6 +28,8 @@ export default async function StoreLayout({ children }: { children: React.ReactN
     // The home page's scripts park state classes on this element (intro-on, menu-open, cl-pin …), some before React
     // wakes up, so React is told not to mind the difference.
     <div id="site" className="site" suppressHydrationWarning>
+      {/* first, so its scroller exists before any page's effects look for it */}
+      <SmoothScroll />
       <SiteHeader nav={nav} />
       <main className="site-main">{children}</main>
       <SiteFooter data={footer} />
