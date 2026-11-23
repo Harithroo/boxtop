@@ -1,13 +1,12 @@
 "use client";
-// What the home page's sections share on the client: smooth scrolling, the section dock, and arriving at a
+// What the home page's sections share on the client: scroll-linked timing, the section dock, and arriving at a
 // section from the address. The sections themselves are handed in as children.
 import "./register";
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import Lenis from "lenis";
 import { homeBus } from "@/lib/home-bus";
-import { coarsePointer, pauseOffscreen, reducedMotion, scrollToEl, scroller, siteEl } from "@/components/site/scroll";
+import { pauseOffscreen, scrollToEl, scroller, siteEl } from "@/components/site/scroll";
 import { later } from "./later";
 
 const svg = { viewBox: "0 0 24 24", "aria-hidden": true };
@@ -70,19 +69,17 @@ export type ShellBox = { id: number; slug: string };
 
 export function HomeShell({ secs, boxes, children }: { secs: string[]; boxes: ShellBox[]; children: React.ReactNode }) {
   useEffect(() => {
-    // Smooth wheel scrolling for mice and trackpads only; touch screens and reduced motion scroll natively.
-    let lenis: Lenis | null = null;
+    // The store's smooth scrolling (SmoothScroll, in the store layout) runs from GSAP's ticker while the home page
+    // is open, and tells ScrollTrigger about every frame it scrolls, so pins and scrubbed scenes move with it.
+    const lenis = scroller.lenis;
     let tick: ((t: number) => void) | null = null;
-    if (!coarsePointer() && !reducedMotion()) {
-      try {
-        lenis = new Lenis({ lerp: 0.1, smoothWheel: true });
-        lenis.on("scroll", ScrollTrigger.update);
-        tick = (t) => lenis!.raf(t * 1000);
-        gsap.ticker.add(tick);
-        gsap.ticker.lagSmoothing(0);
-        scroller.lenis = lenis;
-        if (document.documentElement.classList.contains("bt-lock")) lenis.stop(); // the intro is playing
-      } catch { lenis = null; }
+    let offScroll: (() => void) | null = null;
+    if (lenis) {
+      offScroll = lenis.on("scroll", ScrollTrigger.update);
+      tick = (t) => lenis.raf(t * 1000);
+      scroller.driven = true;
+      gsap.ticker.add(tick);
+      gsap.ticker.lagSmoothing(0);
     }
     // Sections pin in page order, and each measured itself as it was made. GSAP follows up with one full
     // refresh in the next frame; register.ts measures again later only if photos or fonts moved something.
@@ -95,7 +92,8 @@ export function HomeShell({ secs, boxes, children }: { secs: string[]; boxes: Sh
       if (box) homeBus.emit("preset", box.id);
       else if (window.location.hash.length > 1) {
         const target = document.getElementById(decodeURIComponent(window.location.hash.slice(1)));
-        if (target) { const y = target.getBoundingClientRect().top + window.scrollY - 10; if (lenis) lenis.scrollTo(y, { immediate: true, force: true }); else window.scrollTo(0, y); }
+        // resize first: Lenis may not have seen the room the pins just made, and would stop at the old bottom
+        if (target) { const y = target.getBoundingClientRect().top + window.scrollY - 10; if (lenis) { lenis.resize(); lenis.scrollTo(y, { immediate: true, force: true }); } else window.scrollTo(0, y); }
       }
     };
     let t = 0;
@@ -108,8 +106,8 @@ export function HomeShell({ secs, boxes, children }: { secs: string[]; boxes: Sh
       window.clearTimeout(t);
       if (tick) gsap.ticker.remove(tick);
       gsap.ticker.lagSmoothing(500, 33);
-      lenis?.destroy();
-      scroller.lenis = null;
+      offScroll?.();
+      scroller.driven = false;
     };
     // runs once: the box list only matters for the address check at arrival
     // eslint-disable-next-line react-hooks/exhaustive-deps

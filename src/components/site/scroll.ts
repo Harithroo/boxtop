@@ -1,8 +1,11 @@
 // Scrolling helpers shared by the header, the dock and the home page sections.
-// The home page registers its Lenis instance here; every other page glides by hand with the same curve.
+// SmoothScroll registers the store's Lenis instance here (none on touch screens or with reduced motion, where
+// jumps glide by hand with the same curve).
 import type Lenis from "lenis";
 
-export const scroller: { lenis: Lenis | null } = { lenis: null };
+/** lenis: the store's smooth scroller, if any. driven: another frame loop is running it (the home page runs it
+    from GSAP's ticker, so the page and its scroll-linked animations move in the same frame). */
+export const scroller: { lenis: Lenis | null; driven: boolean } = { lenis: null, driven: false };
 
 export const reducedMotion = () => typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 export const coarsePointer = () => typeof window !== "undefined" && window.matchMedia("(pointer: coarse)").matches;
@@ -26,6 +29,9 @@ export function glideTo(y: number, done?: () => void) {
   y = Math.max(0, Math.min(max, Math.round(y)));
   const from = window.scrollY, d = y - from;
   const lenis = scroller.lenis;
+  // Lenis learns the page's height from a resize observer, a moment late: a pin or a photo that has just made
+  // the page taller would otherwise cap the jump at the old bottom.
+  lenis?.resize();
   if (reducedMotion() || Math.abs(d) < 2) {
     if (lenis) lenis.scrollTo(y, { immediate: true, force: true }); else window.scrollTo(0, y);
     done?.();
